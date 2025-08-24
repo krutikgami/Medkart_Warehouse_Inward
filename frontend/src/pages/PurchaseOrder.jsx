@@ -25,7 +25,7 @@ const PurchaseOrder = () => {
   }, []);
 
   const handleEdit = (order) => {
-    navigate('/add-purchase-order', { state: { order } });
+    navigate('/add-purchase-order', { state: { grn: order } });
   };
 
   const handleDelete = async (orderCode) => {
@@ -155,7 +155,7 @@ const PurchaseOrder = () => {
                     })}>View</button>
                   </td>
                   <td className="p-2 border">
-                    <button className="bg-purple-500 text-white px-2 py-1 rounded" onClick={() => navigate('/add-grn', { state: { orders: o } })}>
+                    <button className="bg-purple-500 text-white px-2 py-1 rounded" onClick={() => navigate('/add-grn', { state: { order: o } })}>
                       + Add GRN
                     </button>
                   </td>

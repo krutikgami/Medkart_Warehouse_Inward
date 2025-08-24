@@ -4,8 +4,13 @@ import { useLocation, useNavigate } from "react-router-dom";
 const GrnForm = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const order = location.state?.orders;
-
+  let order ;
+  const isEdit = location.state?.isEdit || false;
+  if(isEdit){
+    order = location.state?.grn || {};
+  }else{
+    order = location.state?.order || {};
+  }
   const [formData, setFormData] = useState({
     purchase_order_code: order?.purchase_order_code || "",
     vendor_code: order?.vendor_code || "",
@@ -14,6 +19,7 @@ const GrnForm = () => {
     status: "Pending",
     total_damage_qty: 0,
     total_shortage_qty: 0,
+    grn_code: order?.grn_code || "",
     items: order?.items?.map((item) => ({
       product_code: item.product_code,
       quantity: item.quantity,
@@ -23,8 +29,8 @@ const GrnForm = () => {
       damage_qty: 0,
       shortage_qty: 0,
       batch_number: "",
-      mfg_date: "",
-      exp_date: "",
+      mfg_date: isEdit ? order.items.find(i => i.product_code === item.product_code)?.mfg_date?.split('T')[0] || "" : "",
+      exp_date: isEdit ? order.items.find(i => i.product_code === item.product_code)?.exp_date?.split('T')[0] || "" : "",
     })) || [],
   });
 
@@ -64,8 +70,9 @@ const GrnForm = () => {
   const handleSubmit = async(e) => {
     e.preventDefault();
     try {
-      const response = await fetch("/api/goodsReceiptNote/add-grn", {
-        method: "POST",
+      const url = isEdit ? "/api/goodsReceiptNote/edit-grn" : "/api/goodsReceiptNote/add-grn";
+      const response = await fetch(url, {
+        method: isEdit ? "PUT" : "POST",
         headers: {
           "Content-Type": "application/json",
         },
@@ -75,10 +82,21 @@ const GrnForm = () => {
       const data = await response.json();
 
       if (data.success) {
-        console.log("GRN created successfully:", data);
-        alert("GRN created successfully");
-        navigate("/purchase-orders");
+        if (isEdit) {
+          console.log("GRN updated successfully:", data);
+          alert("GRN updated successfully");
+        } else {
+          console.log("GRN created successfully:", data);
+          alert("GRN created successfully");
+        }
+
+        isEdit ? navigate("/view-grns") : navigate("/purchase-orders");
       } else {
+        if (isEdit) {
+          console.error("Failed to update GRN:", data.message);
+          alert("Failed to update GRN: " + data.message);
+          return;
+        }
         console.error("Failed to create GRN:", data.message);
         alert("Failed to create GRN: " + data.message);
       }
@@ -309,7 +327,7 @@ const GrnForm = () => {
           <div className="flex justify-between mt-6">
             <button
               type="button"
-              onClick={() => navigate("/grn")}
+              onClick={() => isEdit ? navigate("/view-grns") : navigate("/purchase-orders")}
               className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
             >
               Back

@@ -55,6 +55,18 @@ const SideBar = () => {
               Purchase Order
             </NavLink>
           </li>
+          <li>
+            <NavLink
+              to="/view-grns"
+              className={({ isActive }) =>
+                `block px-6 py-3 ${
+                  isActive ? "bg-white text-gray-900 font-semibold" : "hover:bg-gray-700"
+                }`
+              }
+            >
+              View GRNs
+            </NavLink>
+          </li>
         </ul>
       </nav>
     </div>

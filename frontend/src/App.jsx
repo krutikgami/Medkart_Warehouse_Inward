@@ -6,6 +6,7 @@ import VendorMaster from "./pages/VendorMaster";
 import PurchaseOrder from "./pages/PurchaseOrder";
 import PurchaseOrderForm from "./pages/AddPurchaseOrder";
 import GrnForm from "./pages/GrnForm";
+import ViewGrns from "./pages/ViewGrns";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
             <Route path="/purchase-orders" element={<PurchaseOrder />} />
             <Route path="/add-purchase-order" element={<PurchaseOrderForm />} />
             <Route path="/add-grn" element={<GrnForm />} />
+            <Route path="/view-grns" element={<ViewGrns />} />
           </Routes>
         </div>
       </div>
