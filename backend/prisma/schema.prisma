@@ -83,6 +83,7 @@ model Grn {
   updated_at DateTime @updatedAt
   items       GrnItem[] 
   purchaseOrder PurchaseOrder @relation(fields: [purchase_order_code], references: [purchase_order_code])
+  purchaseInvoice PurchaseInvoice[] 
 }
 
 model GrnItem {
@@ -101,5 +102,35 @@ model GrnItem {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
   grn       Grn @relation(fields: [grn_code], references: [grn_code])
+}
+
+
+model PurchaseInvoice {
+  id          Int      @id @default(autoincrement())
+  purchase_invoice_code String   @unique
+  grn_code    String
+  vendor_code   String
+  invoice_date DateTime
+  total_amount Float
+  status      String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  items       PurchaseInvoiceItem[] 
+  grn       Grn @relation(fields: [grn_code], references: [grn_code])
+}
+
+model PurchaseInvoiceItem {
+  id          Int      @id @default(autoincrement())
+  purchase_invoice_code String 
+  product_code String
+  quantity    Int
+  mrp        Float
+  cost_price  Float
+  total_price Float
+  tax_amount Float
+  tax_percentage Float
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  purchaseInvoice PurchaseInvoice @relation(fields: [purchase_invoice_code], references: [purchase_invoice_code])
 }
 

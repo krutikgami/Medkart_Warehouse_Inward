@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2,Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const PurchaseOrder = () => {
@@ -82,6 +82,7 @@ const PurchaseOrder = () => {
           >
             <option value="All">All Statuses</option>
             <option value="Pending">Pending</option>
+            <option value="Partial Completed">Partial Completed</option>
             <option value="Completed">Completed</option>
             <option value="Cancelled">Cancelled</option>
           </select>
@@ -130,8 +131,9 @@ const PurchaseOrder = () => {
                   <td className="p-2 border">{o.status}</td>
                   <td className="p-2 border">
                     <button
-                      className="bg-green-500 text-white px-2 py-1 rounded mr-2 cursor-pointer"
+                      className={o.status === "Completed" ? "bg-gray-500 text-white px-2 py-1 rounded mr-2 cursor-pointer" : "bg-green-500 text-white px-2 py-1 rounded mr-2 cursor-pointer"}
                       onClick={() => handleEdit(o)}
+                      disabled={o.status === "Completed"}
                     >
                       <Pencil size={16} />
                     </button>
@@ -152,10 +154,10 @@ const PurchaseOrder = () => {
                     <button className="bg-blue-500 text-white px-2 py-1 rounded" onClick={() => setIsView({
                       status: true,
                       value: idx
-                    })}>View</button>
+                    })}><Eye size={16} /></button>
                   </td>
                   <td className="p-2 border">
-                    <button className="bg-purple-500 text-white px-2 py-1 rounded" onClick={() => navigate('/add-grn', { state: { order: o } })}>
+                    <button className={o.status !== "Completed" ? "bg-purple-500 text-white px-2 py-1 rounded" : "bg-gray-500 text-white px-2 py-1 rounded"} onClick={() => navigate('/add-grn', { state: { order: o } })} disabled={o.status === "Completed"}>
                       + Add GRN
                     </button>
                   </td>

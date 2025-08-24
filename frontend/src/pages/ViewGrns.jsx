@@ -105,6 +105,7 @@ const ViewGrns = () => {
               <th className="p-2 border">Shortage Qty</th>
               <th className="p-2 border">Items</th>
               <th className="p-2 border">Operations</th>
+              <th className="p-2 border">PI</th>
             </tr>
           </thead>
           <tbody>
@@ -133,7 +134,7 @@ const ViewGrns = () => {
                             <Eye size={16} />
                         </button>
                     </td>
-                    <td className="p-2 border flex items-center justify-center gap-2">
+                    <td className="p-2 border justify-center gap-2 flex">
                         <button
                             className="text-white bg-green-500 px-2 py-1 rounded hover:bg-green-600 cursor-pointer"
                             onClick={() => handleEditGrn(g)}
@@ -149,6 +150,11 @@ const ViewGrns = () => {
                             }}
                         >
                             <Trash2 size={16} />
+                        </button>
+                    </td>
+                    <td className="p-2 border">
+                        <button className="text-white bg-blue-500 px-2 py-1 rounded hover:bg-blue-600 cursor-pointer" onClick={() => navigate('/add-pi', { state: { grn: g ,isEdit:false} })}>
+                           + PI
                         </button>
                     </td>
                 </tr>

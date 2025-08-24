@@ -177,8 +177,8 @@ export default function PurchaseOrderForm() {
   };
 
  return (
-  <div className="min-h-screen bg-gray-50 py-8">
-    <div className="mx-auto max-w-4xl px-4">
+  <div className="min-h-screen bg-gray-50 py-6 flex items-start justify-center">
+      <div className="w-full max-w-6xl bg-white shadow-md rounded-lg p-6">
       <h2 className="text-2xl font-semibold mb-6 text-center">Purchase Order</h2>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -220,7 +220,7 @@ export default function PurchaseOrderForm() {
               className="w-full p-2 border rounded"
             >
               <option value="Pending">Pending</option>
-              <option value="Approved">Approved</option>
+              <option value="Partial Completed">Partial Completed</option>
               <option value="Completed">Completed</option>
               <option value="Cancelled">Cancelled</option>
             </select>

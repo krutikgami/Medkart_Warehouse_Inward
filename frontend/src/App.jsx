@@ -7,6 +7,8 @@ import PurchaseOrder from "./pages/PurchaseOrder";
 import PurchaseOrderForm from "./pages/AddPurchaseOrder";
 import GrnForm from "./pages/GrnForm";
 import ViewGrns from "./pages/ViewGrns";
+import ViewPIs from "./pages/ViewPIs";
+import PurchaseInvoiceForm from "./pages/PurchaseInvoiceForm";
 
 function App() {
   return (
@@ -22,6 +24,8 @@ function App() {
             <Route path="/add-purchase-order" element={<PurchaseOrderForm />} />
             <Route path="/add-grn" element={<GrnForm />} />
             <Route path="/view-grns" element={<ViewGrns />} />
+            <Route path="/add-pi" element={<PurchaseInvoiceForm />} />
+            <Route path="/view-invoices" element={<ViewPIs />} />
           </Routes>
         </div>
       </div>

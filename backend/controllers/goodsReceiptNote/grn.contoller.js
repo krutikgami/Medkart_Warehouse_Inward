@@ -93,6 +93,28 @@ const addGrn = async(req,res)=>{
             });
         }
 
+        const purchaseOrderQuantity = existingPO.items.reduce((sum,item)=> sum + Number(item.quantity), 0);
+        const newGrnItemsQuantity = newGrn.items.reduce((sum,item)=> sum + Number(item.quantity), 0);
+        
+        let stat;
+        if(purchaseOrderQuantity === newGrnItemsQuantity){
+            stat = "Completed";
+        }else{
+            stat = "Partial Completed";
+        }
+
+        const updateStatus=  await prisma.purchaseOrder.update({
+            where: { purchase_order_code },
+            data: { status: stat }
+        });
+
+        if(!updateStatus){
+            return res.status(400).json({
+                success: false,
+                message: "Purchase Order status update failed"
+            });
+        }
+
         return res.status(201).json({
             success: true,
             message: "GRN added successfully",
@@ -228,6 +250,9 @@ const editGrn = async(req,res)=>{
                         total_price: parseFloat(item.total_price)
                     }))
                 }
+            },
+            include: {
+                items: true
             }
         });
 
@@ -235,6 +260,28 @@ const editGrn = async(req,res)=>{
             return res.status(400).json({
                 success: false,
                 message: "GRN update failed"
+            });
+        }
+
+        const newGrnItemsQuantity = updatedGrn.items.reduce((sum,item)=> sum + Number(item.quantity), 0);
+        const purchaseOrderQuantity = existingPO.items.reduce((sum,item)=> sum + Number(item.quantity), 0);
+        let stat;
+
+        if(newGrnItemsQuantity === purchaseOrderQuantity){
+            stat = "Completed";
+        }else{
+            stat = "Partial Completed";
+        }
+
+        const updateStatus=  await prisma.purchaseOrder.update({
+            where: { purchase_order_code },
+            data: { status: stat }
+        });
+
+        if(!updateStatus){
+            return res.status(400).json({
+                success: false,
+                message: "Purchase Order status update failed"
             });
         }
 
