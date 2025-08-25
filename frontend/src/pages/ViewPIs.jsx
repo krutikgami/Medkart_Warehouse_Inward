@@ -105,7 +105,6 @@ const ViewPIs = () => {
               <th className="p-2 border">Invoice Date</th>
               <th className="p-2 border">Total Amount</th>
               <th className="p-2 border">Status</th>
-              <th className="p-2 border">Items</th>
               <th className="p-2 border">Operations</th>
             </tr>
           </thead>
@@ -122,19 +121,6 @@ const ViewPIs = () => {
                   </td>
                   <td className="p-2 border">₹{pi.total_amount}</td>
                   <td className="p-2 border">{pi.status}</td>
-                  <td className="p-2 border">
-                    <button
-                      className="text-white bg-blue-500 px-2 py-1 rounded hover:bg-blue-600 cursor-pointer"
-                      onClick={() =>
-                        setViewOpen({
-                          status: true,
-                          items: pi.items,
-                        })
-                      }
-                    >
-                      <Eye size={16} />
-                    </button>
-                  </td>
                   <td className="p-2 border flex items-center justify-center gap-2">
                     <button
                       className="text-white bg-green-500 px-2 py-1 rounded hover:bg-green-600 cursor-pointer"
@@ -155,6 +141,17 @@ const ViewPIs = () => {
                       }}
                     >
                       <Trash2 size={16} />
+                    </button>
+                    <button
+                      className="text-white bg-blue-500 px-2 py-1 rounded hover:bg-blue-600 cursor-pointer"
+                      onClick={() =>
+                        setViewOpen({
+                          status: true,
+                          items: pi.items,
+                        })
+                      }
+                    >
+                      <Eye size={16} />
                     </button>
                   </td>
                 </tr>

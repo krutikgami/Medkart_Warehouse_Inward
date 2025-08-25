@@ -5,10 +5,10 @@ import {v4 as uuidv4} from 'uuid';
 
 const addGrn = async(req,res)=>{
     try {
-        const {purchase_order_code,vendor_code,grn_date ,status,total_amount,total_damage_qty,total_shortage_qty,items} =req.body;
+        const {purchase_order_code,vendor_code,grn_date ,total_amount,total_damage_qty,total_shortage_qty,items} =req.body;
         console.log("Received GRN data:", req.body);
 
-        if(purchase_order_code == null || vendor_code == null || grn_date == null || total_amount == null || total_damage_qty == null || total_shortage_qty == null || status == null || !items  || items.length === 0){
+        if(purchase_order_code == null || vendor_code == null || grn_date == null || total_amount == null || total_damage_qty == null || total_shortage_qty == null || !items  || items.length === 0){
             return res.status(400).json({
                 success: false,
                 message: "All fields are required"
@@ -33,6 +33,20 @@ const addGrn = async(req,res)=>{
         for (const item of items) {
             const poItem = existingPO.items.find(i => i.product_code === item.product_code);
             if (poItem && item.quantity > poItem.quantity) {
+                const cancelledStatusPO = await prisma.purchaseOrder.update({
+                    where :{
+                        purchase_order_code,
+                    },
+                    data: {
+                        status: "Cancelled"
+                    } 
+                })
+                if(!cancelledStatusPO){
+                    return req.status(400).json({
+                        success : false,
+                        message : "Error in updating PO status"
+                    })
+                }  
                 return res.status(400).json({
                     success: false,
                     message: `Received quantity for ${item.product_code} exceeds ordered quantity`
@@ -47,10 +61,10 @@ const addGrn = async(req,res)=>{
             if (product) {
                 const maxAllowedPrice = product.product_last_purchase_price * 1.2;
                 
-                if (item.cost_price > maxAllowedPrice) {
+                if (item.mrp > maxAllowedPrice) {
                     return res.status(400).json({
                         success: false,
-                        message: `Cost price for ${item.product_code} exceeds the allowed limit`
+                        message: `MRP for ${item.product_code} exceeds the allowed limit`
                     });
                 }
             }
@@ -63,7 +77,7 @@ const addGrn = async(req,res)=>{
                 vendor_code,
                 grn_date : new Date(grn_date),
                 total_amount : parseFloat(total_amount),
-                status,
+                status : "Pending",
                 total_damage_qty : parseInt(total_damage_qty) || 0,
                 total_shortage_qty : parseInt(total_shortage_qty) || 0,
                 items:{
@@ -166,9 +180,9 @@ const getAllGrns = async(req,res)=>{
 
 const editGrn = async(req,res)=>{
     try {
-        const {grn_code,purchase_order_code,vendor_code,grn_date ,status,total_amount,total_damage_qty,total_shortage_qty,items} =req.body;
+        const {grn_code,purchase_order_code,vendor_code,grn_date ,total_amount,total_damage_qty,total_shortage_qty,items} =req.body;
 
-        if(grn_code == null || purchase_order_code == null || vendor_code == null || grn_date == null || total_amount == null || total_damage_qty == null || total_shortage_qty == null || status == null || !items  || items.length === 0){
+        if(grn_code == null || purchase_order_code == null || vendor_code == null || grn_date == null || total_amount == null || total_damage_qty == null || total_shortage_qty == null || !items  || items.length === 0){
             return res.status(400).json({
                 success: false,
                 message: "All fields are required"
@@ -216,10 +230,10 @@ const editGrn = async(req,res)=>{
             if (product) {
                 const maxAllowedPrice = product.product_last_purchase_price * 1.2;
                 
-                if (item.cost_price > maxAllowedPrice) {
+                if (item.mrp > maxAllowedPrice) {
                     return res.status(400).json({
                         success: false,
-                        message: `Cost price for ${item.product_code} exceeds the allowed limit`
+                        message: `MRP for ${item.product_code} exceeds the allowed limit`
                     });
                 }
             }
@@ -232,7 +246,7 @@ const editGrn = async(req,res)=>{
                 vendor_code,
                 grn_date: new Date(grn_date),
                 total_amount: parseFloat(total_amount),
-                status,
+                status : "Pending",
                 total_damage_qty: parseInt(total_damage_qty) || 0,
                 total_shortage_qty: parseInt(total_shortage_qty) || 0,
                 items: {

@@ -103,7 +103,6 @@ const ViewGrns = () => {
               <th className="p-2 border">Status</th>
               <th className="p-2 border">Damage Qty</th>
               <th className="p-2 border">Shortage Qty</th>
-              <th className="p-2 border">Items</th>
               <th className="p-2 border">Operations</th>
               <th className="p-2 border">PI</th>
             </tr>
@@ -123,17 +122,6 @@ const ViewGrns = () => {
                   <td className="p-2 border">{g.status}</td>
                   <td className="p-2 border">{g.total_damage_qty}</td>
                   <td className="p-2 border">{g.total_shortage_qty}</td>
-                    <td className="p-2 border">
-                        <button
-                            className="text-white bg-blue-500 px-2 py-1 rounded hover:bg-blue-600 cursor-pointer"
-                            onClick={()=>setViewOpen({
-                                status : true,
-                                items : g.items
-                            })}
-                        >
-                            <Eye size={16} />
-                        </button>
-                    </td>
                     <td className="p-2 border justify-center gap-2 flex">
                         <button
                             className="text-white bg-green-500 px-2 py-1 rounded hover:bg-green-600 cursor-pointer"
@@ -150,6 +138,15 @@ const ViewGrns = () => {
                             }}
                         >
                             <Trash2 size={16} />
+                        </button>
+                        <button
+                            className="text-white bg-blue-500 px-2 py-1 rounded hover:bg-blue-600 cursor-pointer"
+                            onClick={()=>setViewOpen({
+                                status : true,
+                                items : g.items
+                            })}
+                        >
+                            <Eye size={16} />
                         </button>
                     </td>
                     <td className="p-2 border">

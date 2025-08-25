@@ -25,7 +25,7 @@ const PurchaseOrder = () => {
   }, []);
 
   const handleEdit = (order) => {
-    navigate('/add-purchase-order', { state: { grn: order } });
+    navigate('/add-purchase-order', { state: { grn: order ,isEdit: true } });
   };
 
   const handleDelete = async (orderCode) => {
@@ -90,7 +90,7 @@ const PurchaseOrder = () => {
           <button
             className="bg-blue-500 text-white px-4 py-2 rounded text-sm"
             onClick={() => {
-              navigate('/add-purchase-order')
+              navigate('/add-purchase-order', {state: {isEdit: false}})
             }}
           >
             + Add New Order
@@ -110,7 +110,6 @@ const PurchaseOrder = () => {
               <th className="p-2 border">Expected Date</th>
               <th className="p-2 border">Status</th>
               <th className="p-2 border">Operations</th>
-              <th className="p-2 border">Products</th>
               <th className="p-2 border">GRN</th>
             </tr>
           </thead>
@@ -129,11 +128,11 @@ const PurchaseOrder = () => {
                     {o.expected_date?.split("T")[0]}
                   </td>
                   <td className="p-2 border">{o.status}</td>
-                  <td className="p-2 border">
+                  <td className="p-2 border flex gap-2 justify-center">
                     <button
-                      className={o.status === "Completed" ? "bg-gray-500 text-white px-2 py-1 rounded mr-2 cursor-pointer" : "bg-green-500 text-white px-2 py-1 rounded mr-2 cursor-pointer"}
+                      className={(o.status === "Completed" || o.status === 'Cancelled') ? "bg-gray-500 text-white px-2 py-1 rounded mr-2 cursor-pointer" : "bg-green-500 text-white px-2 py-1 rounded mr-2 cursor-pointer"}
                       onClick={() => handleEdit(o)}
-                      disabled={o.status === "Completed"}
+                      disabled={(o.status === "Completed" || o.status === 'Cancelled')}
                     >
                       <Pencil size={16} />
                     </button>
@@ -149,20 +148,17 @@ const PurchaseOrder = () => {
                     >
                       <Trash2 size={16} />
                     </button>
-                  </td>
-                  <td className="p-2 border">
-                    <button className="bg-blue-500 text-white px-2 py-1 rounded" onClick={() => setIsView({
+                     <button className="bg-blue-500 text-white px-2 gap-2 py-1 rounded cursor-pointer" onClick={() => setIsView({
                       status: true,
                       value: idx
                     })}><Eye size={16} /></button>
                   </td>
                   <td className="p-2 border">
-                    <button className={o.status !== "Completed" ? "bg-purple-500 text-white px-2 py-1 rounded" : "bg-gray-500 text-white px-2 py-1 rounded"} onClick={() => navigate('/add-grn', { state: { order: o } })} disabled={o.status === "Completed"}>
+                    <button className={(o.status === "Completed"  || o.status === "Cancelled")? "bg-gray-500 text-white px-2 py-1 rounded" : "bg-purple-500 text-white px-2 py-1 rounded"} onClick={() => navigate('/add-grn', { state: { order: o } })} disabled={o.status === "Completed"}>
                       + Add GRN
                     </button>
                   </td>
-                </tr>
-              
+                </tr> 
               ))
             ) : (
               <tr>

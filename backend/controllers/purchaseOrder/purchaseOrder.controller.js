@@ -5,8 +5,8 @@ const prisma = new PrismaClient()
 
 const createPurchaseOrder = async (req, res) => {
     try {
-        const { vendor_code, items, purchase_date, expected_date,status, total_amount} = req.body;
-        if (!vendor_code || !items || items.length === 0 || !purchase_date || !expected_date || !status || !total_amount) {
+        const { vendor_code, items, purchase_date, expected_date, total_amount} = req.body;
+        if (!vendor_code || !items || items.length === 0 || !purchase_date || !expected_date || !total_amount) {
             return res.status(400).json({
                 success: false,
                 message: "Vendor code and items are required"
@@ -21,7 +21,7 @@ const createPurchaseOrder = async (req, res) => {
                 purchase_date : new Date(purchase_date),
                 purchase_order_code : orderCode,
                 expected_date : new Date(expected_date),
-                status,
+                status : "Pending",
                 total_amount,
                 items: {
                     create: items.map(item => ({
@@ -141,7 +141,7 @@ const deletePurchaseOrder = async(req,res)=>{
 
 const updatePurchaseOrder = async (req, res) => {
     try {
-        const { purchase_order_code, vendor_code, items, purchase_date, expected_date, status, total_amount } = req.body;
+        const { purchase_order_code, vendor_code, items, purchase_date, expected_date, total_amount } = req.body;
         if (!purchase_order_code) {
             return res.status(400).json({
                 success: false,
@@ -167,7 +167,7 @@ const updatePurchaseOrder = async (req, res) => {
                 vendor_code: vendor_code || existingOrder.vendor_code,
                 purchase_date: purchase_date ? new Date(purchase_date) : existingOrder.purchase_date,
                 expected_date: expected_date ? new Date(expected_date) : existingOrder.expected_date,
-                status: status || existingOrder.status,
+                status:  existingOrder.status,
                 total_amount: total_amount || existingOrder.total_amount,
                 ...(items && items.length > 0 && {
                 items: {
@@ -185,9 +185,8 @@ const updatePurchaseOrder = async (req, res) => {
             include: {
                 items: true
             }
-});
-
-
+        });
+        
         return res.status(200).json({
             success: true,
             message: "Purchase order updated successfully",
@@ -216,6 +215,7 @@ const searchVendor = async(req,res) => {
           contains: vendorName,
           mode: "insensitive",
         },
+        status: "Active"
       },
       select: {
         vendor_code: true,
@@ -244,6 +244,7 @@ const searchProduct = async(req,res)=>{
           contains: productName,
           mode: "insensitive",
         },
+        status: "Active"
       },
       select: {
         product_code: true,

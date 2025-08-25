@@ -58,10 +58,22 @@ const createPurchaseInvoice  = async(req,res)=>{
             });
         }
 
+        const updateGrnStatus = await prisma.grn.update({
+            where: { grn_code },
+            data: { status: "Completed" }
+        });
+
+        if (!updateGrnStatus) {
+            return res.status(500).json({
+                success: false,
+                message: "Failed to update GRN status"
+            });
+        }
+
         return res.status(201).json({
             data: newInvoice,
             success: true,
-            message: "Purchase Invoice created successfully"
+            message: "Purchase Invoice created and GRN updated successfully"
         });
     } catch (error) {
         console.log('Error creating in Purchase Invoice',error.message);
@@ -205,6 +217,18 @@ const deletePurchaseInvoice = async(req,res)=>{
             return res.status(404).json({
                 success: false,
                 message: "Purchase invoice not found"
+            });
+        }
+
+        const updateGrnStatus = await prisma.grn.update({
+            where: { grn_code },
+            data: { status: "Pending" }
+        });
+
+        if (!updateGrnStatus) {
+            return res.status(500).json({
+                success: false,
+                message: "Failed to update GRN status"
             });
         }
 

@@ -6,7 +6,6 @@ export default function PurchaseOrderForm() {
     vendor_code: "",
     purchase_date: "",
     expected_date: "",
-    status: "Pending",
     total_amount: 0,
     items: [],
   });
@@ -27,12 +26,13 @@ export default function PurchaseOrderForm() {
   const navigate = useNavigate();
   const location = useLocation();
   const { state } = location;
+  const isEdit = state?.isEdit || false;
 
   useEffect(() => {
-    if (state && state.order) {
+    if (state && state.grn) {
       setFormData({
-        ...state.order,
-        items: state.order.items || [],
+        ...state.grn,
+        items: state.grn.items || [],
       });
     } else {
       setFormData({
@@ -61,7 +61,7 @@ export default function PurchaseOrderForm() {
       newItem.mrp &&
       newItem.cost_price
     ) {
-      const total_price = newItem.quantity * newItem.cost_price;
+      const total_price = Number(newItem.quantity) * Number(newItem.cost_price);
       const updatedItem = { ...newItem, total_price };
       const updatedItems = [...formData.items, updatedItem];
 
@@ -97,10 +97,10 @@ export default function PurchaseOrderForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const url = state && state.order
+      const url = state && state.grn
         ? "/api/purchaseOrder/update-purchase-order"
         : "/api/purchaseOrder/purchase-order";
-      const method = state && state.order ? "PUT" : "POST";
+      const method = state && state.grn ? "PUT" : "POST";
       const response = await fetch(url, {
         method,
         headers: {
@@ -189,7 +189,7 @@ export default function PurchaseOrderForm() {
             </label>
             <input
               type="text"
-              value={state && state.order ? state.order.vendor_code : vendorSearch}
+              value={state && state.grn ? state.grn.vendor_code : vendorSearch}
               onChange={handleVendorInput}
               placeholder="Search vendor..."
               className="w-full p-2 border rounded"
@@ -209,7 +209,7 @@ export default function PurchaseOrderForm() {
             )}
           </div>
 
-          <div className="col-span-4">
+          {/* <div className="col-span-4">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Status
             </label>
@@ -224,7 +224,7 @@ export default function PurchaseOrderForm() {
               <option value="Completed">Completed</option>
               <option value="Cancelled">Cancelled</option>
             </select>
-          </div>
+          </div> */}
         </div>
 
         <div className="grid grid-cols-12 gap-4">
@@ -235,7 +235,7 @@ export default function PurchaseOrderForm() {
             <input
               type="datetime-local"
               name="purchase_date"
-              value={state && state.order ? state.order.purchase_date.slice(0, 16) : formData.purchase_date}
+              value={isEdit ? new Date(state.grn.purchase_date).toISOString().slice(0, 16) : formData.purchase_date}
               onChange={handleChange}
               className="w-full p-2 border rounded"
             />
@@ -248,7 +248,7 @@ export default function PurchaseOrderForm() {
             <input
               type="datetime-local"
               name="expected_date"
-              value={state && state.order ? state.order.expected_date.slice(0, 16) : formData.expected_date}
+              value={isEdit ? new Date(state.grn.expected_date).toISOString().slice(0, 16) : formData.expected_date}
               onChange={handleChange}
               className="w-full p-2 border rounded"
             />

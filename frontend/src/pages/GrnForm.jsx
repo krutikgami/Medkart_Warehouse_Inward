@@ -16,7 +16,6 @@ const GrnForm = () => {
     vendor_code: order?.vendor_code || "",
     grn_date: new Date().toISOString().slice(0, 16),
     total_amount: order?.total_amount || 0,
-    status: "Pending",
     total_damage_qty: 0,
     total_shortage_qty: 0,
     grn_code: order?.grn_code || "",
@@ -187,7 +186,9 @@ const GrnForm = () => {
                       type="number"
                       step="0.01"
                       value={item.mrp}
-                      readOnly
+                      onChange={(e) =>
+                        handleItemChange(index, "mrp", e.target.value)
+                      }
                       className="w-full p-2 border rounded bg-gray-100 text-center"
                     />
                   </div>
@@ -306,7 +307,7 @@ const GrnForm = () => {
                 className="w-full p-2 border rounded bg-gray-100 text-right"
               />
             </div>
-            <div className="col-span-3">
+            {/* <div className="col-span-3">
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Status
               </label>
@@ -321,7 +322,7 @@ const GrnForm = () => {
                 <option value="Completed">Completed</option>
                 <option value="Cancelled">Cancelled</option>
               </select>
-            </div>
+            </div> */}
           </div>
 
           <div className="flex justify-between mt-6">
