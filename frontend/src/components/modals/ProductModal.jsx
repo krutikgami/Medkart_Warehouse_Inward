@@ -7,6 +7,7 @@ export default function ProductModal({ isOpen, onClose, onSave, editProduct }) {
     product_price: "",
     product_mrp: "",
     hsn_code: "",
+    gst_percent: 0,
     category: "",
     unit_of_measure: "",
     product_last_purchase_price: "",
@@ -26,6 +27,7 @@ export default function ProductModal({ isOpen, onClose, onSave, editProduct }) {
         product_price: "",
         product_mrp: "",
         hsn_code: "",
+        gst_percent: 0,
         category: "",
         unit_of_measure: "",
         product_last_purchase_price: "",
@@ -75,6 +77,7 @@ export default function ProductModal({ isOpen, onClose, onSave, editProduct }) {
         onSave(data.data);
         onClose();
       } else {
+        alert(data.message || "Error saving product");
         console.error("Error saving:", data);
       }
     } catch (err) {
@@ -161,6 +164,20 @@ export default function ProductModal({ isOpen, onClose, onSave, editProduct }) {
           className="w-full p-2 border rounded"
         />
       </div>
+
+
+      <div>
+        <label className="block text-gray-700 mb-1">GST %</label>
+        <input
+          type="text"
+          name="gst_percent"
+          placeholder="GST %"
+          value={formData.gst_percent}
+          onChange={handleChange}
+          className="w-full p-2 border rounded"
+        />
+      </div>
+
 
       <div>
         <label className="block text-gray-700 mb-1">Category</label>

@@ -13,6 +13,15 @@ const createPurchaseOrder = async (req, res) => {
             });
         }
 
+        for(let item of items){
+            if(parseFloat(item.mrp) < parseFloat(item.cost_price)){
+                return res.status(400).json({
+                    success: false,
+                    message: `For product code ${item.product_code}, MRP should be greater than or equal to Cost Price`
+                });
+            }
+        }
+
         const orderCode = `PO-${uuidv4().replace(/-/g, "").substring(0, 12).toUpperCase()}`;
 
         const newOrder = await prisma.purchaseOrder.create({
@@ -147,6 +156,15 @@ const updatePurchaseOrder = async (req, res) => {
                 success: false,
                 message: "Purchase order code is required"
             });
+        }
+
+        for(let item of items){
+            if(parseFloat(item.mrp) < parseFloat(item.cost_price)){
+                return res.status(400).json({
+                    success: false,
+                    message: `For product code ${item.product_code}, MRP should be greater than or equal to Cost Price`
+                });
+            }
         }
 
         const existingOrder = await prisma.purchaseOrder.findUnique({

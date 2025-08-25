@@ -7,6 +7,8 @@ const PurchaseInvoiceForm = () => {
   const {grn} = location.state || {};
   const isEdit = location.state?.isEdit || false;
 
+  console.log('GRN ' , grn)
+
   const [formData, setFormData] = useState({
     purchase_invoice_code: isEdit ? grn?.purchase_invoice_code : "",
     grn_code: grn?.grn_code || "",
@@ -21,8 +23,6 @@ const PurchaseInvoiceForm = () => {
         quantity: item.quantity,
         mrp: item.mrp,
         cost_price: item.cost_price,
-        tax_percentage: item.tax_percentage || 0,
-        tax_amount: item.tax_amount || 0,
         total_price: item.total_price,
       })) || [],
   });
@@ -35,16 +35,11 @@ const PurchaseInvoiceForm = () => {
   const handleItemChange = (index, field, value) => {
     const newItems = [...formData.items];
     newItems[index][field] = value;
-    if (["quantity", "cost_price", "tax_percent"].includes(field)) {
+    if (["quantity", "cost_price"].includes(field)) {
       const qty = parseFloat(newItems[index].quantity) || 0;
       const cost = parseFloat(newItems[index].cost_price) || 0;
-      const taxPercent = parseFloat(newItems[index].tax_percent) || 0;
-
       const subtotal = qty * cost;
-      const tax = (subtotal * taxPercent) / 100;
-
-      newItems[index].tax_amount = tax;
-      newItems[index].total_price = subtotal + tax;
+      newItems[index].total_price = subtotal;
     }
 
     setFormData({
@@ -193,6 +188,20 @@ const PurchaseInvoiceForm = () => {
                       className="w-full p-2 border rounded text-center"
                     />
                   </div>
+                  
+                  <div className="col-span-2">
+                    <label className="block text-sm text-gray-700">Mrp</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={item.mrp}
+                      onChange={(e) =>
+                        handleItemChange(index, "mrp", e.target.value)
+                      }
+                      className="w-full p-2 border rounded text-center"
+                    />
+                  </div>
+
                   <div className="col-span-2">
                     <label className="block text-sm text-gray-700">Cost</label>
                     <input
@@ -205,27 +214,7 @@ const PurchaseInvoiceForm = () => {
                       className="w-full p-2 border rounded text-center"
                     />
                   </div>
-                  <div className="col-span-2">
-                    <label className="block text-sm text-gray-700">Tax %</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={item.tax_percent}
-                      onChange={(e) =>
-                        handleItemChange(index, "tax_percent", e.target.value)
-                      }
-                      className="w-full p-2 border rounded text-center"
-                    />
-                  </div>
-                  <div className="col-span-2">
-                    <label className="block text-sm text-gray-700">Tax Amt</label>
-                    <input
-                      type="number"
-                      readOnly
-                      value={item.tax_amount}
-                      className="w-full p-2 border rounded bg-gray-100 text-center"
-                    />
-                  </div>
+
                   <div className="col-span-2">
                     <label className="block text-sm text-gray-700">Total</label>
                     <input

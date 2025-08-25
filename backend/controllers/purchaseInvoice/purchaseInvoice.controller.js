@@ -4,9 +4,9 @@ import {v4 as uuidv4} from 'uuid'
 
 const createPurchaseInvoice  = async(req,res)=>{
     try {
-        const {grn_code, vendor_code, invoice_date, total_amount, status, items} = req.body;
+        const {grn_code, vendor_code, invoice_date, status, items} = req.body;
 
-        if(grn_code==null || vendor_code==null || invoice_date==null || total_amount==null ||!items || items.length===0){
+        if(grn_code==null || vendor_code==null || invoice_date==null || !items || items.length===0){
             return res.status(400).json({
                 success: false,
                 message: "All fields are required"
@@ -22,6 +22,25 @@ const createPurchaseInvoice  = async(req,res)=>{
                 success: false,
                 message: "GRN not found"
             });
+        }
+
+        let total_amount = 0;
+        for(let item of items){
+            if(parseFloat(item.mrp) < parseFloat(item.cost_price)){
+                return res.status(400).json({
+                    success: false,
+                    message: `For product code ${item.product_code}, MRP should be greater than or equal to Cost Price`
+                });
+            }
+            const totalProducttotalAmount = item.total_price;
+            const product = await prisma.productMaster.findUnique({
+                where: {product_code : item.product_code},
+                select:{
+                    gst_percent : true
+                }
+            })
+            const gstAmount = product.gst_percent * totalProducttotalAmount / 100;
+            total_amount += totalProducttotalAmount + gstAmount;
         }
 
         const invoiceCode = `INV-${uuidv4().replace(/-/g, "").substring(2, 12).toUpperCase()}`;
@@ -41,8 +60,6 @@ const createPurchaseInvoice  = async(req,res)=>{
                         mrp: item.mrp,
                         cost_price: item.cost_price,
                         total_price: item.total_price,
-                        tax_amount: item.tax_amount,
-                        tax_percentage: item.tax_percentage
                     }))
                 }
             },
@@ -121,13 +138,33 @@ const getAllPurchaseInvoices = async(req,res)=>{
 
 const updatePurchaseInvoice = async(req,res)=>{
     try {
-        const {purchase_invoice_code, invoice_date, total_amount,status, items} = req.body;
-        if(purchase_invoice_code==null || invoice_date==null || total_amount==null ||!items || items.length===0){
+        const {purchase_invoice_code, invoice_date,status, items} = req.body;
+        if(purchase_invoice_code==null || invoice_date==null||!items || items.length===0){
             return res.status(400).json({
                 success: false,
                 message: "All fields are required"
             });
         }
+
+        let total_amount = 0;
+        for(let item of items){
+            if(parseFloat(item.mrp) < parseFloat(item.cost_price)){
+                return res.status(400).json({
+                    success: false,
+                    message: `For product code ${item.product_code}, MRP should be greater than or equal to Cost Price`
+                });
+            }
+            const totalProducttotalAmount = item.total_price;
+            const product = await prisma.productMaster.findUnique({
+                where: {product_code : item.product_code},
+                select:{
+                    gst_percent : true
+                }
+            })
+            const gstAmount = product.gst_percent * totalProducttotalAmount / 100;
+            total_amount += totalProducttotalAmount + gstAmount;
+        }
+
 
         const existingInvoice = await prisma.purchaseInvoice.findUnique({
             where:{purchase_invoice_code}
@@ -151,11 +188,9 @@ const updatePurchaseInvoice = async(req,res)=>{
                     create: items.map(item => ({
                         product_code: item.product_code,
                         quantity: parseInt(item.quantity),
-                        mrp: item.mrp,
-                        cost_price: item.cost_price,
-                        total_price: item.total_price,
-                        tax_amount: item.tax_amount,
-                        tax_percentage: item.tax_percentage
+                        mrp: parseFloat(item.mrp),
+                        cost_price: parseFloat(item.cost_price),
+                        total_price: parseFloat(item.total_price)
                     }))
                 }
             },

@@ -15,6 +15,15 @@ const addGrn = async(req,res)=>{
             });
         }
 
+        for(let item of items){
+            if(parseFloat(item.mrp) < parseFloat(item.cost_price)){
+                return res.status(400).json({
+                    success: false,
+                    message: `For product code ${item.product_code}, MRP should be greater than or equal to Cost Price`
+                });
+            }
+        }
+
         const existingPO = await prisma.purchaseOrder.findUnique({
             where: { purchase_order_code },
             include: { items: true }
@@ -189,6 +198,15 @@ const editGrn = async(req,res)=>{
             });
         }
 
+        for(let item of items){
+            if(parseFloat(item.mrp) < parseFloat(item.cost_price)){
+                return res.status(400).json({
+                    success: false,
+                    message: `For product code ${item.product_code}, MRP should be greater than or equal to Cost Price`
+                });
+            }
+        }
+        
         const existingGRN = await prisma.grn.findUnique({
             where: { grn_code },
             include: { items: true }

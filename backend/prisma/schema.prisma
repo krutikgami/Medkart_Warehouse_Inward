@@ -17,6 +17,7 @@ model ProductMaster {
   product_price Float
   product_mrp Float
   hsn_code Int
+  gst_percent Float
   product_last_purchase_price Float
   category String
   combination String[]
@@ -127,8 +128,6 @@ model PurchaseInvoiceItem {
   mrp        Float
   cost_price  Float
   total_price Float
-  tax_amount Float
-  tax_percentage Float
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
   purchaseInvoice PurchaseInvoice @relation(fields: [purchase_invoice_code], references: [purchase_invoice_code])

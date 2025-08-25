@@ -5,11 +5,18 @@ const prisma = new PrismaClient()
 
 const productMaster = async(req, res) =>{
     try{
-        const {product_name,product_description,product_price,product_mrp,hsn_code,category,combination,unit_of_measure,status,product_last_purchase_price} = req.body;
-        if(!product_name || !product_description || !product_price || !product_mrp || !hsn_code || !category || !combination || !unit_of_measure || !status || !product_last_purchase_price){
+        const {product_name,product_description,product_price,product_mrp,hsn_code,gst_percent,category,combination,unit_of_measure,status,product_last_purchase_price} = req.body;
+        if(!product_name || !product_description || !product_price || !product_mrp || !hsn_code || !gst_percent || !category || !combination || !unit_of_measure || !status || !product_last_purchase_price){
             return res.status(400).json({
                 success: false,
                 message: "All fields are required"
+            });
+        }
+
+        if(parseFloat(product_mrp) < parseFloat(product_price)){
+            return res.status(400).json({
+                success: false,
+                message: "MRP should be greater than or equal to Product Price"
             });
         }
 
@@ -24,6 +31,7 @@ const productMaster = async(req, res) =>{
                 product_price : parseFloat(product_price),
                 product_mrp : parseFloat(product_mrp),
                 hsn_code : parseInt(hsn_code),
+                gst_percent : parseFloat(gst_percent),
                 category,
                 combination,
                 unit_of_measure,
@@ -116,11 +124,19 @@ const deleteProduct = async (req, res) => {
 
 const updateProduct = async(req,res)=>{
     try {
-        const {product_code,product_name,product_description,product_price,product_mrp,hsn_code,category,combination,unit_of_measure,status} = req.body;
+        const {product_code,product_name,product_description,product_price,product_mrp,hsn_code,gst_percent,category,combination,unit_of_measure,status} = req.body;
+
         if(!product_code){
             return res.status(400).json({
                 success: false,
                 message: "Product code is required for Update Product"
+            });
+        }
+
+        if(parseFloat(product_mrp) < parseFloat(product_price)){
+            return res.status(400).json({
+                success: false,
+                message: "MRP should be greater than or equal to Product Price"
             });
         }
 
@@ -143,6 +159,7 @@ const updateProduct = async(req,res)=>{
                 product_price: parseFloat(product_price) || existingProduct.product_price,
                 product_mrp: parseFloat(product_mrp) || existingProduct.product_mrp,
                 hsn_code: parseInt(hsn_code) || existingProduct.hsn_code,
+                gst_percent : parseFloat(gst_percent) || existingProduct.gst_percent,
                 category: category || existingProduct.category,
                 combination: combination || existingProduct.combination,
                 unit_of_measure: unit_of_measure || existingProduct.unit_of_measure,

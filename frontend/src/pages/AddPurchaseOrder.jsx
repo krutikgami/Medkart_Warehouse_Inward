@@ -109,10 +109,11 @@ export default function PurchaseOrderForm() {
         body: JSON.stringify(formData),
       });
 
+      const data = await response.json();
       if (!response.ok) {
+        alert(data.message || "Failed to save purchase order");
         throw new Error("Failed to save purchase order");
       }
-      const data = await response.json();
       console.log(data);
       navigate('/purchase-orders')
     } catch (error) {

@@ -122,6 +122,7 @@ const ProductMaster = () => {
               <th className="p-2 border">MRP</th>
               <th className="p-2 border">Last Price</th>
               <th className="p-2 border">HSN Code</th>
+              <th className="p-2 border">GST %</th>
               <th className="p-2 border">Category</th>
               <th className="p-2 border">Combination</th>
               <th className="p-2 border">Unit</th>
@@ -141,6 +142,7 @@ const ProductMaster = () => {
                   <td className="p-2 border">{p.product_mrp}</td>
                   <td className="p-2 border">{p.product_last_purchase_price}</td>
                   <td className="p-2 border">{p.hsn_code}</td>
+                  <td className="p-2 border">{p.gst_percent}</td>
                   <td className="p-2 border">{p.category}</td>
                   <td className="p-2 border">
                     {Array.isArray(p.combination) ? p.combination.join(", ") : ""}
