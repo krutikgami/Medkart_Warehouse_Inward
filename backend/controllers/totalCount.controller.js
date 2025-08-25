@@ -7,13 +7,17 @@ const getTotalCount = async (req, res) => {
         const vendorCount = await prisma.vendorMaster.count();
         const productCount = await prisma.productMaster.count();
         const purchaseOrderCount = await prisma.purchaseOrder.count();
+        const grnCount = await prisma.grn.count();
+        const purchaseInvoiceCount = await prisma.purchaseInvoice.count();
 
         return res.status(200).json({
             success: true,
             data: {
                 vendors: vendorCount,
                 products: productCount,
-                purchaseOrders: purchaseOrderCount
+                purchaseOrders: purchaseOrderCount,
+                grns: grnCount,
+                purchaseInvoices: purchaseInvoiceCount
             }
         });
     } catch (error) {

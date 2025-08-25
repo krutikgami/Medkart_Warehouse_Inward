@@ -7,10 +7,6 @@ const ViewGrns = () => {
   const [grns, setGrns] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
-  const [viewOpen, setViewOpen] = useState({
-    status : false,
-    items : []
-  });
 
   const navigate = useNavigate();
 
@@ -141,10 +137,7 @@ const ViewGrns = () => {
                         </button>
                         <button
                             className="text-white bg-blue-500 px-2 py-1 rounded hover:bg-blue-600 cursor-pointer"
-                            onClick={()=>setViewOpen({
-                                status : true,
-                                items : g.items
-                            })}
+                            onClick={()=> navigate('/view-items', {state :{items : g.items,label : "grn",code : g.grn_code}})}
                         >
                             <Eye size={16} />
                         </button>
@@ -165,33 +158,6 @@ const ViewGrns = () => {
             )}
           </tbody>
         </table>
-         {viewOpen.status && (
-          <div className="fixed inset-0 bg-white bg-opacity-50 flex items-center justify-center">
-            <div className="bg-white p-4 rounded shadow-lg">
-              <h2 className="text-lg font-semibold mb-4">Grn items Details</h2>
-              {viewOpen.items.map(item => (
-                <div key={item.id} className="border-b py-2">
-                  <p><strong>Product Code:</strong> {item.product_code}</p>
-                  <p><strong>Quantity:</strong> {item.quantity}</p>
-                  <p><strong>MRP:</strong> ₹{item.mrp}</p>
-                  <p><strong>Cost Price:</strong> ₹{item.cost_price}</p>
-                  <p><strong>Total Price:</strong> ₹{item.total_price}</p>
-                    <p><strong>Damage Qty:</strong> {item.damage_qty}</p>
-                    <p><strong>Shortage Qty:</strong> {item.shortage_qty}</p>
-                    <p><strong>Batch Number:</strong> {item.batch_number}</p>
-                    <p><strong>Mfg Date:</strong> {item.mfg_date.split('T')[0]}</p>
-                    <p><strong>Exp Date:</strong> {item.exp_date.split('T')[0]}</p>
-                </div>
-              ))}
-              <button
-                className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
-                onClick={() => setViewOpen({ status: false, items: [] })}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

@@ -9,6 +9,7 @@ import GrnForm from "./pages/GrnForm";
 import ViewGrns from "./pages/ViewGrns";
 import ViewPIs from "./pages/ViewPIs";
 import PurchaseInvoiceForm from "./pages/PurchaseInvoiceForm";
+import ViewItems from "./components/ViewItems";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
             <Route path="/view-grns" element={<ViewGrns />} />
             <Route path="/add-pi" element={<PurchaseInvoiceForm />} />
             <Route path="/view-invoices" element={<ViewPIs />} />
+            <Route path="/view-items" element={<ViewItems />} />
           </Routes>
         </div>
       </div>

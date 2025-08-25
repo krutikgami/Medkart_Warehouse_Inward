@@ -4,12 +4,6 @@ import { useNavigate } from "react-router-dom";
 
 const PurchaseOrder = () => {
   const [orders, setOrders] = useState([]);
-  const [isView, setIsView] = useState({
-    status: false,
-    value: null
-  });
-
-
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
 
@@ -148,10 +142,7 @@ const PurchaseOrder = () => {
                     >
                       <Trash2 size={16} />
                     </button>
-                     <button className="bg-blue-500 text-white px-2 gap-2 py-1 rounded cursor-pointer" onClick={() => setIsView({
-                      status: true,
-                      value: idx
-                    })}><Eye size={16} /></button>
+                     <button className="bg-blue-500 text-white px-2 gap-2 py-1 rounded cursor-pointer" onClick={() => navigate('/view-items', {state :{items : o.items , label : "purchaseOrder",code : o.purchase_order_code}})}><Eye size={16} /></button>
                   </td>
                   <td className="p-2 border">
                     <button className={(o.status === "Completed"  || o.status === "Cancelled")? "bg-gray-500 text-white px-2 py-1 rounded" : "bg-purple-500 text-white px-2 py-1 rounded"} onClick={() => navigate('/add-grn', { state: { order: o } })} disabled={o.status === "Completed"}>
@@ -169,30 +160,7 @@ const PurchaseOrder = () => {
             )}
           </tbody>
         </table>
-        {isView.status && (
-          <div className="fixed inset-0 bg-white bg-opacity-50 flex items-center justify-center">
-            <div className="bg-white p-4 rounded shadow-lg">
-              <h2 className="text-lg font-semibold mb-4">Order Details</h2>
-              {orders[isView.value]?.items.map(item => (
-                <div key={item.id} className="border-b py-2">
-                  <p><strong>Product Code:</strong> {item.product_code}</p>
-                  <p><strong>Quantity:</strong> {item.quantity}</p>
-                  <p><strong>MRP:</strong> ₹{item.mrp}</p>
-                  <p><strong>Cost Price:</strong> ₹{item.cost_price}</p>
-                  <p><strong>Total Price:</strong> ₹{item.total_price}</p>
-                </div>
-              ))}
-              <button
-                className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
-                onClick={() => setIsView(false)}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        )}
       </div>
-
     </div>
     </>
   );

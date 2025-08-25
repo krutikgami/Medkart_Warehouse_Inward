@@ -22,6 +22,13 @@ const addGrn = async(req,res)=>{
                     message: `For product code ${item.product_code}, MRP should be greater than or equal to Cost Price`
                 });
             }
+            if(new Date(item.exp_date) <= new Date(item.mfg_date)){
+                return res.status(400).json({
+                    success: false,
+                    message: `For product code ${item.product_code}, Expiry Date should be greater than Manufacturing Date`
+                });
+            }
+
         }
 
         const existingPO = await prisma.purchaseOrder.findUnique({
@@ -203,6 +210,12 @@ const editGrn = async(req,res)=>{
                 return res.status(400).json({
                     success: false,
                     message: `For product code ${item.product_code}, MRP should be greater than or equal to Cost Price`
+                });
+            }
+            if(new Date(item.exp_date) <= new Date(item.mfg_date)){
+                return res.status(400).json({
+                    success: false,
+                    message: `For product code ${item.product_code}, Expiry Date should be greater than Manufacturing Date`
                 });
             }
         }

@@ -6,11 +6,6 @@ const ViewPIs = () => {
   const [purchaseInvoices, setPurchaseInvoices] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
-  const [viewOpen, setViewOpen] = useState({
-    status: false,
-    items: [],
-  });
-
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -145,9 +140,12 @@ const ViewPIs = () => {
                     <button
                       className="text-white bg-blue-500 px-2 py-1 rounded hover:bg-blue-600 cursor-pointer"
                       onClick={() =>
-                        setViewOpen({
-                          status: true,
-                          items: pi.items,
+                        navigate("/view-items", {
+                          state: {
+                            items: pi.items,
+                            label: "purchaseInvoice",
+                            code: pi.purchase_invoice_code,
+                          },
                         })
                       }
                     >
@@ -165,41 +163,6 @@ const ViewPIs = () => {
             )}
           </tbody>
         </table>
-
-        {viewOpen.status && (
-          <div className="fixed inset-0 bg-white bg-opacity-50 flex items-center justify-center">
-            <div className="bg-white p-4 rounded shadow-lg w-[400px] max-h-[80vh] overflow-y-auto">
-              <h2 className="text-lg font-semibold mb-4">
-                Purchase Invoice Items
-              </h2>
-              {viewOpen.items.map((item) => (
-                <div key={item.id} className="border-b py-2">
-                  <p>
-                    <strong>Product Code:</strong> {item.product_code}
-                  </p>
-                  <p>
-                    <strong>Quantity:</strong> {item.quantity}
-                  </p>
-                  <p>
-                    <strong>MRP:</strong> ₹{item.mrp}
-                  </p>
-                  <p>
-                    <strong>Cost Price:</strong> ₹{item.cost_price}
-                  </p>
-                  <p>
-                    <strong>Total Price:</strong> ₹{item.total_price}
-                  </p>
-                </div>
-              ))}
-              <button
-                className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
-                onClick={() => setViewOpen({ status: false, items: [] })}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
