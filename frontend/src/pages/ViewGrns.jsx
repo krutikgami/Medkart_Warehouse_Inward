@@ -1,63 +1,65 @@
-import { useState, useEffect } from "react";
-import { Eye, Trash2,Pencil} from "lucide-react";
-import { useNavigate } from "react-router-dom";
-
+import { useState, useEffect } from 'react'
+import { Eye, Trash2, Pencil } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 const ViewGrns = () => {
-  const [grns, setGrns] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All");
+  const [grns, setGrns] = useState([])
+  const [searchQuery, setSearchQuery] = useState('')
+  const [statusFilter, setStatusFilter] = useState('All')
 
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   useEffect(() => {
     const fetchGrns = async () => {
       try {
-        const response = await fetch("/api/goodsReceiptNote/get-all-grns");
-        const data = await response.json();
-        setGrns(data.data || []);
+        const response = await fetch('/api/goodsReceiptNote/get-all-grns')
+        const data = await response.json()
+        setGrns(data.data || [])
       } catch (error) {
-        console.error("Error fetching GRNs:", error);
+        console.error('Error fetching GRNs:', error)
       }
-    };
-    fetchGrns();
-  }, []);
+    }
+    fetchGrns()
+  }, [])
 
   const handleEditGrn = async (grn) => {
-    navigate('/add-grn', { state: { grn, isEdit: true } });
-  };
+    navigate('/add-grn', { state: { grn, isEdit: true } })
+  }
 
   const handleDeleteGrn = async (grnCode) => {
     try {
-      const response = await fetch("/api/goodsReceiptNote/delete-grn", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/goodsReceiptNote/delete-grn', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ grn_code: grnCode }),
-      });
+      })
 
-      const data = await response.json();
+      const data = await response.json()
 
       if (data.success) {
-        setGrns(grns.filter((g) => g.grn_code !== grnCode));
+        setGrns(grns.filter((g) => g.grn_code !== grnCode))
       } else {
-        console.error("Failed to delete GRN:", data.message);
+        console.error('Failed to delete GRN:', data.message)
       }
     } catch (error) {
-      console.error("Error deleting GRN:", error);
+      console.error('Error deleting GRN:', error)
     }
-  };
+  }
 
   const filteredGrns = grns.filter((g) => {
     const matchesSearch =
       g.grn_code?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      g.purchase_order_code?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      g.vendor_code?.toLowerCase().includes(searchQuery.toLowerCase());
+      g.purchase_order_code
+        ?.toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
+      g.vendor_code?.toLowerCase().includes(searchQuery.toLowerCase())
 
     const matchesStatus =
-      statusFilter === "All" || g.status?.toLowerCase() === statusFilter.toLowerCase();
+      statusFilter === 'All' ||
+      g.status?.toLowerCase() === statusFilter.toLowerCase()
 
-    return matchesSearch && matchesStatus;
-  });
+    return matchesSearch && matchesStatus
+  })
 
   return (
     <div className="p-6">
@@ -111,42 +113,59 @@ const ViewGrns = () => {
                   <td className="p-2 border">{g.grn_code}</td>
                   <td className="p-2 border">{g.purchase_order_code}</td>
                   <td className="p-2 border">{g.vendor_code}</td>
-                  <td className="p-2 border">
-                    {g.grn_date.split('T')[0]}
-                  </td>
+                  <td className="p-2 border">{g.grn_date.split('T')[0]}</td>
                   <td className="p-2 border">₹{g.total_amount}</td>
                   <td className="p-2 border">{g.status}</td>
                   <td className="p-2 border">{g.total_damage_qty}</td>
                   <td className="p-2 border">{g.total_shortage_qty}</td>
-                    <td className="p-2 border justify-center gap-2 flex">
-                        <button
-                            className="text-white bg-green-500 px-2 py-1 rounded hover:bg-green-600 cursor-pointer"
-                            onClick={() => handleEditGrn(g)}
-                        >
-                            <Pencil size={16} />
-                        </button>
-                        <button
-                            className="text-white bg-red-500 px-2 py-1 rounded hover:bg-red-600 cursor-pointer"
-                            onClick={() => {
-                                if (window.confirm("Are you sure you want to delete this GRN?")) {
-                                    handleDeleteGrn(g.grn_code);
-                                }
-                            }}
-                        >
-                            <Trash2 size={16} />
-                        </button>
-                        <button
-                            className="text-white bg-blue-500 px-2 py-1 rounded hover:bg-blue-600 cursor-pointer"
-                            onClick={()=> navigate('/view-items', {state :{items : g.items,label : "grn",code : g.grn_code}})}
-                        >
-                            <Eye size={16} />
-                        </button>
-                    </td>
-                    <td className="p-2 border">
-                        <button className="text-white bg-blue-500 px-2 py-1 rounded hover:bg-blue-600 cursor-pointer" onClick={() => navigate('/add-pi', { state: { grn: g ,isEdit:false} })}>
-                           + PI
-                        </button>
-                    </td>
+                  <td className="p-2 border justify-center gap-2 flex">
+                    <button
+                      className="text-white bg-green-500 px-2 py-1 rounded hover:bg-green-600 cursor-pointer"
+                      onClick={() => handleEditGrn(g)}
+                    >
+                      <Pencil size={16} />
+                    </button>
+                    <button
+                      className="text-white bg-red-500 px-2 py-1 rounded hover:bg-red-600 cursor-pointer"
+                      onClick={() => {
+                        if (
+                          window.confirm(
+                            'Are you sure you want to delete this GRN?'
+                          )
+                        ) {
+                          handleDeleteGrn(g.grn_code)
+                        }
+                      }}
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                    <button
+                      className="text-white bg-blue-500 px-2 py-1 rounded hover:bg-blue-600 cursor-pointer"
+                      onClick={() =>
+                        navigate('/view-items', {
+                          state: {
+                            items: g.items,
+                            label: 'grn',
+                            code: g.grn_code,
+                          },
+                        })
+                      }
+                    >
+                      <Eye size={16} />
+                    </button>
+                  </td>
+                  <td className="p-2 border">
+                    <button
+                      className="text-white bg-blue-500 px-2 py-1 rounded hover:bg-blue-600 cursor-pointer"
+                      onClick={() =>
+                        navigate('/add-pi', {
+                          state: { grn: g, isEdit: false },
+                        })
+                      }
+                    >
+                      + PI
+                    </button>
+                  </td>
                 </tr>
               ))
             ) : (
@@ -160,7 +179,7 @@ const ViewGrns = () => {
         </table>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ViewGrns;
+export default ViewGrns

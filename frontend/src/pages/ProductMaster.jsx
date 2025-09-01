@@ -1,34 +1,39 @@
-import ProductModal from "../components/modals/ProductModal";
-import { useState,useEffect } from "react";
-import { Pencil, Trash2 } from "lucide-react";
+import ProductModal from '../components/modals/ProductModal'
+import { useState, useEffect } from 'react'
+import { Pencil, Trash2 } from 'lucide-react'
 const ProductMaster = () => {
-    const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState([])
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const [editProduct, setEditProduct] = useState(null);
+  const [editProduct, setEditProduct] = useState(null)
 
-   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All");
+  const [searchQuery, setSearchQuery] = useState('')
+  const [statusFilter, setStatusFilter] = useState('All')
 
   const handleSave = (newProduct) => {
-    setProducts([newProduct, ...products]);
-  };
+    setProducts([newProduct, ...products])
+  }
 
   const handleEdit = (product) => {
-    setEditProduct(product);
-    setIsModalOpen(true);
-  };
+    setEditProduct(product)
+    setIsModalOpen(true)
+  }
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const response = await fetch('/api/productMaster/all-products');
-      const data = await response.json();
-      setProducts(data.data || []);
-    };
+     try {
+       const response = await fetch('/api/productMaster/all-products')
+       const data = await response.json()
+       setProducts(data.data || [])
+     } catch (error) {
+        console.error("Error in Product Master: ",error.message)
+        alert("Error in Product Master: ",error.message)
+     }
+    }
 
-    fetchProducts();
-  }, []);
+    fetchProducts()
+  }, [])
 
   const handleDelete = async (productCode) => {
     try {
@@ -38,34 +43,36 @@ const ProductMaster = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ product_code: productCode }),
-      });
-  
-      const data = await response.json();
-  
+      })
+
+      const data = await response.json()
+
       if (data.success) {
-        setProducts(products.filter((p) => p.product_code !== productCode));
+        setProducts(products.filter((p) => p.product_code !== productCode))
       } else {
-        console.error("Failed to delete product:", data.message);
+        console.error('Failed to delete product:', data.message)
       }
     } catch (error) {
-      console.error("Error deleting product:", error);
+      console.error('Error deleting product:', error)
     }
-  };
+  }
 
-
-   const filteredProducts = products.filter((p) => {
+  const filteredProducts = products.filter((p) => {
     const matchesSearch =
       p.product_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.product_description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.product_description
+        ?.toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
       p.product_code?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.category?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.unit_of_measure?.toLowerCase().includes(searchQuery.toLowerCase());
+      p.unit_of_measure?.toLowerCase().includes(searchQuery.toLowerCase())
 
     const matchesStatus =
-      statusFilter === "All" || p.status?.toLowerCase() === statusFilter.toLowerCase();
+      statusFilter === 'All' ||
+      p.status?.toLowerCase() === statusFilter.toLowerCase()
 
-    return matchesSearch && matchesStatus;
-  });
+    return matchesSearch && matchesStatus
+  })
 
   return (
     <div className="p-6">
@@ -94,8 +101,8 @@ const ProductMaster = () => {
           <button
             className="bg-blue-500 text-white px-4 py-2 rounded text-sm"
             onClick={() => {
-              setEditProduct(null);
-              setIsModalOpen(true);
+              setEditProduct(null)
+              setIsModalOpen(true)
             }}
           >
             + Add New
@@ -131,8 +138,8 @@ const ProductMaster = () => {
             </tr>
           </thead>
           <tbody>
-             {filteredProducts.length > 0 ? (
-              filteredProducts.map((p,idx) => (
+            {filteredProducts.length > 0 ? (
+              filteredProducts.map((p, idx) => (
                 <tr key={p.id} className="text-center">
                   <td className="p-2 border">{idx + 1}</td>
                   <td className="p-2 border">{p.product_code}</td>
@@ -140,12 +147,16 @@ const ProductMaster = () => {
                   <td className="p-2 border">{p.product_description}</td>
                   <td className="p-2 border">₹{p.product_price}</td>
                   <td className="p-2 border">{p.product_mrp}</td>
-                  <td className="p-2 border">{p.product_last_purchase_price}</td>
+                  <td className="p-2 border">
+                    {p.product_last_purchase_price}
+                  </td>
                   <td className="p-2 border">{p.hsn_code}</td>
                   <td className="p-2 border">{p.gst_percent}</td>
                   <td className="p-2 border">{p.category}</td>
                   <td className="p-2 border">
-                    {Array.isArray(p.combination) ? p.combination.join(", ") : ""}
+                    {Array.isArray(p.combination)
+                      ? p.combination.join(', ')
+                      : ''}
                   </td>
                   <td className="p-2 border">{p.unit_of_measure}</td>
                   <td className="p-2 border">{p.status}</td>
@@ -160,9 +171,11 @@ const ProductMaster = () => {
                       className="bg-red-500 text-white px-2 py-1 rounded cursor-pointer"
                       onClick={() => {
                         if (
-                          window.confirm("Are you sure you want to delete this product?")
+                          window.confirm(
+                            'Are you sure you want to delete this product?'
+                          )
                         ) {
-                          handleDelete(p.product_code);
+                          handleDelete(p.product_code)
                         }
                       }}
                     >
@@ -182,6 +195,6 @@ const ProductMaster = () => {
         </table>
       </div>
     </div>
-  );
-};
-export default ProductMaster;
+  )
+}
+export default ProductMaster

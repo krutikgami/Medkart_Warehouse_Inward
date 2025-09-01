@@ -1,15 +1,15 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Sidebar from "./components/SideBar";
-import Dashboard from "./pages/Dashboard";
-import ProductMaster from "./pages/ProductMaster";
-import VendorMaster from "./pages/VendorMaster";
-import PurchaseOrder from "./pages/PurchaseOrder";
-import PurchaseOrderForm from "./pages/AddPurchaseOrder";
-import GrnForm from "./pages/GrnForm";
-import ViewGrns from "./pages/ViewGrns";
-import ViewPIs from "./pages/ViewPIs";
-import PurchaseInvoiceForm from "./pages/PurchaseInvoiceForm";
-import ViewItems from "./components/ViewItems";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import Sidebar from './components/SideBar'
+import Dashboard from './pages/Dashboard'
+import ProductMaster from './pages/ProductMaster'
+import VendorMaster from './pages/VendorMaster'
+import PurchaseOrder from './pages/PurchaseOrder'
+import PurchaseOrderForm from './pages/AddPurchaseOrder'
+import GrnForm from './pages/GrnForm'
+import ViewGrns from './pages/ViewGrns'
+import ViewPIs from './pages/ViewPIs'
+import PurchaseInvoiceForm from './pages/PurchaseInvoiceForm'
+import ViewItems from './components/ViewItems'
 
 function App() {
   return (
@@ -32,7 +32,7 @@ function App() {
         </div>
       </div>
     </Router>
-  );
+  )
 }
 
-export default App;
+export default App

@@ -1,59 +1,66 @@
-import { useState, useEffect } from "react";
-import VendorModal from "../components/modals/VendorModal";
-import { Pencil, Trash2 } from "lucide-react";
+import { useState, useEffect } from 'react'
+import VendorModal from '../components/modals/VendorModal'
+import { Pencil, Trash2 } from 'lucide-react'
 
 const VendorMaster = () => {
-  const [vendors, setVendors] = useState([]);
-  const [editVendor, setEditVendor] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [vendors, setVendors] = useState([])
+  const [editVendor, setEditVendor] = useState(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All");
+  const [searchQuery, setSearchQuery] = useState('')
+  const [statusFilter, setStatusFilter] = useState('All')
 
   useEffect(() => {
     const fetchVendors = async () => {
-      const response = await fetch("/api/vendorMaster/all-vendors");
-      const data = await response.json();
-      setVendors(data.data || []);
-    };
-    fetchVendors();
-  }, []);
+      try {
+        const response = await fetch('/api/vendorMaster/all-vendors')
+        const data = await response.json()
+        setVendors(data.data || [])
+      } catch (error) {
+        console.error("Error in Vendor Master: ",error.message);
+        alert("Error in Vendor Master: ",error.message)
+      }
+    }
+    fetchVendors()
+  }, [])
 
   const handleSave = (newVendor) => {
     if (editVendor) {
       setVendors((prev) =>
-        prev.map((v) => (v.vendor_code === newVendor.vendor_code ? newVendor : v))
-      );
-      setEditVendor(null);
+        prev.map((v) =>
+          v.vendor_code === newVendor.vendor_code ? newVendor : v
+        )
+      )
+      setEditVendor(null)
     } else {
-      setVendors([newVendor, ...vendors]);
+      setVendors([newVendor, ...vendors])
     }
-  };
+  }
 
   const handleEdit = (vendor) => {
-    setEditVendor(vendor);
-    setIsModalOpen(true);
-  };
+    setEditVendor(vendor)
+    setIsModalOpen(true)
+  }
 
   const handleDelete = async (vendorCode) => {
     try {
-      const response = await fetch("/api/vendorMaster/delete-vendor", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/vendorMaster/delete-vendor', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ vendor_code: vendorCode }),
-      });
+      })
 
-      const data = await response.json();
+      const data = await response.json()
 
       if (data.success) {
-        setVendors(vendors.filter((v) => v.vendor_code !== vendorCode));
+        setVendors(vendors.filter((v) => v.vendor_code !== vendorCode))
       } else {
-        console.error("Failed to delete vendor:", data.message);
+        console.error('Failed to delete vendor:', data.message)
       }
     } catch (error) {
-      console.error("Error deleting vendor:", error);
+      console.error('Error deleting vendor:', error)
     }
-  };
+  }
 
   const filteredVendors = vendors.filter((v) => {
     const matchesSearch =
@@ -63,13 +70,14 @@ const VendorMaster = () => {
       v.contact_number?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       v.vendor_email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       v.gst_number?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      v.address?.toLowerCase().includes(searchQuery.toLowerCase());
+      v.address?.toLowerCase().includes(searchQuery.toLowerCase())
 
     const matchesStatus =
-      statusFilter === "All" || v.status?.toLowerCase() === statusFilter.toLowerCase();
+      statusFilter === 'All' ||
+      v.status?.toLowerCase() === statusFilter.toLowerCase()
 
-    return matchesSearch && matchesStatus;
-  });
+    return matchesSearch && matchesStatus
+  })
 
   return (
     <div className="p-6">
@@ -98,8 +106,8 @@ const VendorMaster = () => {
           <button
             className="bg-blue-500 text-white px-4 py-2 rounded text-sm"
             onClick={() => {
-              setEditVendor(null);
-              setIsModalOpen(true);
+              setEditVendor(null)
+              setIsModalOpen(true)
             }}
           >
             + Add New Vendor
@@ -110,8 +118,8 @@ const VendorMaster = () => {
       <VendorModal
         isOpen={isModalOpen}
         onClose={() => {
-          setIsModalOpen(false);
-          setEditVendor(null);
+          setIsModalOpen(false)
+          setEditVendor(null)
         }}
         onSave={handleSave}
         editVendor={editVendor}
@@ -135,7 +143,7 @@ const VendorMaster = () => {
           </thead>
           <tbody>
             {filteredVendors.length > 0 ? (
-              filteredVendors.map((v,idx) => (
+              filteredVendors.map((v, idx) => (
                 <tr key={v.id} className="text-center">
                   <td className="p-2 border">{idx + 1}</td>
                   <td className="p-2 border">{v.vendor_code}</td>
@@ -156,8 +164,12 @@ const VendorMaster = () => {
                     <button
                       className="bg-red-500 text-white px-2 py-1 rounded cursor-pointer"
                       onClick={() => {
-                        if (window.confirm("Are you sure you want to delete this vendor?")) {
-                          handleDelete(v.vendor_code);
+                        if (
+                          window.confirm(
+                            'Are you sure you want to delete this vendor?'
+                          )
+                        ) {
+                          handleDelete(v.vendor_code)
                         }
                       }}
                     >
@@ -177,7 +189,7 @@ const VendorMaster = () => {
         </table>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default VendorMaster;
+export default VendorMaster

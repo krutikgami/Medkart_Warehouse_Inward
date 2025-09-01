@@ -1,50 +1,53 @@
-import { useLocation } from "react-router-dom";
+import { useLocation } from 'react-router-dom'
 
 const ViewItems = () => {
-    const location = useLocation();
-    const {items,label,code} = location?.state || {};
+  const location = useLocation()
+  const { items, label, code } = location?.state || {}
   const columnsConfig = {
     purchaseOrder: [
-      { key: "product_code", label: "Product Code" },
-      { key: "quantity", label: "Quantity" },
-      { key: "mrp", label: "MRP" },
-      { key: "cost_price", label: "Cost Price" },
-      { key: "total_price", label: "Total Price" },
+      { key: 'product_code', label: 'Product Code' },
+      { key: 'quantity', label: 'Quantity' },
+      { key: 'mrp', label: 'MRP' },
+      { key: 'cost_price', label: 'Cost Price' },
+      { key: 'total_price', label: 'Total Price' },
     ],
     grn: [
-      { key: "product_code", label: "Product Code" },
-      { key: "quantity", label: "Quantity" },
-      { key: "mrp", label: "MRP" },
-      { key: "cost_price", label: "Cost Price" },
-      { key: "total_price", label: "Total Price" },
-      { key: "damage_qty", label: "Damage Qty" },
-      { key: "shortage_qty", label: "Shortage Qty" },
-      { key: "batch_number", label: "Batch No." },
-      { key: "mfg_date", label: "MFG Date" },
-      { key: "exp_date", label: "EXP Date" },
+      { key: 'product_code', label: 'Product Code' },
+      { key: 'quantity', label: 'Quantity' },
+      { key: 'mrp', label: 'MRP' },
+      { key: 'cost_price', label: 'Cost Price' },
+      { key: 'total_price', label: 'Total Price' },
+      { key: 'damage_qty', label: 'Damage Qty' },
+      { key: 'shortage_qty', label: 'Shortage Qty' },
+      { key: 'batch_number', label: 'Batch No.' },
+      { key: 'mfg_date', label: 'MFG Date' },
+      { key: 'exp_date', label: 'EXP Date' },
     ],
     purchaseInvoice: [
-      { key: "product_code", label: "Product Code" },
-      { key: "quantity", label: "Quantity" },
-      { key: "mrp", label: "MRP" },
-      { key: "cost_price", label: "Cost Price" },
-      { key: "total_price", label: "Total Price" },
+      { key: 'product_code', label: 'Product Code' },
+      { key: 'quantity', label: 'Quantity' },
+      { key: 'mrp', label: 'MRP' },
+      { key: 'cost_price', label: 'Cost Price' },
+      { key: 'total_price', label: 'Total Price' },
     ],
-  };
+  }
 
-  const selectedColumns = columnsConfig[label] || [];
+  const selectedColumns = columnsConfig[label] || []
 
   const labelCode = {
-    purchaseOrder: "Purchase Order Code",
-    grn: "GRN Code",
-    purchaseInvoice: "Invoice Code",
-  };
+    purchaseOrder: 'Purchase Order Code',
+    grn: 'GRN Code',
+    purchaseInvoice: 'Invoice Code',
+  }
 
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Items Details</h1>
       <div className="mb-6">
-        <button className="bg-gray-300 text-black px-4 py-2 rounded mb-4 cursor-pointer" onClick={() => window.history.back()}>
+        <button
+          className="bg-gray-300 text-black px-4 py-2 rounded mb-4 cursor-pointer"
+          onClick={() => window.history.back()}
+        >
           &larr; Back
         </button>
       </div>
@@ -54,7 +57,7 @@ const ViewItems = () => {
         </label>
         <input
           type="text"
-          value={code || ""}
+          value={code || ''}
           readOnly
           className="w-56 border rounded-lg p-2 bg-gray-100 cursor-not-allowed"
         />
@@ -88,9 +91,7 @@ const ViewItems = () => {
                           {item[col.key] ? item[col.key].split('T')[0] : ''}
                         </span>
                       ) : (
-                        <span>
-                          {item[col.key] ?? ""}
-                        </span>
+                        <span>{item[col.key] ?? ''}</span>
                       )}
                     </td>
                   ))}
@@ -110,7 +111,7 @@ const ViewItems = () => {
         </table>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ViewItems;
+export default ViewItems

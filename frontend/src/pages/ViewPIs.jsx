@@ -1,51 +1,56 @@
-import { useState, useEffect } from "react";
-import { Eye, Trash2, Pencil } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from 'react'
+import { Eye, Trash2, Pencil } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 const ViewPIs = () => {
-  const [purchaseInvoices, setPurchaseInvoices] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All");
-  const navigate = useNavigate();
+  const [purchaseInvoices, setPurchaseInvoices] = useState([])
+  const [searchQuery, setSearchQuery] = useState('')
+  const [statusFilter, setStatusFilter] = useState('All')
+  const navigate = useNavigate()
 
   useEffect(() => {
     const fetchPurchaseInvoices = async () => {
       try {
-        const response = await fetch("/api/purchaseInvoice/getAll-purchase-invoices");
-        const data = await response.json();
-        setPurchaseInvoices(data.data || []);
+        const response = await fetch(
+          '/api/purchaseInvoice/getAll-purchase-invoices'
+        )
+        const data = await response.json()
+        setPurchaseInvoices(data.data || [])
       } catch (error) {
-        console.error("Error fetching Purchase Invoices:", error);
+        console.error('Error fetching Purchase Invoices:', error)
       }
-    };
-    fetchPurchaseInvoices();
-  }, []);
+    }
+    fetchPurchaseInvoices()
+  }, [])
 
   const handleEditPI = (pi) => {
-    navigate("/add-pi", { state: { grn : pi, isEdit: true } });
-  };
+    navigate('/add-pi', { state: { grn: pi, isEdit: true } })
+  }
 
   const handleDeletePI = async (piCode) => {
     try {
-      const response = await fetch("/api/purchaseInvoice/delete-purchase-invoice", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ purchase_invoice_code: piCode }),
-      });
-
-      const data = await response.json();
+      const response = await fetch(
+        '/api/purchaseInvoice/delete-purchase-invoice',
+        {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ purchase_invoice_code: piCode }),
+        }
+      )
+      
+      const data = await response.json()
 
       if (data.success) {
         setPurchaseInvoices(
           purchaseInvoices.filter((pi) => pi.purchase_invoice_code !== piCode)
-        );
+        )
       } else {
-        console.error("Failed to delete PI:", data.message);
+        console.error('Failed to delete PI:', data.message)
       }
     } catch (error) {
-      console.error("Error deleting PI:", error);
+      console.error('Error deleting PI:', error)
     }
-  };
+  }
 
   const filteredPIs = purchaseInvoices.filter((pi) => {
     const matchesSearch =
@@ -53,14 +58,14 @@ const ViewPIs = () => {
         ?.toLowerCase()
         .includes(searchQuery.toLowerCase()) ||
       pi.grn_code?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      pi.vendor_code?.toLowerCase().includes(searchQuery.toLowerCase());
+      pi.vendor_code?.toLowerCase().includes(searchQuery.toLowerCase())
 
     const matchesStatus =
-      statusFilter === "All" ||
-      pi.status?.toLowerCase() === statusFilter.toLowerCase();
+      statusFilter === 'All' ||
+      pi.status?.toLowerCase() === statusFilter.toLowerCase()
 
-    return matchesSearch && matchesStatus;
-  });
+    return matchesSearch && matchesStatus
+  })
 
   return (
     <div className="p-6">
@@ -112,7 +117,7 @@ const ViewPIs = () => {
                   <td className="p-2 border">{pi.grn_code}</td>
                   <td className="p-2 border">{pi.vendor_code}</td>
                   <td className="p-2 border">
-                    {pi.invoice_date.split("T")[0]}
+                    {pi.invoice_date.split('T')[0]}
                   </td>
                   <td className="p-2 border">₹{pi.total_amount}</td>
                   <td className="p-2 border">{pi.status}</td>
@@ -128,10 +133,10 @@ const ViewPIs = () => {
                       onClick={() => {
                         if (
                           window.confirm(
-                            "Are you sure you want to delete this Purchase Invoice?"
+                            'Are you sure you want to delete this Purchase Invoice?'
                           )
                         ) {
-                          handleDeletePI(pi.purchase_invoice_code);
+                          handleDeletePI(pi.purchase_invoice_code)
                         }
                       }}
                     >
@@ -140,10 +145,10 @@ const ViewPIs = () => {
                     <button
                       className="text-white bg-blue-500 px-2 py-1 rounded hover:bg-blue-600 cursor-pointer"
                       onClick={() =>
-                        navigate("/view-items", {
+                        navigate('/view-items', {
                           state: {
                             items: pi.items,
-                            label: "purchaseInvoice",
+                            label: 'purchaseInvoice',
                             code: pi.purchase_invoice_code,
                           },
                         })
@@ -165,7 +170,7 @@ const ViewPIs = () => {
         </table>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ViewPIs;
+export default ViewPIs

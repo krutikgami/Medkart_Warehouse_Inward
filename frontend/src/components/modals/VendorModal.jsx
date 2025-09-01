@@ -1,72 +1,75 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react'
 
-export default function VendorModal({ isOpen, onClose, onSave ,editVendor }) {
+export default function VendorModal({ isOpen, onClose, onSave, editVendor }) {
   const [formData, setFormData] = useState({
-    vendor_name: "",
-    contact_person: "",
-    contact_number: "",
-    vendor_email: "",
-    gst_number: "",
-    address: "",
-    status: "Active", 
-  });
+    vendor_name: '',
+    contact_person: '',
+    contact_number: '',
+    vendor_email: '',
+    gst_number: '',
+    address: '',
+    status: 'Active',
+  })
 
-  useEffect(()=>{
+  useEffect(() => {
     if (editVendor) {
-      setFormData(editVendor);
-    }else{
+      setFormData(editVendor)
+    } else {
       setFormData({
-        vendor_name: "",
-        contact_person: "",
-        contact_number: "",
-        vendor_email: "",
-        gst_number: "",
-        address: "",
-        status: "Active", 
-      });
+        vendor_name: '',
+        contact_person: '',
+        contact_number: '',
+        vendor_email: '',
+        gst_number: '',
+        address: '',
+        status: 'Active',
+      })
     }
-  }, [editVendor]);
+  }, [editVendor])
 
-  if (!isOpen) return null;
+  if (!isOpen) return null
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+    setFormData({ ...formData, [e.target.name]: e.target.value })
+  }
 
-  const handleSubmit = async(e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault()
     try {
+      const url = editVendor
+        ? '/api/vendorMaster/update-vendor'
+        : '/api/vendorMaster/vendor'
+      const method = editVendor ? 'PUT' : 'POST'
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
 
-      const url  = editVendor ? '/api/vendorMaster/update-vendor' : '/api/vendorMaster/vendor';
-      const method = editVendor ? 'PUT' : 'POST';
-        const response = await fetch(url, {
-            method,
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(formData),
-        });
+      if (!response.ok) {
+        throw new Error('Failed to add vendor')
+      }
 
-        if (!response.ok) {
-            throw new Error('Failed to add vendor');
-        }
-
-        const data = await response.json();
-        console.log(data);
-        onSave(data.data);
-        onClose();
+      const data = await response.json()
+      console.log(data)
+      onSave(data.data)
+      onClose()
     } catch (error) {
-      console.error('Error adding vendor:', error);
+      console.error('Error adding vendor:', error)
     }
-  };
+  }
 
   return (
-   <div className="fixed inset-0 flex items-center justify-center bg-white bg-opacity-40 backdrop-blur-sm z-50">
+    <div className="fixed inset-0 flex items-center justify-center bg-white bg-opacity-40 backdrop-blur-sm z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg w-[800px] border border-gray-300">
         <h2 className="text-xl font-semibold mb-4">Add Vendor</h2>
         <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Vendor Name</label>
+            <label className="block text-sm font-medium mb-1">
+              Vendor Name
+            </label>
             <input
               type="text"
               name="vendor_name"
@@ -78,7 +81,9 @@ export default function VendorModal({ isOpen, onClose, onSave ,editVendor }) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Contact Person</label>
+            <label className="block text-sm font-medium mb-1">
+              Contact Person
+            </label>
             <input
               type="text"
               name="contact_person"
@@ -90,7 +95,9 @@ export default function VendorModal({ isOpen, onClose, onSave ,editVendor }) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Contact Number</label>
+            <label className="block text-sm font-medium mb-1">
+              Contact Number
+            </label>
             <input
               type="number"
               name="contact_number"
@@ -102,7 +109,9 @@ export default function VendorModal({ isOpen, onClose, onSave ,editVendor }) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Vendor Email</label>
+            <label className="block text-sm font-medium mb-1">
+              Vendor Email
+            </label>
             <input
               type="email"
               name="vendor_email"
@@ -167,6 +176,5 @@ export default function VendorModal({ isOpen, onClose, onSave ,editVendor }) {
         </form>
       </div>
     </div>
-
-  );
+  )
 }

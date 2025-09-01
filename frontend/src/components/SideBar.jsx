@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink } from 'react-router-dom'
 
 const SideBar = () => {
   return (
@@ -12,7 +12,9 @@ const SideBar = () => {
               end
               className={({ isActive }) =>
                 `block px-6 py-3 ${
-                  isActive ? "bg-white text-gray-900 font-semibold" : "hover:bg-gray-700"
+                  isActive
+                    ? 'bg-white text-gray-900 font-semibold'
+                    : 'hover:bg-gray-700'
                 }`
               }
             >
@@ -24,7 +26,9 @@ const SideBar = () => {
               to="/products"
               className={({ isActive }) =>
                 `block px-6 py-3 ${
-                  isActive ? "bg-white text-gray-900 font-semibold" : "hover:bg-gray-700"
+                  isActive
+                    ? 'bg-white text-gray-900 font-semibold'
+                    : 'hover:bg-gray-700'
                 }`
               }
             >
@@ -36,7 +40,9 @@ const SideBar = () => {
               to="/vendors"
               className={({ isActive }) =>
                 `block px-6 py-3 ${
-                  isActive ? "bg-white text-gray-900 font-semibold" : "hover:bg-gray-700"
+                  isActive
+                    ? 'bg-white text-gray-900 font-semibold'
+                    : 'hover:bg-gray-700'
                 }`
               }
             >
@@ -48,7 +54,9 @@ const SideBar = () => {
               to="/purchase-orders"
               className={({ isActive }) =>
                 `block px-6 py-3 ${
-                  isActive ? "bg-white text-gray-900 font-semibold" : "hover:bg-gray-700"
+                  isActive
+                    ? 'bg-white text-gray-900 font-semibold'
+                    : 'hover:bg-gray-700'
                 }`
               }
             >
@@ -60,7 +68,9 @@ const SideBar = () => {
               to="/view-grns"
               className={({ isActive }) =>
                 `block px-6 py-3 ${
-                  isActive ? "bg-white text-gray-900 font-semibold" : "hover:bg-gray-700"
+                  isActive
+                    ? 'bg-white text-gray-900 font-semibold'
+                    : 'hover:bg-gray-700'
                 }`
               }
             >
@@ -72,7 +82,9 @@ const SideBar = () => {
               to="/view-invoices"
               className={({ isActive }) =>
                 `block px-6 py-3 ${
-                  isActive ? "bg-white text-gray-900 font-semibold" : "hover:bg-gray-700"
+                  isActive
+                    ? 'bg-white text-gray-900 font-semibold'
+                    : 'hover:bg-gray-700'
                 }`
               }
             >
@@ -82,7 +94,7 @@ const SideBar = () => {
         </ul>
       </nav>
     </div>
-  );
-};
+  )
+}
 
-export default SideBar;
+export default SideBar

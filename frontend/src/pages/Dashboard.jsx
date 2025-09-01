@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react'
 
 const Dashboard = () => {
   const [totalCounts, setTotalCounts] = useState({
@@ -7,33 +7,33 @@ const Dashboard = () => {
     products: 0,
     grns: 0,
     purchaseInvoices: 0,
-  });
+  })
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("/api/total-counts");
-        const data = await response.json();
+        const response = await fetch('/api/total-counts')
+        const data = await response.json()
         if (data.success) {
-          setTotalCounts(data.data);
+          setTotalCounts(data.data)
         } else {
-          console.error("Failed to fetch total counts:", data.message);
+          console.error('Failed to fetch total counts:', data.message)
         }
       } catch (error) {
-        console.error("Error fetching total counts:", error);
+        console.error('Error fetching total counts:', error)
       }
-    };
+    }
 
-    fetchData();
-  }, []);
+    fetchData()
+  }, [])
 
   const cards = [
-    { title: "Total Purchase Orders", value: totalCounts.purchaseOrders },
-    { title: "Total Vendors", value: totalCounts.vendors },
-    { title: "Total Products", value: totalCounts.products },
-    { title: "Total GRNs", value: totalCounts.grns },
-    { title: "Total Purchase Invoices", value: totalCounts.purchaseInvoices },
-  ];
+    { title: 'Total Purchase Orders', value: totalCounts.purchaseOrders },
+    { title: 'Total Vendors', value: totalCounts.vendors },
+    { title: 'Total Products', value: totalCounts.products },
+    { title: 'Total GRNs', value: totalCounts.grns },
+    { title: 'Total Purchase Invoices', value: totalCounts.purchaseInvoices },
+  ]
 
   return (
     <div className="p-6">
@@ -50,7 +50,7 @@ const Dashboard = () => {
         ))}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Dashboard;
+export default Dashboard

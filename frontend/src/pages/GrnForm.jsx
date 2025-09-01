@@ -1,51 +1,60 @@
-import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, { useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 const GrnForm = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  let order ;
-  const isEdit = location.state?.isEdit || false;
-  if(isEdit){
-    order = location.state?.grn || {};
-  }else{
-    order = location.state?.order || {};
+  const location = useLocation()
+  const navigate = useNavigate()
+  let order
+  const isEdit = location.state?.isEdit || false
+  if (isEdit) {
+    order = location.state?.grn || {}
+  } else {
+    order = location.state?.order || {}
   }
   const [formData, setFormData] = useState({
-    purchase_order_code: order?.purchase_order_code || "",
-    vendor_code: order?.vendor_code || "",
+    purchase_order_code: order?.purchase_order_code || '',
+    vendor_code: order?.vendor_code || '',
     grn_date: new Date().toISOString().slice(0, 16),
     total_amount: order?.total_amount || 0,
     total_damage_qty: 0,
     total_shortage_qty: 0,
-    grn_code: order?.grn_code || "",
-    items: order?.items?.map((item) => ({
-      product_code: item.product_code,
-      quantity: item.quantity,
-      mrp: item.mrp,
-      cost_price: item.cost_price,
-      total_price: item.total_price,
-      damage_qty: 0,
-      shortage_qty: 0,
-      batch_number: "",
-      mfg_date: isEdit ? order.items.find(i => i.product_code === item.product_code)?.mfg_date?.split('T')[0] || "" : "",
-      exp_date: isEdit ? order.items.find(i => i.product_code === item.product_code)?.exp_date?.split('T')[0] || "" : "",
-    })) || [],
-  });
+    grn_code: order?.grn_code || '',
+    items:
+      order?.items?.map((item) => ({
+        product_code: item.product_code,
+        quantity: item.quantity,
+        mrp: item.mrp,
+        cost_price: item.cost_price,
+        total_price: item.total_price,
+        damage_qty: 0,
+        shortage_qty: 0,
+        batch_number: '',
+        mfg_date: isEdit
+          ? order.items
+              .find((i) => i.product_code === item.product_code)
+              ?.mfg_date?.split('T')[0] || ''
+          : '',
+        exp_date: isEdit
+          ? order.items
+              .find((i) => i.product_code === item.product_code)
+              ?.exp_date?.split('T')[0] || ''
+          : '',
+      })) || [],
+  })
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
+    const { name, value } = e.target
+    setFormData({ ...formData, [name]: value })
+  }
 
   const handleItemChange = (index, field, value) => {
-    const newItems = [...formData.items];
-    newItems[index][field] = value;
+    const newItems = [...formData.items]
+    newItems[index][field] = value
 
-    if (field === "quantity" || field === "cost_price") {
+    if (field === 'quantity' || field === 'cost_price') {
       newItems[index].total_price =
         (parseFloat(newItems[index].quantity) || 0) *
-        (parseFloat(newItems[index].cost_price) || 0);
+        (parseFloat(newItems[index].cost_price) || 0)
     }
 
     setFormData({
@@ -63,47 +72,49 @@ const GrnForm = () => {
         (sum, item) => sum + (parseInt(item.shortage_qty) || 0),
         0
       ),
-    });
-  };
+    })
+  }
 
-  const handleSubmit = async(e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault()
     try {
-      const url = isEdit ? "/api/goodsReceiptNote/edit-grn" : "/api/goodsReceiptNote/add-grn";
+      const url = isEdit
+        ? '/api/goodsReceiptNote/edit-grn'
+        : '/api/goodsReceiptNote/add-grn'
       const response = await fetch(url, {
-        method: isEdit ? "PUT" : "POST",
+        method: isEdit ? 'PUT' : 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),
-      });
+      })
 
-      const data = await response.json();
+      const data = await response.json()
 
       if (data.success) {
         if (isEdit) {
-          console.log("GRN updated successfully:", data);
-          alert("GRN updated successfully");
+          console.log('GRN updated successfully:', data)
+          alert('GRN updated successfully')
         } else {
-          console.log("GRN created successfully:", data);
-          alert("GRN created successfully");
+          console.log('GRN created successfully:', data)
+          alert('GRN created successfully')
         }
 
-        isEdit ? navigate("/view-grns") : navigate("/purchase-orders");
+        isEdit ? navigate('/view-grns') : navigate('/purchase-orders')
       } else {
         if (isEdit) {
-          console.error("Failed to update GRN:", data.message);
-          alert("Failed to update GRN: " + data.message);
-          return;
+          console.error('Failed to update GRN:', data.message)
+          alert('Failed to update GRN: ' + data.message)
+          return
         }
-        console.error("Failed to create GRN:", data.message);
-        alert("Failed to create GRN: " + data.message);
+        console.error('Failed to create GRN:', data.message)
+        alert('Failed to create GRN: ' + data.message)
       }
     } catch (error) {
-      console.error("Error creating GRN:", error);
-      alert("Error creating GRN. Please try again.");
+      console.error('Error creating GRN:', error)
+      alert('Error creating GRN. Please try again.')
     }
-  };
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-6 flex items-start justify-center">
@@ -151,7 +162,7 @@ const GrnForm = () => {
               />
             </div>
           </div>
-        
+
           <div>
             <h3 className="text-lg font-medium mb-3">Items</h3>
             <div className="space-y-4">
@@ -161,7 +172,9 @@ const GrnForm = () => {
                   className="grid grid-cols-12 gap-3 items-end bg-gray-50 p-3 rounded"
                 >
                   <div className="col-span-2">
-                    <label className="block text-sm text-gray-700">Product</label>
+                    <label className="block text-sm text-gray-700">
+                      Product
+                    </label>
                     <input
                       type="text"
                       value={item.product_code}
@@ -175,7 +188,7 @@ const GrnForm = () => {
                       type="number"
                       value={item.quantity}
                       onChange={(e) =>
-                        handleItemChange(index, "quantity", e.target.value)
+                        handleItemChange(index, 'quantity', e.target.value)
                       }
                       className="w-full p-2 border rounded text-center"
                     />
@@ -187,7 +200,7 @@ const GrnForm = () => {
                       step="0.01"
                       value={item.mrp}
                       onChange={(e) =>
-                        handleItemChange(index, "mrp", e.target.value)
+                        handleItemChange(index, 'mrp', e.target.value)
                       }
                       className="w-full p-2 border rounded bg-gray-100 text-center"
                     />
@@ -199,40 +212,46 @@ const GrnForm = () => {
                       step="0.01"
                       value={item.cost_price}
                       onChange={(e) =>
-                        handleItemChange(index, "cost_price", e.target.value)
+                        handleItemChange(index, 'cost_price', e.target.value)
                       }
                       className="w-full p-2 border rounded text-center"
                     />
                   </div>
                   <div className="col-span-1">
-                    <label className="block text-sm text-gray-700">Damage</label>
+                    <label className="block text-sm text-gray-700">
+                      Damage
+                    </label>
                     <input
                       type="number"
                       value={item.damage_qty}
                       onChange={(e) =>
-                        handleItemChange(index, "damage_qty", e.target.value)
+                        handleItemChange(index, 'damage_qty', e.target.value)
                       }
                       className="w-full p-2 border rounded text-center"
                     />
                   </div>
                   <div className="col-span-1">
-                    <label className="block text-sm text-gray-700">Shortage</label>
+                    <label className="block text-sm text-gray-700">
+                      Shortage
+                    </label>
                     <input
                       type="number"
                       value={item.shortage_qty}
                       onChange={(e) =>
-                        handleItemChange(index, "shortage_qty", e.target.value)
+                        handleItemChange(index, 'shortage_qty', e.target.value)
                       }
                       className="w-full p-2 border rounded text-center"
                     />
                   </div>
                   <div className="col-span-2">
-                    <label className="block text-sm text-gray-700">Batch No.</label>
+                    <label className="block text-sm text-gray-700">
+                      Batch No.
+                    </label>
                     <input
                       type="text"
                       value={item.batch_number}
                       onChange={(e) =>
-                        handleItemChange(index, "batch_number", e.target.value)
+                        handleItemChange(index, 'batch_number', e.target.value)
                       }
                       className="w-full p-2 border rounded"
                     />
@@ -243,7 +262,7 @@ const GrnForm = () => {
                       type="date"
                       value={item.mfg_date}
                       onChange={(e) =>
-                        handleItemChange(index, "mfg_date", e.target.value)
+                        handleItemChange(index, 'mfg_date', e.target.value)
                       }
                       className="w-full p-2 border rounded"
                     />
@@ -254,7 +273,7 @@ const GrnForm = () => {
                       type="date"
                       value={item.exp_date}
                       onChange={(e) =>
-                        handleItemChange(index, "exp_date", e.target.value)
+                        handleItemChange(index, 'exp_date', e.target.value)
                       }
                       className="w-full p-2 border rounded"
                     />
@@ -328,7 +347,9 @@ const GrnForm = () => {
           <div className="flex justify-between mt-6">
             <button
               type="button"
-              onClick={() => isEdit ? navigate("/view-grns") : navigate("/purchase-orders")}
+              onClick={() =>
+                isEdit ? navigate('/view-grns') : navigate('/purchase-orders')
+              }
               className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
             >
               Back
@@ -343,7 +364,7 @@ const GrnForm = () => {
         </form>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default GrnForm;
+export default GrnForm
