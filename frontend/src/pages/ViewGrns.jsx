@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
-import { Eye, Trash2, Pencil } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-
+import DataTable from '../components/common/DataTable'
+import { GrnHeading } from '../components/common/TableHeadings'
+import { Eye } from 'lucide-react'
 const ViewGrns = () => {
   const [grns, setGrns] = useState([])
   const [searchQuery, setSearchQuery] = useState('')
@@ -62,11 +63,9 @@ const ViewGrns = () => {
   })
 
   return (
-    <div className="p-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
-        <h1 className="text-2xl font-bold">GRN Master</h1>
-
-        <div className="flex flex-wrap items-center gap-2">
+    <>
+      <div className="p-6">
+        <div className="flex justify-end gap-2">
           <input
             type="text"
             placeholder="Search by GRN, PO, Vendor..."
@@ -86,99 +85,47 @@ const ViewGrns = () => {
             <option value="Completed">Completed</option>
           </select>
         </div>
-      </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full border text-sm">
-          <thead className="bg-gray-200">
-            <tr>
-              <th className="p-2 border">ID</th>
-              <th className="p-2 border">GRN Code</th>
-              <th className="p-2 border">PO Code</th>
-              <th className="p-2 border">Vendor Code</th>
-              <th className="p-2 border">GRN Date</th>
-              <th className="p-2 border">Total Amount</th>
-              <th className="p-2 border">Status</th>
-              <th className="p-2 border">Damage Qty</th>
-              <th className="p-2 border">Shortage Qty</th>
-              <th className="p-2 border">Operations</th>
-              <th className="p-2 border">PI</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredGrns.length > 0 ? (
-              filteredGrns.map((g, idx) => (
-                <tr key={g.id} className="text-center">
-                  <td className="p-2 border">{idx + 1}</td>
-                  <td className="p-2 border">{g.grn_code}</td>
-                  <td className="p-2 border">{g.purchase_order_code}</td>
-                  <td className="p-2 border">{g.vendor_code}</td>
-                  <td className="p-2 border">{g.grn_date.split('T')[0]}</td>
-                  <td className="p-2 border">₹{g.total_amount}</td>
-                  <td className="p-2 border">{g.status}</td>
-                  <td className="p-2 border">{g.total_damage_qty}</td>
-                  <td className="p-2 border">{g.total_shortage_qty}</td>
-                  <td className="p-2 border justify-center gap-2 flex">
-                    <button
-                      className="text-white bg-green-500 px-2 py-1 rounded hover:bg-green-600 cursor-pointer"
-                      onClick={() => handleEditGrn(g)}
-                    >
-                      <Pencil size={16} />
-                    </button>
-                    <button
-                      className="text-white bg-red-500 px-2 py-1 rounded hover:bg-red-600 cursor-pointer"
-                      onClick={() => {
-                        if (
-                          window.confirm(
-                            'Are you sure you want to delete this GRN?'
-                          )
-                        ) {
-                          handleDeleteGrn(g.grn_code)
-                        }
-                      }}
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                    <button
-                      className="text-white bg-blue-500 px-2 py-1 rounded hover:bg-blue-600 cursor-pointer"
-                      onClick={() =>
-                        navigate('/view-items', {
-                          state: {
-                            items: g.items,
-                            label: 'grn',
-                            code: g.grn_code,
-                          },
-                        })
-                      }
-                    >
-                      <Eye size={16} />
-                    </button>
-                  </td>
-                  <td className="p-2 border">
-                    <button
-                      className="text-white bg-blue-500 px-2 py-1 rounded hover:bg-blue-600 cursor-pointer"
-                      onClick={() =>
-                        navigate('/add-pi', {
-                          state: { grn: g, isEdit: false },
-                        })
-                      }
-                    >
-                      + PI
-                    </button>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td className="p-4 border text-center" colSpan={9}>
-                  No GRNs found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+        <DataTable
+          title="Goods Receipt Notes"
+          columns={GrnHeading}
+          data={filteredGrns}
+          onEdit={handleEditGrn}
+          onDelete={(row) => handleDeleteGrn(row.grn_code)}
+          actions={{
+            operations: [
+              (row) => (
+                <button
+                  className="bg-blue-500 text-white px-2 py-1 rounded"
+                  onClick={() =>
+                    navigate('/view-items', {
+                      state: {
+                        items: row.items,
+                        label: 'grn',
+                        code: row.grn_code,
+                      },
+                    })
+                  }
+                >
+                  <Eye className="h-4 w-4" />
+                </button>
+              ),
+            ],
+            pi: [
+              (row) => (
+                <button
+                  key="pi"
+                  className="text-white bg-blue-500 px-2 py-1 rounded hover:bg-blue-600"
+                  onClick={() => navigate('/add-pi', { state: { grn: row } })}
+                >
+                  + PI
+                </button>
+              ),
+            ],
+          }}
+        />
       </div>
-    </div>
+    </>
   )
 }
 

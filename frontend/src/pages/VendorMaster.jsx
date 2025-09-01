@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import VendorModal from '../components/modals/VendorModal'
-import { Pencil, Trash2 } from 'lucide-react'
+import DataTable from '../components/common/DataTable'
+import { VendorHeading } from '../components/common/TableHeadings'
 
 const VendorMaster = () => {
   const [vendors, setVendors] = useState([])
@@ -17,8 +18,8 @@ const VendorMaster = () => {
         const data = await response.json()
         setVendors(data.data || [])
       } catch (error) {
-        console.error("Error in Vendor Master: ",error.message);
-        alert("Error in Vendor Master: ",error.message)
+        console.error('Error in Vendor Master: ', error.message)
+        alert('Error in Vendor Master: ', error.message)
       }
     }
     fetchVendors()
@@ -81,38 +82,34 @@ const VendorMaster = () => {
 
   return (
     <div className="p-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
-        <h1 className="text-2xl font-bold">Vendor Master</h1>
+      <div className="flex justify-end gap-2">
+        <input
+          type="text"
+          placeholder="Search by code, name, contact..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="border rounded px-3 py-2 text-sm"
+        />
 
-        <div className="flex flex-wrap items-center gap-2">
-          <input
-            type="text"
-            placeholder="Search by code, name, contact..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="border rounded px-3 py-2 text-sm"
-          />
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="border rounded px-3 py-2 text-sm"
+        >
+          <option value="All">All Statuses</option>
+          <option value="Active">Active</option>
+          <option value="Inactive">Inactive</option>
+        </select>
 
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="border rounded px-3 py-2 text-sm"
-          >
-            <option value="All">All Statuses</option>
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-          </select>
-
-          <button
-            className="bg-blue-500 text-white px-4 py-2 rounded text-sm"
-            onClick={() => {
-              setEditVendor(null)
-              setIsModalOpen(true)
-            }}
-          >
-            + Add New Vendor
-          </button>
-        </div>
+        <button
+          className="bg-blue-500 text-white px-4 py-2 rounded text-sm"
+          onClick={() => {
+            setEditVendor(null)
+            setIsModalOpen(true)
+          }}
+        >
+          + Add New Vendor
+        </button>
       </div>
 
       <VendorModal
@@ -125,69 +122,13 @@ const VendorMaster = () => {
         editVendor={editVendor}
       />
 
-      <div className="overflow-x-auto">
-        <table className="w-full border text-sm">
-          <thead className="bg-gray-200">
-            <tr>
-              <th className="p-2 border">ID</th>
-              <th className="p-2 border">Code</th>
-              <th className="p-2 border">Name</th>
-              <th className="p-2 border">Contact Person</th>
-              <th className="p-2 border">Contact Number</th>
-              <th className="p-2 border">Vendor Email</th>
-              <th className="p-2 border">GST</th>
-              <th className="p-2 border">Address</th>
-              <th className="p-2 border">Status</th>
-              <th className="p-2 border">Operations</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredVendors.length > 0 ? (
-              filteredVendors.map((v, idx) => (
-                <tr key={v.id} className="text-center">
-                  <td className="p-2 border">{idx + 1}</td>
-                  <td className="p-2 border">{v.vendor_code}</td>
-                  <td className="p-2 border">{v.vendor_name}</td>
-                  <td className="p-2 border">{v.contact_person}</td>
-                  <td className="p-2 border">{v.contact_number}</td>
-                  <td className="p-2 border">{v.vendor_email}</td>
-                  <td className="p-2 border">{v.gst_number}</td>
-                  <td className="p-2 border">{v.address}</td>
-                  <td className="p-2 border">{v.status}</td>
-                  <td className="p-2 border">
-                    <button
-                      className="bg-green-500 text-white px-2 py-1 rounded mr-2 cursor-pointer"
-                      onClick={() => handleEdit(v)}
-                    >
-                      <Pencil size={16} />
-                    </button>
-                    <button
-                      className="bg-red-500 text-white px-2 py-1 rounded cursor-pointer"
-                      onClick={() => {
-                        if (
-                          window.confirm(
-                            'Are you sure you want to delete this vendor?'
-                          )
-                        ) {
-                          handleDelete(v.vendor_code)
-                        }
-                      }}
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td className="p-4 border text-center" colSpan={9}>
-                  No vendors found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      <DataTable
+        title={'Vendor Master'}
+        columns={VendorHeading}
+        data={filteredVendors}
+        onEdit={handleEdit}
+        onDelete={(row) => handleDelete(row.vendor_code)}
+      />
     </div>
   )
 }

@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
-import { Pencil, Trash2, Eye } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import DataTable from '../components/common/DataTable'
+import { PurchaseOrderHeading } from '../components/common/TableHeadings'
+import { Eye } from 'lucide-react'
 
 const PurchaseOrder = () => {
   const [orders, setOrders] = useState([])
@@ -16,8 +18,8 @@ const PurchaseOrder = () => {
         const data = await response.json()
         setOrders(data.data || [])
       } catch (error) {
-        console.error("Error in Purchase Order: ",error.message);
-        alert("Error in Purchase Order: ",error.message)
+        console.error('Error in Purchase Order: ', error.message)
+        alert('Error in Purchase Order: ', error.message)
       }
     }
     fetchPurchaseOrder()
@@ -65,141 +67,78 @@ const PurchaseOrder = () => {
   return (
     <>
       <div className="p-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
-          <h1 className="text-2xl font-bold">Purchase Orders</h1>
+        <div className="flex justify-end gap-2">
+          <input
+            type="text"
+            placeholder="Search by vendor, code, status..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="border rounded px-3 py-2 text-sm"
+          />
 
-          <div className="flex flex-wrap items-center gap-2">
-            <input
-              type="text"
-              placeholder="Search by vendor, code, status..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="border rounded px-3 py-2 text-sm"
-            />
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="border rounded px-3 py-2 text-sm"
+          >
+            <option value="All">All Statuses</option>
+            <option value="Pending">Pending</option>
+            <option value="Partial Completed">Partial Completed</option>
+            <option value="Completed">Completed</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
 
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="border rounded px-3 py-2 text-sm"
-            >
-              <option value="All">All Statuses</option>
-              <option value="Pending">Pending</option>
-              <option value="Partial Completed">Partial Completed</option>
-              <option value="Completed">Completed</option>
-              <option value="Cancelled">Cancelled</option>
-            </select>
-
-            <button
-              className="bg-blue-500 text-white px-4 py-2 rounded text-sm"
-              onClick={() => {
-                navigate('/add-purchase-order', { state: { isEdit: false } })
-              }}
-            >
-              + Add New Order
-            </button>
-          </div>
+          <button
+            className="bg-blue-500 text-white px-4 py-2 rounded text-sm"
+            onClick={() => {
+              navigate('/add-purchase-order', { state: { isEdit: false } })
+            }}
+          >
+            + Add New Order
+          </button>
         </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full border text-sm">
-            <thead className="bg-gray-200">
-              <tr>
-                <th className="p-2 border">ID</th>
-                <th className="p-2 border">Vendor Code</th>
-                <th className="p-2 border">PO Code</th>
-                <th className="p-2 border">Purchase Date</th>
-                <th className="p-2 border">Total Amount</th>
-                <th className="p-2 border">Expected Date</th>
-                <th className="p-2 border">Status</th>
-                <th className="p-2 border">Operations</th>
-                <th className="p-2 border">GRN</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredOrders.length > 0 ? (
-                filteredOrders.map((o, idx) => (
-                  <tr key={o.id} className="text-center">
-                    <td className="p-2 border">{idx + 1}</td>
-                    <td className="p-2 border">{o.vendor_code}</td>
-                    <td className="p-2 border">{o.purchase_order_code}</td>
-                    <td className="p-2 border">
-                      {o.purchase_date?.split('T')[0]}
-                    </td>
-                    <td className="p-2 border">₹{o.total_amount}</td>
-                    <td className="p-2 border">
-                      {o.expected_date?.split('T')[0]}
-                    </td>
-                    <td className="p-2 border">{o.status}</td>
-                    <td className="p-2 border flex gap-2 justify-center">
-                      <button
-                        className={
-                          o.status === 'Completed' || o.status === 'Cancelled'
-                            ? 'bg-gray-500 text-white px-2 py-1 rounded mr-2 cursor-pointer'
-                            : 'bg-green-500 text-white px-2 py-1 rounded mr-2 cursor-pointer'
-                        }
-                        onClick={() => handleEdit(o)}
-                        disabled={
-                          o.status === 'Completed' || o.status === 'Cancelled'
-                        }
-                      >
-                        <Pencil size={16} />
-                      </button>
-                      <button
-                        className="bg-red-500 text-white px-2 py-1 rounded cursor-pointer"
-                        onClick={() => {
-                          if (
-                            window.confirm(
-                              'Are you sure you want to delete this order?'
-                            )
-                          ) {
-                            handleDelete(o.purchase_order_code)
-                          }
-                        }}
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                      <button
-                        className="bg-blue-500 text-white px-2 gap-2 py-1 rounded cursor-pointer"
-                        onClick={() =>
-                          navigate('/view-items', {
-                            state: {
-                              items: o.items,
-                              label: 'purchaseOrder',
-                              code: o.purchase_order_code,
-                            },
-                          })
-                        }
-                      >
-                        <Eye size={16} />
-                      </button>
-                    </td>
-                    <td className="p-2 border">
-                      <button
-                        className={
-                          o.status === 'Completed' || o.status === 'Cancelled'
-                            ? 'bg-gray-500 text-white px-2 py-1 rounded'
-                            : 'bg-purple-500 text-white px-2 py-1 rounded'
-                        }
-                        onClick={() =>
-                          navigate('/add-grn', { state: { order: o } })
-                        }
-                        disabled={o.status === 'Completed'}
-                      >
-                        + Add GRN
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td className="p-4 border text-center" colSpan={8}>
-                    No purchase orders found
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          title="Purchase Orders"
+          columns={PurchaseOrderHeading}
+          data={filteredOrders}
+          onEdit={handleEdit}
+          onDelete={(row) => handleDelete(row.purchase_order_code)}
+          actions={{
+            operations: [
+              (row) => (
+                <button
+                  className="bg-blue-500 text-white px-2 py-1 rounded"
+                  onClick={() =>
+                    navigate('/view-items', {
+                      state: {
+                        items: row.items,
+                        label: 'purchaseOrder',
+                        code: row.purchase_order_code,
+                      },
+                    })
+                  }
+                >
+                  <Eye className="h-4 w-4" />
+                </button>
+              ),
+            ],
+            grn: [
+              (row) => (
+                <button
+                  className={`${
+                    row.status === 'Completed' ? 'bg-gray-400' : 'bg-purple-500'
+                  } text-white px-2 py-1 rounded`}
+                  onClick={() =>
+                    navigate('/add-grn', { state: { order: row } })
+                  }
+                  disabled={row.status === 'Completed'}
+                >
+                  + Add GRN
+                </button>
+              ),
+            ],
+          }}
+        />
       </div>
     </>
   )
