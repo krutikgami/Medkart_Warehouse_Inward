@@ -32,7 +32,33 @@ const addGrn = async (req, res) => {
       })
     }
 
+    const inactiveOrDeleted = await prisma.vendorMaster.findFirst({
+      where: {
+        vendor_code,
+      }
+    })
+
+    if (!inactiveOrDeleted || inactiveOrDeleted.status !== 'Active' || inactiveOrDeleted.deletedAt !== null) {
+      return res.status(400).json({
+        success: false,
+        message: 'Vendor is either inactive or deleted',
+      })
+    }
+
     for (let item of items) {
+      const inactiveOrDeletedProduct = await prisma.productMaster.findFirst({
+        where :{
+          product_code : item.product_code
+        }
+      })
+      
+      if (!inactiveOrDeletedProduct || inactiveOrDeletedProduct.status !== 'Active' || inactiveOrDeletedProduct.deletedAt !== null) {
+        return res.status(400).json({
+          success: false,
+          message: `Product is either inactive or deleted for product code ${item.product_code}`,
+        })
+      }
+
       if (parseFloat(item.mrp) < parseFloat(item.cost_price)) {
         return res.status(400).json({
           success: false,
@@ -40,7 +66,7 @@ const addGrn = async (req, res) => {
         })
       }
 
-      if (!checkExpiry(new Date(item.mfg_date),new Date(item.exp_date))) {
+      if (!checkExpiry(new Date(item.exp_date))) {
         return res.status(400).json({
           success: false,
           message: `For product code ${item.product_code}, Expiry Date should be atleast 3 month greater than Manufacturing Date`,
@@ -270,7 +296,7 @@ const editGrn = async (req, res) => {
           message: `For product code ${item.product_code}, MRP should be greater than or equal to Cost Price`,
         })
       }
-      if (!checkExpiry(new Date(item.mfg_date),new Date(item.exp_date))) {
+      if (!checkExpiry(new Date(item.exp_date))) {
         return res.status(400).json({
           success: false,
           message: `For product code ${item.product_code}, Expiry Date should be atleast 3 month greater than Manufacturing Date`,

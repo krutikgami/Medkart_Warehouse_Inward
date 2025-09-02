@@ -1,6 +1,7 @@
-export const checkExpiry = (mfg_date,exp_date)=>{
-    const minExpiryDate = new Date(mfg_date)
-    minExpiryDate.setMonth(minExpiryDate.getMonth()+3);
+import {ExpiryMonth} from './constants/literals.js';
+export const checkExpiry = (exp_date)=>{
+    const minExpiryDate = new Date();
+    minExpiryDate.setMonth(minExpiryDate.getMonth()+ExpiryMonth);
     if (exp_date <= minExpiryDate) {
         return false;
     }
