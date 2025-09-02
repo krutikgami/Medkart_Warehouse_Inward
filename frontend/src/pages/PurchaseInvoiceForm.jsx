@@ -1,6 +1,9 @@
 import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useToast } from '../components/common/ToastContainer'
+import {PurchaseInvoiceStatus} from  '../components/common/StatusValues'
+import { Loader2 } from 'lucide-react'
+
 
 const PurchaseInvoiceForm = () => {
   const {showToast} = useToast();
@@ -8,6 +11,7 @@ const PurchaseInvoiceForm = () => {
   const navigate = useNavigate()
   const { grn } = location.state || {}
   const isEdit = location.state?.isEdit || false
+    const [isLoading,setIsLoading] = useState(false)
 
   const [formData, setFormData] = useState({
     purchase_invoice_code: isEdit ? grn?.purchase_invoice_code : '',
@@ -55,6 +59,7 @@ const PurchaseInvoiceForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
+      setIsLoading(true)
       const url = isEdit
         ? '/api/purchaseInvoice/update-purchase-invoice'
         : '/api/purchaseInvoice/create-purchase-invoice'
@@ -77,6 +82,8 @@ const PurchaseInvoiceForm = () => {
     } catch (error) {
       console.error('Error saving Invoice:', error)
       showToast('Error Saving Invoice',false)
+    }finally{
+      setIsLoading(false)
     }
   }
 
@@ -153,10 +160,9 @@ const PurchaseInvoiceForm = () => {
                 onChange={handleChange}
                 className="w-full p-2 border rounded"
               >
-                <option value="Pending">Pending</option>
-                <option value="Approved">Approved</option>
-                <option value="Paid">Paid</option>
-                <option value="Cancelled">Cancelled</option>
+                {PurchaseInvoiceStatus.map((stat,idx)=>(
+                  <option key={idx} value={stat}>{stat}</option>
+                ))}
               </select>
             </div>
           </div>
@@ -256,9 +262,13 @@ const PurchaseInvoiceForm = () => {
             </button>
             <button
               type="submit"
-              className="px-6 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+              className="flex item-center px-6 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
             >
-              Save Invoice
+              {isLoading ? 
+                <Loader2 className="h-4 w-4 animate-spin" />
+              : 
+              "Save Invoice"
+              }
             </button>
           </div>
         </form>

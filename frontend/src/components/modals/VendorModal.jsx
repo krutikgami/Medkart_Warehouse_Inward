@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useToast } from '../common/ToastContainer'
+import { VendorStatus } from '../common/StatusValues';
+import { Loader2 } from 'lucide-react';
 
 export default function VendorModal({ isOpen, onClose, onSave, editVendor }) {
   const {showToast} = useToast();
+  const [isLoading,setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
     vendor_name: '',
     contact_person: '',
@@ -38,6 +41,7 @@ export default function VendorModal({ isOpen, onClose, onSave, editVendor }) {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
+      setIsLoading(true)
       const url = editVendor
         ? '/api/vendorMaster/update-vendor'
         : '/api/vendorMaster/vendor'
@@ -60,6 +64,8 @@ export default function VendorModal({ isOpen, onClose, onSave, editVendor }) {
     } catch (error) {
       console.error('Error adding vendor:', error)
       showToast('Error in adding vendor',false)
+    }finally{
+      setIsLoading(false)
     }
   }
 
@@ -144,8 +150,9 @@ export default function VendorModal({ isOpen, onClose, onSave, editVendor }) {
               onChange={handleChange}
               className="w-full p-2 border rounded"
             >
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
+             {VendorStatus.map((stat,idx)=>(
+               <option key={idx} value={stat}>{stat}</option>
+             ))}
             </select>
           </div>
 
@@ -170,9 +177,13 @@ export default function VendorModal({ isOpen, onClose, onSave, editVendor }) {
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-green-600 text-white rounded"
+              className="flex item-center px-4 py-2 bg-green-600 text-white rounded"
             >
-              Save
+              {isLoading ? 
+                <Loader2 className="h-4 w-4 animate-spin" />
+              : 
+              "Save"
+              }
             </button>
           </div>
         </form>

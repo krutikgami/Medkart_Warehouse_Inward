@@ -1,4 +1,4 @@
-import { Pencil, Trash2 } from 'lucide-react'
+import { Loader2, Pencil, Trash2 } from 'lucide-react'
 
 export default function DataTable({
   title,
@@ -6,6 +6,7 @@ export default function DataTable({
   data = [],
   onEdit,
   onDelete,
+  deletingIdx,
   actions = {},
 }) {
   return (
@@ -35,7 +36,7 @@ export default function DataTable({
                               {/*Default Edit/Delete Buttons*/}
                               {onEdit && (
                                 <button
-                                  className="bg-green-500 text-white px-2 py-1 rounded mr-2"
+                                  className="bg-green-500 cursor-pointer text-white px-2 py-1 rounded mr-2"
                                   onClick={() => onEdit(row)}
                                 >
                                   <Pencil size={16} />
@@ -43,10 +44,11 @@ export default function DataTable({
                               )}
                               {onDelete && (
                                 <button
-                                  className="bg-red-500 text-white px-2 py-1 rounded mr-2"
-                                  onClick={() => onDelete(row)}
+                                  key={idx}
+                                  className="bg-red-500 cursor-pointer text-white px-2 py-1 rounded mr-2"
+                                  onClick={() => onDelete(row,idx)}
                                 >
-                                  <Trash2 size={16} />
+                                  {deletingIdx === idx ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 size={16} />}
                                 </button>
                               )}
                             </>

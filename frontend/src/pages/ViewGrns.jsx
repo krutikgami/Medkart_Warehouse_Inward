@@ -14,6 +14,7 @@ const ViewGrns = () => {
   const [grns, setGrns] = useState([])
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
+  const [deletingIdx,setDeletingIdx] = useState(null)
 
   const navigate = useNavigate()
 
@@ -40,8 +41,9 @@ const ViewGrns = () => {
     navigate('/add-grn', { state: { grn, isEdit: true } })
   }
 
-  const handleDeleteGrn = async (grnCode) => {
+  const handleDeleteGrn = async (grnCode,idx) => {
     try {
+      setDeletingIdx(idx)
       const response = await fetch('/api/goodsReceiptNote/delete-grn', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
@@ -60,6 +62,8 @@ const ViewGrns = () => {
     } catch (error) {
       console.error('Error deleting GRN:', error)
       showToast('Error deleting GRN',false)
+    }finally{
+      setDeletingIdx(null)
     }
   }
 
@@ -84,7 +88,8 @@ const ViewGrns = () => {
           columns={GrnHeading}
           data={filteredGrns}
           onEdit={handleEditGrn}
-          onDelete={(row) => handleDeleteGrn(row.grn_code)}
+          onDelete={(row,idx) => handleDeleteGrn(row.grn_code,idx)}
+          deletingIdx={deletingIdx}
           actions={{
             operations: [
               (row) => (

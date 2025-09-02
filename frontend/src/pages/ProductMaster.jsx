@@ -18,6 +18,7 @@ const ProductMaster = () => {
 
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
+  const [deletingIdx,setDeletingIdx] = useState(null)
 
   const handleSave = (newProduct) => {
     setProducts([newProduct, ...products])
@@ -49,8 +50,9 @@ const ProductMaster = () => {
     fetchProducts()
   }, [])
 
-  const handleDelete = async (productCode) => {
+  const handleDelete = async (productCode,idx) => {
     try {
+     setDeletingIdx(idx)
       const response = await fetch('/api/productMaster/delete-product', {
         method: 'DELETE',
         headers: {
@@ -71,6 +73,8 @@ const ProductMaster = () => {
     } catch (error) {
       console.error('Error deleting product:', error)
       showToast('Error deleting product',false)
+    }finally{
+      setDeletingIdx(null)
     }
   }
 
@@ -109,7 +113,8 @@ const ProductMaster = () => {
         columns={ProductHeading}
         data={filteredProducts}
         onEdit={handleEdit}
-        onDelete={(row) => handleDelete(row.product_code)}
+        onDelete={(row,idx) => handleDelete(row.product_code,idx)}
+        deletingIdx={deletingIdx}
       />
     </div>
   )

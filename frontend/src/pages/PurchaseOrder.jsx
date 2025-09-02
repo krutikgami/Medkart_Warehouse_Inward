@@ -14,6 +14,7 @@ const PurchaseOrder = () => {
   const [orders, setOrders] = useState([])
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
+  const [deletingIdx,setDeletingIdx] = useState(null)
 
   const navigate = useNavigate()
 
@@ -40,8 +41,9 @@ const PurchaseOrder = () => {
     navigate('/add-purchase-order', { state: { grn: order, isEdit: true } })
   }
 
-  const handleDelete = async (orderCode) => {
+  const handleDelete = async (orderCode,idx) => {
     try {
+      setDeletingIdx(idx)
       const response = await fetch('/api/purchaseOrder/delete-purchase-order', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
@@ -60,6 +62,8 @@ const PurchaseOrder = () => {
     } catch (error) {
       console.error('Error deleting order:', error)
       showToast("Error deleting order",false)
+    }finally{
+      setDeletingIdx(null)
     }
   }
 
@@ -90,7 +94,8 @@ const PurchaseOrder = () => {
           columns={PurchaseOrderHeading}
           data={filteredOrders}
           onEdit={handleEdit}
-          onDelete={(row) => handleDelete(row.purchase_order_code)}
+          onDelete={(row,idx) => handleDelete(row.purchase_order_code,idx)}
+          deletingIdx={deletingIdx}
           actions={{
             operations: [
               (row) => (

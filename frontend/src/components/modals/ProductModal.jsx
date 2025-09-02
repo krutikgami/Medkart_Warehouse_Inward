@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useToast } from '../common/ToastContainer'
+import {ProductStatus} from '../common/StatusValues'
+import { Loader2 } from 'lucide-react';
 
 export default function ProductModal({ isOpen, onClose, onSave, editProduct }) {
   const {showToast} = useToast();
@@ -18,6 +20,7 @@ export default function ProductModal({ isOpen, onClose, onSave, editProduct }) {
   })
 
   const [newCombination, setNewCombination] = useState('')
+  const[isLoading,setIsLoading] = useState(false)
 
   useEffect(() => {
     if (editProduct) {
@@ -64,6 +67,7 @@ export default function ProductModal({ isOpen, onClose, onSave, editProduct }) {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
+      setIsLoading(true)
       const url = editProduct
         ? '/api/productMaster/update-product'
         : '/api/productMaster/product'
@@ -86,6 +90,8 @@ export default function ProductModal({ isOpen, onClose, onSave, editProduct }) {
     } catch (err) {
       console.error('Error:', err)
       showToast('Error in adding Product',false)
+    }finally{
+      setIsLoading(false);
     }
   }
 
@@ -218,8 +224,9 @@ export default function ProductModal({ isOpen, onClose, onSave, editProduct }) {
               onChange={handleChange}
               className="w-full p-2 border rounded"
             >
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
+              {ProductStatus.map((stat,idx)=>(
+                <option key={idx} value={stat}>{stat}</option>
+              ))}
             </select>
           </div>
 
@@ -270,9 +277,13 @@ export default function ProductModal({ isOpen, onClose, onSave, editProduct }) {
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded"
+              className="flex item-center px-4 py-2 bg-blue-600 text-white rounded"
             >
-              Save
+              {isLoading ? 
+              <Loader2 className="h-4 w-4 animate-spin" />
+             :
+              "Save"
+            }
             </button>
           </div>
         </form>

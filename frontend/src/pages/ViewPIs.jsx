@@ -15,6 +15,7 @@ const ViewPIs = () => {
   const [purchaseInvoices, setPurchaseInvoices] = useState([])
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
+  const [deletingIdx,setDeletingIdx] = useState(null)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -42,8 +43,9 @@ const ViewPIs = () => {
     navigate('/add-pi', { state: { grn: pi, isEdit: true } })
   }
 
-  const handleDeletePI = async (piCode) => {
+  const handleDeletePI = async (piCode,idx) => {
     try {
+      setDeletingIdx(idx)
       const response = await fetch(
         '/api/purchaseInvoice/delete-purchase-invoice',
         {
@@ -67,6 +69,8 @@ const ViewPIs = () => {
     } catch (error) {
       console.error('Error deleting PI:', error)
       showToast('Error deleting PI',false)
+    }finally{
+      setDeletingIdx(null)
     }
   }
 
@@ -90,6 +94,7 @@ const ViewPIs = () => {
         data={filteredPIs}
         onEdit={handleEditPI}
         onDelete={(row) => handleDeletePI(row.purchase_invoice_code)}
+        deletingIdx={deletingIdx}
         actions={{
           operations: [
             (row) => (

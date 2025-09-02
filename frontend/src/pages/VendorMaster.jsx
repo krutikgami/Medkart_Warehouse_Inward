@@ -16,6 +16,7 @@ const VendorMaster = () => {
 
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
+  const [deletingIdx,setDeletingIdx] = useState(null)
 
   useEffect(() => {
     const fetchVendors = async () => {
@@ -55,8 +56,9 @@ const VendorMaster = () => {
     setIsModalOpen(true)
   }
 
-  const handleDelete = async (vendorCode) => {
+  const handleDelete = async (vendorCode,idx) => {
     try {
+      setDeletingIdx(idx)
       const response = await fetch('/api/vendorMaster/delete-vendor', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
@@ -75,6 +77,8 @@ const VendorMaster = () => {
     } catch (error) {
       console.error('Error deleting vendor:', error)
       showToast("Error deleting vendor",false)
+    }finally{
+      setDeletingIdx(null)
     }
   }
 
@@ -118,7 +122,8 @@ const VendorMaster = () => {
         columns={VendorHeading}
         data={filteredVendors}
         onEdit={handleEdit}
-        onDelete={(row) => handleDelete(row.vendor_code)}
+        onDelete={(row,idx) => handleDelete(row.vendor_code,idx)}
+        deletingIdx={deletingIdx}
       />
     </div>
   )

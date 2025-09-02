@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useToast } from '../components/common/ToastContainer'
+import { Loader2 } from 'lucide-react';
 
 export default function PurchaseOrderForm() {
   const {showToast} = useToast();
@@ -24,6 +25,7 @@ export default function PurchaseOrderForm() {
   const [vendorResults, setVendorResults] = useState([])
   const [productSearch, setProductSearch] = useState('')
   const [productResults, setProductResults] = useState([])
+  const [isLoading,setIsLoading] = useState(false)
 
   const navigate = useNavigate()
   const location = useLocation()
@@ -99,6 +101,7 @@ export default function PurchaseOrderForm() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
+      setIsLoading(true)
       const url =
         state && state.grn
           ? '/api/purchaseOrder/update-purchase-order'
@@ -121,6 +124,8 @@ export default function PurchaseOrderForm() {
     } catch (error) {
       console.log('Error in PurchaseOrderForm:', error.message)
       showToast('Error in adding PurchaseOrder',false)
+    }finally{
+      setIsLoading(false)
     }
   }
 
@@ -405,9 +410,13 @@ export default function PurchaseOrderForm() {
             </Link>
             <button
               type="submit"
-              className="px-5 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+              className="flex item-center px-5 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
             >
-              Save
+              {isLoading ? 
+                <Loader2 className="h-4 w-4 animate-spin" />
+              : 
+              "Save"
+              }
             </button>
           </div>
         </form>

@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useToast } from '../components/common/ToastContainer'
+import { Loader2 } from 'lucide-react'
 
 const GrnForm = () => {
   const {showToast} = useToast()
+  const [isLoading,setIsLoading] = useState(false)
   const location = useLocation()
   const navigate = useNavigate()
   let order
@@ -80,6 +82,7 @@ const GrnForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
+      setIsLoading(true)
       const url = isEdit
         ? '/api/goodsReceiptNote/edit-grn'
         : '/api/goodsReceiptNote/add-grn'
@@ -114,6 +117,8 @@ const GrnForm = () => {
     } catch (error) {
       console.error('Error creating GRN:', error)
       showToast('Error in creating GRN',false)
+    }finally{
+      setIsLoading(false)
     }
   }
 
@@ -357,9 +362,13 @@ const GrnForm = () => {
             </button>
             <button
               type="submit"
-              className="px-6 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+              className="flex item-center px-6 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
             >
-              Save GRN
+              {isLoading ? 
+                <Loader2 className="h-4 w-4 animate-spin" />
+              : 
+              "Save GRN"
+              }
             </button>
           </div>
         </form>
