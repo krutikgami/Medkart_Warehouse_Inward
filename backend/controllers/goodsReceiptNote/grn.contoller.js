@@ -199,6 +199,9 @@ const addGrn = async (req, res) => {
 const getAllGrns = async (req, res) => {
   try {
     const grns = await prisma.grn.findMany({
+      where:{
+        deletedAt : null
+      },
       include: {
         items: true,
       },
@@ -313,6 +316,7 @@ const editGrn = async (req, res) => {
           product_last_purchase_price: true,
         },
       })
+      
       if (product) {
         const maxAllowedPrice = product.product_last_purchase_price * 1.2
 
@@ -410,25 +414,31 @@ const deleteGrn = async (req, res) => {
   const { grn_code } = req.body
 
   try {
-    const deleteGrnItms = await prisma.grnItem.deleteMany({
+    const deleteGrnItms = await prisma.grnItem.updateMany({
       where: { grn_code },
+      data:{
+        deletedAt : new Date()
+      }
     })
 
     if (!deleteGrnItms) {
       return res.status(404).json({
         success: false,
-        message: 'GRN items not found',
+        message: 'GRN items not Deleted',
       })
     }
 
-    const deletedGrn = await prisma.grn.delete({
+    const deletedGrn = await prisma.grn.update({
       where: { grn_code },
+      data:{
+        deletedAt : new Date()
+      }
     })
 
     if (!deletedGrn) {
       return res.status(404).json({
         success: false,
-        message: 'GRN not found',
+        message: 'GRN not Deleted',
       })
     }
 

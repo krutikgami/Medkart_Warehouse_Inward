@@ -25,6 +25,7 @@ model ProductMaster {
   status String
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+  deletedAt DateTime?
 }
 
 model VendorMaster{
@@ -39,6 +40,7 @@ model VendorMaster{
   status      String
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+  deletedAt DateTime?
   purchaseOrders PurchaseOrder[]
 }
 
@@ -52,6 +54,7 @@ model PurchaseOrder {
   status      String
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+  deletedAt DateTime?
   items       PurchaseOrderItem[] 
   vendorMaster VendorMaster @relation(fields: [vendor_code], references: [vendor_code])
   grn      Grn[]
@@ -67,6 +70,7 @@ model PurchaseOrderItem {
   total_price Float
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+  deletedAt DateTime?
   purchaseOrder PurchaseOrder @relation(fields: [purchase_order_code], references: [purchase_order_code])
 }
 
@@ -82,6 +86,7 @@ model Grn {
   total_shortage_qty Int   @default(0)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+  deletedAt DateTime?
   items       GrnItem[] 
   purchaseOrder PurchaseOrder @relation(fields: [purchase_order_code], references: [purchase_order_code])
   purchaseInvoice PurchaseInvoice[] 
@@ -102,6 +107,7 @@ model GrnItem {
   exp_date   DateTime
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+  deletedAt DateTime?
   grn       Grn @relation(fields: [grn_code], references: [grn_code])
 }
 
@@ -116,6 +122,7 @@ model PurchaseInvoice {
   status      String
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+  deletedAt DateTime?
   items       PurchaseInvoiceItem[] 
   grn       Grn @relation(fields: [grn_code], references: [grn_code])
 }
@@ -130,6 +137,7 @@ model PurchaseInvoiceItem {
   total_price Float
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+  deletedAt DateTime?
   purchaseInvoice PurchaseInvoice @relation(fields: [purchase_invoice_code], references: [purchase_invoice_code])
 }
 

@@ -101,6 +101,9 @@ const productMaster = async (req, res) => {
 const getAllProducts = async (req, res) => {
   try {
     const products = await prisma.productMaster.findMany({
+      where:{
+        deletedAt : null
+      },
       orderBy: {
         updated_at: 'desc',
       },
@@ -135,13 +138,18 @@ const deleteProduct = async (req, res) => {
         message: 'Product code is required',
       })
     }
-    const deletedProduct = await prisma.productMaster.delete({
+
+    const deletedProduct = await prisma.productMaster.update({
       where: { product_code },
+      data :{
+        deletedAt : new Date()
+      }
     })
+    
     if (!deletedProduct) {
       return res.status(404).json({
         success: false,
-        message: 'Product not found',
+        message: 'Product not Deleted',
       })
     }
     return res.status(200).json({

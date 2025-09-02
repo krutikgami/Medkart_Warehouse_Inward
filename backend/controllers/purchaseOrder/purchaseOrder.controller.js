@@ -88,6 +88,9 @@ const createPurchaseOrder = async (req, res) => {
 const getAllPurchaseOrder = async (req, res) => {
   try {
     const getPurchaseOrder = await prisma.purchaseOrder.findMany({
+      where:{
+        deletedAt: null
+      },
       orderBy: {
         updated_at: 'desc',
       },
@@ -134,25 +137,31 @@ const deletePurchaseOrder = async (req, res) => {
       })
     }
 
-    const deleteItems = await prisma.purchaseOrderItem.deleteMany({
+    const deleteItems = await prisma.purchaseOrderItem.updateMany({
       where: { purchase_order_code },
+      data:{
+        deletedAt : new Date()
+      }
     })
 
     if (!deleteItems) {
       return res.status(404).json({
         success: false,
-        message: 'Purchase order items not found',
+        message: 'Purchase order items not Deleted',
       })
     }
 
-    const deletedOrder = await prisma.purchaseOrder.delete({
+    const deletedOrder = await prisma.purchaseOrder.update({
       where: { purchase_order_code },
+      data:{
+        deletedAt: new Date()
+      }
     })
 
     if (!deletedOrder) {
       return res.status(404).json({
         success: false,
-        message: 'Purchase order not found',
+        message: 'Purchase order not Deleted',
       })
     }
 
@@ -271,6 +280,7 @@ const searchVendor = async (req, res) => {
           mode: 'insensitive',
         },
         status: 'Active',
+        deletedAt : null
       },
       select: {
         vendor_code: true,
@@ -304,6 +314,7 @@ const searchProduct = async (req, res) => {
           mode: 'insensitive',
         },
         status: 'Active',
+        deletedAt : null
       },
       select: {
         product_code: true,

@@ -84,6 +84,9 @@ const addVendorMaster = async (req, res) => {
 const getAllVendors = async (req, res) => {
   try {
     const getAll = await prisma.vendorMaster.findMany({
+      where:{
+        deletedAt : null
+      },
       orderBy: {
         updated_at: 'desc',
       },
@@ -121,13 +124,16 @@ const deleteVendor = async (req, res) => {
       })
     }
 
-    const deletedVendor = await prisma.vendorMaster.delete({
+    const deletedVendor = await prisma.vendorMaster.update({
       where: { vendor_code },
+      data:{
+        deletedAt : new Date()
+      }
     })
     if (!deletedVendor) {
       return res.status(404).json({
         success: false,
-        message: 'Vendor not found',
+        message: 'Vendor not Deleted',
       })
     }
     return res.status(200).json({

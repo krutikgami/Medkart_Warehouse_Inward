@@ -124,6 +124,9 @@ const createPurchaseInvoice = async (req, res) => {
 const getAllPurchaseInvoices = async (req, res) => {
   try {
     const purchaseInvoices = await prisma.purchaseInvoice.findMany({
+      where:{
+        deletedAt : null
+      },
       orderBy: {
         updated_at: 'desc',
       },
@@ -254,25 +257,31 @@ const deletePurchaseInvoice = async (req, res) => {
       })
     }
 
-    const deleteItems = await prisma.purchaseInvoiceItem.deleteMany({
+    const deleteItems = await prisma.purchaseInvoiceItem.updateMany({
       where: { purchase_invoice_code },
+      data:{
+        deletedAt: new Date()
+      }
     })
 
     if (!deleteItems) {
       return res.status(404).json({
         success: false,
-        message: 'Purchase invoice items not found',
+        message: 'Purchase invoice items not Deleted',
       })
     }
 
-    const deletedInvoice = await prisma.purchaseInvoice.delete({
+    const deletedInvoice = await prisma.purchaseInvoice.update({
       where: { purchase_invoice_code },
+      data:{
+        deletedAt : new Date()
+      }
     })
 
     if (!deletedInvoice) {
       return res.status(404).json({
         success: false,
-        message: 'Purchase invoice not found',
+        message: 'Purchase invoice not Deleted',
       })
     }
 
