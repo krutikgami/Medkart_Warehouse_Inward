@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useToast } from '../components/common/ToastContainer'
 
 export default function PurchaseOrderForm() {
+  const {showToast} = useToast();
   const [formData, setFormData] = useState({
     vendor_code: '',
     purchase_date: '',
@@ -112,13 +114,13 @@ export default function PurchaseOrderForm() {
 
       const data = await response.json()
       if (!response.ok) {
-        alert(data.message || 'Failed to save purchase order')
-        throw new Error('Failed to save purchase order')
+        showToast(data.message,data.success)
       }
-      console.log(data)
+      showToast(data.message,data.success)
       navigate('/purchase-orders')
     } catch (error) {
       console.log('Error in PurchaseOrderForm:', error.message)
+      showToast('Error in adding PurchaseOrder',false)
     }
   }
 

@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
+import { useToast } from '../common/ToastContainer'
 
 export default function ProductModal({ isOpen, onClose, onSave, editProduct }) {
+  const {showToast} = useToast();
   const [formData, setFormData] = useState({
     product_name: '',
     product_description: '',
@@ -75,13 +77,15 @@ export default function ProductModal({ isOpen, onClose, onSave, editProduct }) {
       const data = await response.json()
       if (response.ok) {
         onSave(data.data)
+        showToast(data.message,data.success)
         onClose()
       } else {
-        alert(data.message || 'Error saving product')
         console.error('Error saving:', data)
+        showToast(data.message,data.success)
       }
     } catch (err) {
       console.error('Error:', err)
+      showToast('Error in adding Product',false)
     }
   }
 

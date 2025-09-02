@@ -1,13 +1,13 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useToast } from '../components/common/ToastContainer'
 
 const PurchaseInvoiceForm = () => {
+  const {showToast} = useToast();
   const location = useLocation()
   const navigate = useNavigate()
   const { grn } = location.state || {}
   const isEdit = location.state?.isEdit || false
-
-  console.log('GRN ', grn)
 
   const [formData, setFormData] = useState({
     purchase_invoice_code: isEdit ? grn?.purchase_invoice_code : '',
@@ -69,18 +69,14 @@ const PurchaseInvoiceForm = () => {
       const data = await response.json()
 
       if (data.success) {
-        alert(
-          isEdit
-            ? 'Invoice updated successfully'
-            : 'Invoice created successfully'
-        )
+        showToast(data.message,data.success)
         navigate('/view-invoices')
       } else {
-        alert('Error: ' + data.message)
+        showToast(data.message,data.success)
       }
     } catch (error) {
       console.error('Error saving Invoice:', error)
-      alert('Error saving Invoice. Please try again.')
+      showToast('Error Saving Invoice',false)
     }
   }
 

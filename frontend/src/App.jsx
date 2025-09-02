@@ -10,9 +10,11 @@ import ViewGrns from './pages/ViewGrns'
 import ViewPIs from './pages/ViewPIs'
 import PurchaseInvoiceForm from './pages/PurchaseInvoiceForm'
 import ViewItems from './components/ViewItems'
+import {ToastProvider} from './components/common/ToastContainer';
 
 function App() {
   return (
+<ToastProvider>
     <Router>
       <div className="flex">
         <Sidebar />
@@ -32,6 +34,7 @@ function App() {
         </div>
       </div>
     </Router>
+    </ToastProvider>
   )
 }
 

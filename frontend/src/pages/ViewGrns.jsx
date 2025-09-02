@@ -1,9 +1,16 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { data, useNavigate } from 'react-router-dom'
 import DataTable from '../components/common/DataTable'
 import { GrnHeading } from '../components/common/TableHeadings'
 import { Eye } from 'lucide-react'
+import FilterAndStatus from '../components/common/FilterAndStatus'
+import { GrnStatus } from '../components/common/StatusValues'
+import { FilterBySearchAndStatus } from '../components/common/FilterBySearchAndStatus'
+import { searchGrnCol } from '../components/common/SearchColumns'
+import { useToast } from '../components/common/ToastContainer'
+
 const ViewGrns = () => {
+  const {showToast} = useToast();
   const [grns, setGrns] = useState([])
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
@@ -15,9 +22,15 @@ const ViewGrns = () => {
       try {
         const response = await fetch('/api/goodsReceiptNote/get-all-grns')
         const data = await response.json()
-        setGrns(data.data || [])
+        if(response.ok){
+          setGrns(data.data || [])
+          showToast(data.message,data.success)
+        }else{
+          showToast(data.message,data.success)
+        }
       } catch (error) {
         console.error('Error fetching GRNs:', error)
+        showToast("Error fetching GRNs",false)
       }
     }
     fetchGrns()
@@ -39,51 +52,31 @@ const ViewGrns = () => {
 
       if (data.success) {
         setGrns(grns.filter((g) => g.grn_code !== grnCode))
+        showToast(data.message,data.success)
       } else {
         console.error('Failed to delete GRN:', data.message)
+        showToast(data.message,data.success)
       }
     } catch (error) {
       console.error('Error deleting GRN:', error)
+      showToast('Error deleting GRN',false)
     }
   }
 
-  const filteredGrns = grns.filter((g) => {
-    const matchesSearch =
-      g.grn_code?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      g.purchase_order_code
-        ?.toLowerCase()
-        .includes(searchQuery.toLowerCase()) ||
-      g.vendor_code?.toLowerCase().includes(searchQuery.toLowerCase())
-
-    const matchesStatus =
-      statusFilter === 'All' ||
-      g.status?.toLowerCase() === statusFilter.toLowerCase()
-
-    return matchesSearch && matchesStatus
-  })
+//filter by data and pass props as filteredGrns to DataTable component
+  const filteredGrns = FilterBySearchAndStatus(grns,searchQuery,statusFilter,searchGrnCol)
 
   return (
     <>
       <div className="p-6">
         <div className="flex justify-end gap-2">
-          <input
-            type="text"
-            placeholder="Search by GRN, PO, Vendor..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="border rounded px-3 py-2 text-sm"
-          />
-
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="border rounded px-3 py-2 text-sm"
-          >
-            <option value="All">All</option>
-            <option value="Pending">Pending</option>
-            <option value="Partially Completed">Partially Completed</option>
-            <option value="Completed">Completed</option>
-          </select>
+          <FilterAndStatus
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            statusFilter={statusFilter}
+            setStatusFilter={setStatusFilter}
+            statusValue={GrnStatus}
+            />
         </div>
 
         <DataTable

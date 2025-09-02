@@ -2,8 +2,14 @@ import ProductModal from '../components/modals/ProductModal'
 import { useState, useEffect } from 'react'
 import DataTable from '../components/common/DataTable'
 import { ProductHeading } from '../components/common/TableHeadings'
+import FilterAndStatus from '../components/common/FilterAndStatus'
+import { ProductStatus } from '../components/common/StatusValues'
+import { FilterBySearchAndStatus } from '../components/common/FilterBySearchAndStatus'
+import { searchProductCol } from '../components/common/SearchColumns'
+import { useToast } from '../components/common/ToastContainer'
 
 const ProductMaster = () => {
+  const {showToast} = useToast();
   const [products, setProducts] = useState([])
 
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -27,10 +33,16 @@ const ProductMaster = () => {
       try {
         const response = await fetch('/api/productMaster/all-products')
         const data = await response.json()
-        setProducts(data.data || [])
+      
+        if (response.ok) {
+          setProducts(data.data || [])
+          showToast(data.message,data.success)
+        }else{
+           showToast(data.message,data.success)
+        }
       } catch (error) {
         console.error('Error in Product Master: ', error.message)
-        alert('Error in Product Master: ', error.message)
+        showToast("Error in Product Fetching",false)
       }
     }
 
@@ -51,54 +63,32 @@ const ProductMaster = () => {
 
       if (data.success) {
         setProducts(products.filter((p) => p.product_code !== productCode))
+        showToast(data.message,data.success)
       } else {
         console.error('Failed to delete product:', data.message)
+        showToast(data.message,data.success)
       }
     } catch (error) {
       console.error('Error deleting product:', error)
+      showToast('Error deleting product',false)
     }
   }
 
-  const filteredProducts = products.filter((p) => {
-    const matchesSearch =
-      p.product_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.product_description
-        ?.toLowerCase()
-        .includes(searchQuery.toLowerCase()) ||
-      p.product_code?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.category?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.unit_of_measure?.toLowerCase().includes(searchQuery.toLowerCase())
-
-    const matchesStatus =
-      statusFilter === 'All' ||
-      p.status?.toLowerCase() === statusFilter.toLowerCase()
-
-    return matchesSearch && matchesStatus
-  })
+  //filter by data and pass props as filteredProducts to DataTable component
+  const filteredProducts = FilterBySearchAndStatus(products,searchQuery,statusFilter,searchProductCol);
 
   return (
     <div className="p-6">
       <div className="flex justify-end gap-2">
-        <input
-          type="text"
-          placeholder="Search..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="border rounded px-3 py-2 text-sm"
+        <FilterAndStatus 
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          statusValue={ProductStatus}
         />
-
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="border rounded px-3 py-2 text-sm"
-        >
-          <option value="All">All</option>
-          <option value="Active">Active</option>
-          <option value="Inactive">Inactive</option>
-        </select>
-
         <button
-          className="bg-blue-500 text-white px-4 py-2 rounded text-sm"
+          className="bg-blue-500 text-white px-4 w-auto h-10 rounded text-sm"
           onClick={() => {
             setEditProduct(null)
             setIsModalOpen(true)

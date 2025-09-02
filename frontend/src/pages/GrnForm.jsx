@@ -1,7 +1,9 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useToast } from '../components/common/ToastContainer'
 
 const GrnForm = () => {
+  const {showToast} = useToast()
   const location = useLocation()
   const navigate = useNavigate()
   let order
@@ -94,25 +96,24 @@ const GrnForm = () => {
       if (data.success) {
         if (isEdit) {
           console.log('GRN updated successfully:', data)
-          alert('GRN updated successfully')
+          showToast(data.message,data.success);
         } else {
           console.log('GRN created successfully:', data)
-          alert('GRN created successfully')
+          showToast(data.message,data.success)
         }
 
         isEdit ? navigate('/view-grns') : navigate('/purchase-orders')
       } else {
         if (isEdit) {
           console.error('Failed to update GRN:', data.message)
-          alert('Failed to update GRN: ' + data.message)
-          return
+          showToast(data.message,data.success)
         }
         console.error('Failed to create GRN:', data.message)
-        alert('Failed to create GRN: ' + data.message)
+        showToast(data.message,data.success)
       }
     } catch (error) {
       console.error('Error creating GRN:', error)
-      alert('Error creating GRN. Please try again.')
+      showToast('Error in creating GRN',false)
     }
   }
 

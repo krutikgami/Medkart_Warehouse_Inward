@@ -1,0 +1,5 @@
+export const ProductStatus = ["Active","Inactive"]
+export const VendorStatus = ["Active","Inactive"]
+export const PurchaseOrderStatus = ["Pending","Partial Completed","Completed","Cancelled"]
+export const GrnStatus = ["Pending","Partially Completed","Completed"]
+export const PurchaseInvoiceStatus = ["Pending","Partially Completed","Completed"]

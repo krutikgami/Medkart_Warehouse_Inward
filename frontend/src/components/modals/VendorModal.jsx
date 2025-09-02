@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
+import { useToast } from '../common/ToastContainer'
 
 export default function VendorModal({ isOpen, onClose, onSave, editVendor }) {
+  const {showToast} = useToast();
   const [formData, setFormData] = useState({
     vendor_name: '',
     contact_person: '',
@@ -47,17 +49,17 @@ export default function VendorModal({ isOpen, onClose, onSave, editVendor }) {
         },
         body: JSON.stringify(formData),
       })
-
-      if (!response.ok) {
-        throw new Error('Failed to add vendor')
-      }
-
       const data = await response.json()
-      console.log(data)
-      onSave(data.data)
-      onClose()
+      if(response.ok){
+        onSave(data.data)
+        showToast(data.message,data.success)
+        onClose()
+      }else{
+        showToast(data.message,data.success)
+      }
     } catch (error) {
       console.error('Error adding vendor:', error)
+      showToast('Error in adding vendor',false)
     }
   }
 

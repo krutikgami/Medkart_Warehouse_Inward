@@ -3,8 +3,15 @@ import { Eye } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import DataTable from '../components/common/DataTable'
 import { PurchaseInvoiceHeading } from '../components/common/TableHeadings'
+import FilterAndStatus from '../components/common/FilterAndStatus'
+import { PurchaseInvoiceStatus } from '../components/common/StatusValues'
+import { FilterBySearchAndStatus } from '../components/common/FilterBySearchAndStatus'
+import { searchPurchaseInvoiceCol } from '../components/common/SearchColumns'
+import { useToast } from '../components/common/ToastContainer'
+
 
 const ViewPIs = () => {
+  const {showToast} = useToast();
   const [purchaseInvoices, setPurchaseInvoices] = useState([])
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
@@ -17,9 +24,15 @@ const ViewPIs = () => {
           '/api/purchaseInvoice/getAll-purchase-invoices'
         )
         const data = await response.json()
-        setPurchaseInvoices(data.data || [])
+        if(response.ok){
+          setPurchaseInvoices(data.data || [])
+          showToast(data.message,data.success)
+        }else{
+          showToast(data.message,data.success)
+        }
       } catch (error) {
         console.error('Error fetching Purchase Invoices:', error)
+        showToast("Error fetching Purchase Invoices",false)
       }
     }
     fetchPurchaseInvoices()
@@ -46,50 +59,30 @@ const ViewPIs = () => {
         setPurchaseInvoices(
           purchaseInvoices.filter((pi) => pi.purchase_invoice_code !== piCode)
         )
+        showToast(data.message,data.success)
       } else {
         console.error('Failed to delete PI:', data.message)
+        showToast(data.message,data.success)
       }
     } catch (error) {
       console.error('Error deleting PI:', error)
+      showToast('Error deleting PI',false)
     }
   }
 
-  const filteredPIs = purchaseInvoices.filter((pi) => {
-    const matchesSearch =
-      pi.purchase_invoice_code
-        ?.toLowerCase()
-        .includes(searchQuery.toLowerCase()) ||
-      pi.grn_code?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      pi.vendor_code?.toLowerCase().includes(searchQuery.toLowerCase())
-
-    const matchesStatus =
-      statusFilter === 'All' ||
-      pi.status?.toLowerCase() === statusFilter.toLowerCase()
-
-    return matchesSearch && matchesStatus
-  })
+//filter by data and pass props as filteredPIs to DataTable component
+  const filteredPIs = FilterBySearchAndStatus(purchaseInvoices,searchQuery,statusFilter,searchPurchaseInvoiceCol)
 
   return (
     <div className="p-6">
-      <div className="flex gap-2">
-        <input
-          type="text"
-          placeholder="Search by PI, GRN, Vendor..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="border rounded px-3 py-2 text-sm"
-        />
-
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="border rounded px-3 py-2 text-sm"
-        >
-          <option value="All">All</option>
-          <option value="Pending">Pending</option>
-          <option value="Partially Completed">Partially Completed</option>
-          <option value="Completed">Completed</option>
-        </select>
+      <div className="flex justify-end gap-2">
+        <FilterAndStatus
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          statusValue={PurchaseInvoiceStatus}
+          />
       </div>
       <DataTable
         title="Purchase Invoices"
@@ -106,7 +99,7 @@ const ViewPIs = () => {
                   navigate('/view-items', {
                     state: {
                       items: row.items,
-                      label: 'pi',
+                      label: 'purchaseInvoice',
                       code: row.purchase_invoice_code,
                     },
                   })

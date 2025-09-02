@@ -2,8 +2,14 @@ import { useState, useEffect } from 'react'
 import VendorModal from '../components/modals/VendorModal'
 import DataTable from '../components/common/DataTable'
 import { VendorHeading } from '../components/common/TableHeadings'
+import FilterAndStatus from '../components/common/FilterAndStatus'
+import { VendorStatus } from '../components/common/StatusValues'
+import { FilterBySearchAndStatus } from '../components/common/FilterBySearchAndStatus'
+import { searchVendorCol } from '../components/common/SearchColumns'
+import { useToast } from '../components/common/ToastContainer'
 
 const VendorMaster = () => {
+  const {showToast} = useToast()
   const [vendors, setVendors] = useState([])
   const [editVendor, setEditVendor] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -16,10 +22,16 @@ const VendorMaster = () => {
       try {
         const response = await fetch('/api/vendorMaster/all-vendors')
         const data = await response.json()
-        setVendors(data.data || [])
+        if(response.ok){
+          setVendors(data.data || [])
+          showToast(data.message,data.success)
+        }else{
+          showToast(data.message,data.success)
+        }
+       
       } catch (error) {
         console.error('Error in Vendor Master: ', error.message)
-        alert('Error in Vendor Master: ', error.message)
+        showToast('Error in Vendor Master: ', false)
       }
     }
     fetchVendors()
@@ -55,54 +67,33 @@ const VendorMaster = () => {
 
       if (data.success) {
         setVendors(vendors.filter((v) => v.vendor_code !== vendorCode))
+        showToast(data.message,data.success)
       } else {
         console.error('Failed to delete vendor:', data.message)
+        showToast(data.message,data.success)
       }
     } catch (error) {
       console.error('Error deleting vendor:', error)
+      showToast("Error deleting vendor",false)
     }
   }
 
-  const filteredVendors = vendors.filter((v) => {
-    const matchesSearch =
-      v.vendor_code?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      v.vendor_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      v.contact_person?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      v.contact_number?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      v.vendor_email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      v.gst_number?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      v.address?.toLowerCase().includes(searchQuery.toLowerCase())
-
-    const matchesStatus =
-      statusFilter === 'All' ||
-      v.status?.toLowerCase() === statusFilter.toLowerCase()
-
-    return matchesSearch && matchesStatus
-  })
+//filter by data and pass props as filteredVendors to DataTable component
+  const filteredVendors = FilterBySearchAndStatus(vendors,searchQuery,statusFilter,searchVendorCol)
+  
 
   return (
     <div className="p-6">
       <div className="flex justify-end gap-2">
-        <input
-          type="text"
-          placeholder="Search by code, name, contact..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="border rounded px-3 py-2 text-sm"
-        />
-
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="border rounded px-3 py-2 text-sm"
-        >
-          <option value="All">All Statuses</option>
-          <option value="Active">Active</option>
-          <option value="Inactive">Inactive</option>
-        </select>
-
+        <FilterAndStatus 
+         searchQuery={searchQuery}
+         setSearchQuery={setSearchQuery}
+         statusFilter={statusFilter}
+         setStatusFilter={setStatusFilter}
+         statusValue={VendorStatus}
+         />
         <button
-          className="bg-blue-500 text-white px-4 py-2 rounded text-sm"
+          className="bg-blue-500 text-white px-4  w-auto h-10  rounded text-sm"
           onClick={() => {
             setEditVendor(null)
             setIsModalOpen(true)
