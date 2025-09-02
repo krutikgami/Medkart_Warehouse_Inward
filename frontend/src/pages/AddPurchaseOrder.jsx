@@ -26,6 +26,7 @@ export default function PurchaseOrderForm() {
   const [productSearch, setProductSearch] = useState('')
   const [productResults, setProductResults] = useState([])
   const [isLoading,setIsLoading] = useState(false)
+  const [editIndex, setEditIndex] = useState(null) 
 
   const navigate = useNavigate()
   const location = useLocation()
@@ -57,34 +58,45 @@ export default function PurchaseOrderForm() {
   const handleItemChange = (e) => {
     setNewItem({ ...newItem, [e.target.name]: e.target.value })
   }
+const handleAddItem = () => {
+  if (newItem.product_code && newItem.quantity && newItem.mrp && newItem.cost_price) {
+    const total_price = Number(newItem.quantity) * Number(newItem.cost_price)
+    const updatedItem = { ...newItem, total_price }
 
-  const handleAddItem = () => {
-    if (
-      newItem.product_code &&
-      newItem.quantity &&
-      newItem.mrp &&
-      newItem.cost_price
-    ) {
-      const total_price = Number(newItem.quantity) * Number(newItem.cost_price)
-      const updatedItem = { ...newItem, total_price }
-      const updatedItems = [...formData.items, updatedItem]
+    let updatedItems = [...formData.items]
 
-      const total_amount = updatedItems.reduce(
-        (sum, item) => sum + Number(item.total_price),
-        0
-      )
-
-      setFormData({ ...formData, items: updatedItems, total_amount })
-      setNewItem({
-        product_code: '',
-        quantity: '',
-        mrp: '',
-        cost_price: '',
-        total_price: '',
-      })
-      setProductSearch('')
+    if (editIndex !== null) {
+      // update existing item
+      updatedItems[editIndex] = updatedItem
+      setEditIndex(null)
+    } else {
+      // add new item
+      updatedItems.push(updatedItem)
     }
+
+    const total_amount = updatedItems.reduce(
+      (sum, item) => sum + Number(item.total_price),
+      0
+    )
+
+    setFormData({ ...formData, items: updatedItems, total_amount })
+    setNewItem({ product_code: '', quantity: '', mrp: '', cost_price: '', total_price: '' })
+    setProductSearch('')
   }
+}
+
+const handleEditItem = (index) => {
+  const item = formData.items[index]
+  setNewItem({
+    product_code: item.product_code,
+    quantity: item.quantity,
+    mrp: item.mrp,
+    cost_price: item.cost_price,
+    total_price: item.total_price,
+  })
+  setProductSearch(item.product_code) // you may set product name if available
+  setEditIndex(index)
+}
 
   const handleRemoveItem = (index) => {
     const updatedItems = [...formData.items]
@@ -365,28 +377,29 @@ export default function PurchaseOrderForm() {
               </button>
             </div>
 
-            <ul className="mt-3 space-y-2">
-              {formData.items.map((item, index) => (
-                <li
-                  key={index}
-                  className="flex justify-between items-center bg-gray-100 p-2 rounded"
-                >
-                  <span>
-                    Product {item.product_code} | Qty: {item.quantity} | Cost:{' '}
-                    {item.cost_price} | Total: {item.total_price}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveItem(index)}
-                    className="text-red-500 text-sm"
-                  >
-                    ✕
-                  </button>
-                </li>
-              ))}
-            </ul>
+          <ul className="mt-3 space-y-2">
+            {formData.items.map((item, index) => (
+            <li
+              key={index}
+              className="flex justify-between items-center bg-gray-100 p-2 rounded"
+            >
+              <span
+                onClick={() => handleEditItem(index)}
+                className="cursor-pointer hover:underline"
+              >
+                Product {item.product_code} | Qty: {item.quantity} | Cost: {item.cost_price} | Total: {item.total_price}
+              </span>
+              <button
+                type="button"
+                onClick={() => handleRemoveItem(index)}
+                className="text-red-500 text-sm"
+              >
+                ✕
+              </button>
+            </li>
+          ))}
+        </ul>
           </div>
-
           <div className="flex justify-end">
             <div className="w-48">
               <label className="block text-sm font-medium text-gray-700 mb-1">
