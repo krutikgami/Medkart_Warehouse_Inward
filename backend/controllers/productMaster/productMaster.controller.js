@@ -27,8 +27,7 @@ const productMaster = async (req, res) => {
       !category ||
       !combination ||
       !unit_of_measure ||
-      !status ||
-      !product_last_purchase_price
+      !status
     ) {
       return res.status(400).json({
         success: false,
@@ -181,6 +180,7 @@ const updateProduct = async (req, res) => {
       combination,
       unit_of_measure,
       status,
+      product_last_purchase_price
     } = req.body
 
     if (!product_code) {
@@ -223,6 +223,7 @@ const updateProduct = async (req, res) => {
         combination: combination || existingProduct.combination,
         unit_of_measure: unit_of_measure || existingProduct.unit_of_measure,
         status: status || existingProduct.status,
+        product_last_purchase_price : parseFloat(product_last_purchase_price) || existingProduct.product_last_purchase_price
       },
     })
 

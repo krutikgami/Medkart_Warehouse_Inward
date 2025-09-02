@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 import { v4 as uuidv4 } from 'uuid'
+import { checkExpiry } from '../../utilities/checkExpiry.js'
 
 const addGrn = async (req, res) => {
   try {
@@ -38,10 +39,11 @@ const addGrn = async (req, res) => {
           message: `For product code ${item.product_code}, MRP should be greater than or equal to Cost Price`,
         })
       }
-      if (new Date(item.exp_date) <= new Date(item.mfg_date)) {
+
+      if (!checkExpiry(new Date(item.mfg_date),new Date(item.exp_date))) {
         return res.status(400).json({
           success: false,
-          message: `For product code ${item.product_code}, Expiry Date should be greater than Manufacturing Date`,
+          message: `For product code ${item.product_code}, Expiry Date should be atleast 3 month greater than Manufacturing Date`,
         })
       }
     }
@@ -268,10 +270,10 @@ const editGrn = async (req, res) => {
           message: `For product code ${item.product_code}, MRP should be greater than or equal to Cost Price`,
         })
       }
-      if (new Date(item.exp_date) <= new Date(item.mfg_date)) {
+      if (!checkExpiry(new Date(item.mfg_date),new Date(item.exp_date))) {
         return res.status(400).json({
           success: false,
-          message: `For product code ${item.product_code}, Expiry Date should be greater than Manufacturing Date`,
+          message: `For product code ${item.product_code}, Expiry Date should be atleast 3 month greater than Manufacturing Date`,
         })
       }
     }
@@ -316,7 +318,7 @@ const editGrn = async (req, res) => {
           product_last_purchase_price: true,
         },
       })
-      
+
       if (product) {
         const maxAllowedPrice = product.product_last_purchase_price * 1.2
 
