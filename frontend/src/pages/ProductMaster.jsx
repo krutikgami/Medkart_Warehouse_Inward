@@ -7,6 +7,8 @@ import { ProductStatus } from '../components/common/StatusValues'
 import { FilterBySearchAndStatus } from '../components/common/FilterBySearchAndStatus'
 import { searchProductCol } from '../components/common/SearchColumns'
 import { useToast } from '../components/common/ToastContainer'
+import { Combinations } from '../utilities/Combinations.js'
+
 
 const ProductMaster = () => {
   const {showToast} = useToast();
@@ -19,6 +21,7 @@ const ProductMaster = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
   const [deletingIdx,setDeletingIdx] = useState(null)
+  const [combinationFilter, setCombinationFilter] = useState('All')
 
   const handleSave = (newProduct) => {
     setProducts([newProduct, ...products])
@@ -79,8 +82,14 @@ const ProductMaster = () => {
   }
 
   //filter by data and pass props as filteredProducts to DataTable component
-  const filteredProducts = FilterBySearchAndStatus(products,searchQuery,statusFilter,searchProductCol);
-
+  let filteredProducts = FilterBySearchAndStatus(products,searchQuery,statusFilter,searchProductCol)
+// if combination filter is apply filter products on basis of combination of products like paracetamol or its has diclofenac
+  filteredProducts = filteredProducts.filter((itm) => {
+  if (combinationFilter.toLowerCase() === "all") return true;
+  return itm?.combination?.some(
+    (c) => c.toLowerCase() === combinationFilter.toLowerCase()
+  );
+});
   return (
     <div className="p-6">
       <div className="flex justify-end gap-2">
@@ -91,6 +100,13 @@ const ProductMaster = () => {
           setStatusFilter={setStatusFilter}
           statusValue={ProductStatus}
         />
+        <select name="combinations" className="w-auto h-10 border rounded px-3 py-2 text-sm" value={combinationFilter} onChange={(e) => setCombinationFilter(e.target.value)}>
+          <option value="All">Select Combination</option>
+          {Combinations.map((comb,idx)=>(
+            <option key={idx} value={comb} >{comb}</option>
+          ))}
+        </select>
+
         <button
           className="bg-blue-500 text-white px-4 w-auto h-10 rounded text-sm"
           onClick={() => {

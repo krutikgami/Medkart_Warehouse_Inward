@@ -1,0 +1,1 @@
+export const Combinations = ["Paracetamol","Diclofenac","Azithromycin"]

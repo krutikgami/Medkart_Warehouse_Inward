@@ -1,5 +1,5 @@
 //TODO: Left logic for useCallback Hook
-export const FilterBySearchAndStatus = (items, searchQuery, statusFilter,itemsCol) => {
+export const FilterBySearchAndStatus = (items, searchQuery, statusFilter, itemsCol) => {
   return items.filter((item) => {
     const search = searchQuery.toLowerCase()
     const matchesSearch =
