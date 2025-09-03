@@ -84,16 +84,33 @@ const createPurchaseOrder = async (req, res) => {
     })
   }
 }
-
 const getAllPurchaseOrder = async (req, res) => {
   try {
-    const getPurchaseOrder = await prisma.purchaseOrder.findMany({
-      where:{
-        deletedAt: null
+    let { page = 1, limit = 10 } = req.query;
+
+    page = parseInt(page);
+    limit = parseInt(limit);
+
+    if (page < 1) page = 1;
+    if (limit < 1) limit = 10;
+
+    const skip = (page - 1) * limit;
+
+    const totalRecords = await prisma.purchaseOrder.count({
+      where: {
+        deletedAt: null,
+      },
+    });
+
+    const purchaseOrders = await prisma.purchaseOrder.findMany({
+      where: {
+        deletedAt: null,
       },
       orderBy: {
-        updated_at: 'desc',
+        updated_at: "desc",
       },
+      skip,
+      take: limit,
       select: {
         id: true,
         vendor_code: true,
@@ -104,28 +121,38 @@ const getAllPurchaseOrder = async (req, res) => {
         total_amount: true,
         items: true,
       },
-    })
-    if (!getPurchaseOrder || getPurchaseOrder.length === 0) {
-      return res.status(400).json({
+    });
+
+    if (!purchaseOrders || purchaseOrders.length === 0) {
+      return res.status(404).json({
         success: false,
-        message: 'No Purchase Order Found',
-      })
+        message: "No Purchase Orders Found",
+      });
     }
 
     return res.status(200).json({
       success: true,
-      message: 'Purchase Order Fetched Successfully',
-      data: getPurchaseOrder,
-    })
+      message: "Purchase Orders fetched successfully",
+      data: purchaseOrders,
+      meta: {
+        totalRecords,
+        currentPage: page,
+        totalPages: Math.ceil(totalRecords / limit),
+        limit,
+        hasNextPage: page * limit < totalRecords,
+        hasPrevPage: page > 1,
+      },
+    });
   } catch (error) {
-    console.log('Error in get All Purchase order', error.message)
+    console.log("Error in getAllPurchaseOrder:", error.message);
     return res.status(500).json({
       success: false,
+      message: "Internal Server Error",
       error: error.message,
-      message: 'Internal server error',
-    })
+    });
   }
-}
+};
+
 
 const deletePurchaseOrder = async (req, res) => {
   try {
@@ -272,7 +299,7 @@ const searchVendor = async (req, res) => {
         .status(400)
         .json({ success: false, message: 'vendor_name query required' })
     }
-
+    
     const vendors = await prisma.vendorMaster.findMany({
       where: {
         vendor_name: {
@@ -288,7 +315,6 @@ const searchVendor = async (req, res) => {
       },
       take: 10,
     })
-
     return res.status(200).json({ success: true, data: vendors })
   } catch (error) {
     console.error('Error searching vendors:', error)

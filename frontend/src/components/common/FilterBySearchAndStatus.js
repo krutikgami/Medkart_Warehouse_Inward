@@ -1,16 +1,14 @@
-//TODO: Left logic for useCallback Hook
-export const FilterBySearchAndStatus = (items, searchQuery, statusFilter, itemsCol) => {
-  return items.filter((item) => {
-    const search = searchQuery.toLowerCase()
-    const matchesSearch =
-      itemsCol.some((col)=>(
-        item[col]?.toLowerCase().includes(search)
-      ))
-
-    const matchesStatus =
-      statusFilter === 'All' ||
-      item.status?.toLowerCase() === statusFilter.toLowerCase()
-
-    return matchesSearch && matchesStatus
-  })
+export const FilterBySearchAndStatus = async (searchQuery,statusFilter,db,page,limit)=>{
+  try {
+    const response = await fetch(`http://localhost:3000/api/commonFilter?search=${searchQuery}&status=${statusFilter}&db=${db}&page=${page}&limit=${limit}`)
+    const data = await response.json();
+    if(!response.ok){
+      console.error(data.message)
+    }
+    console.log("Received data after filter apply ",data.data)
+    return data;
+  } catch (error) {
+    console.error("Error in CommonFilter",error.message)
+    return null;
+  }
 }

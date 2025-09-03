@@ -22,6 +22,9 @@ const ProductMaster = () => {
   const [statusFilter, setStatusFilter] = useState('All')
   const [deletingIdx,setDeletingIdx] = useState(null)
   const [combinationFilter, setCombinationFilter] = useState('All')
+  const [filteredProducts, setFilteredProducts] = useState([])
+  const page =1
+  const limit =10
 
   const handleSave = (newProduct) => {
     setProducts([newProduct, ...products])
@@ -35,9 +38,10 @@ const ProductMaster = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('/api/productMaster/all-products')
+        //TODO: url is hardcore for testing directly from frontend when pagination is applies in frontend then change
+        const response = await fetch('/api/productMaster/all-products?page=1&limit=10')
         const data = await response.json()
-      
+        console.log(data);
         if (response.ok) {
           setProducts(data.data || [])
           showToast(data.message,data.success)
@@ -52,6 +56,19 @@ const ProductMaster = () => {
 
     fetchProducts()
   }, [])
+
+  // filter is hardcode for the temporary purpose to check the working in frontend
+  useEffect(() => {
+  const fetchFiltered = async () => {
+    const res = await FilterBySearchAndStatus(searchQuery, statusFilter, "PM", page, limit)
+    if (res && res.success) {
+      setFilteredProducts(res.data)
+    } else {
+      setFilteredProducts([])
+    }
+  }
+  fetchFiltered()
+}, [searchQuery, statusFilter, page, limit])
 
   const handleDelete = async (productCode,idx) => {
     try {
@@ -81,15 +98,6 @@ const ProductMaster = () => {
     }
   }
 
-  //filter by data and pass props as filteredProducts to DataTable component
-  let filteredProducts = FilterBySearchAndStatus(products,searchQuery,statusFilter,searchProductCol)
-// if combination filter is apply filter products on basis of combination of products like paracetamol or its has diclofenac
-  filteredProducts = filteredProducts.filter((itm) => {
-  if (combinationFilter.toLowerCase() === "all") return true;
-  return itm?.combination?.some(
-    (c) => c.toLowerCase() === combinationFilter.toLowerCase()
-  );
-});
   return (
     <div className="p-6">
       <div className="flex justify-end gap-2">

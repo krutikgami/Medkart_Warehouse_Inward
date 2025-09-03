@@ -16,15 +16,22 @@ const ViewPIs = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
   const [deletingIdx,setDeletingIdx] = useState(null)
+  const [filteredPIs,setFilteredPIs] = useState([])
+
   const navigate = useNavigate()
+  const page = 1;
+  const limit =10;
 
   useEffect(() => {
     const fetchPurchaseInvoices = async () => {
       try {
+        //TODO: url is hardcore for testing directly from frontend when pagination is applies in frontend then change
         const response = await fetch(
-          '/api/purchaseInvoice/getAll-purchase-invoices'
+          '/api/purchaseInvoice/getAll-purchase-invoices?page=1&limit=10'
         )
         const data = await response.json()
+        console.log(data);
+        
         if(response.ok){
           setPurchaseInvoices(data.data || [])
           showToast(data.message,data.success)
@@ -38,6 +45,18 @@ const ViewPIs = () => {
     }
     fetchPurchaseInvoices()
   }, [])
+
+   useEffect(() => {
+  const fetchFiltered = async () => {
+    const res = await FilterBySearchAndStatus(searchQuery, statusFilter, "PI", page, limit)
+    if (res && res.success) {
+      setFilteredPIs(res.data)
+    } else {
+      setFilteredPIs([])
+    }
+  }
+  fetchFiltered()
+}, [searchQuery, statusFilter, page, limit])
 
   const handleEditPI = (pi) => {
     navigate('/add-pi', { state: { grn: pi, isEdit: true } })
@@ -73,10 +92,6 @@ const ViewPIs = () => {
       setDeletingIdx(null)
     }
   }
-
-//filter by data and pass props as filteredPIs to DataTable component
-  const filteredPIs = FilterBySearchAndStatus(purchaseInvoices,searchQuery,statusFilter,searchPurchaseInvoiceCol)
-
   return (
     <div className="p-6">
       <div className="flex justify-end gap-2">

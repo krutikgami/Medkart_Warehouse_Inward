@@ -57,7 +57,9 @@ export const GrnHeading = [
   { key: 'grn_code', label: 'GRN Code' },
   { key: 'purchase_order_code', label: 'PO Code' },
   { key: 'vendor_code', label: 'Vendor Code' },
-  { key: 'grn_date', label: 'GRN Date' },
+  { key: 'grn_date', label: 'GRN Date',
+    render: (val) => val?.split('T')[0]
+   },
   { key: 'total_amount', label: 'Total Amount' },
   { key: 'status', label: 'Status' },
   { key: 'total_damage_qty', label: 'Damage Qty' },
@@ -71,7 +73,9 @@ export const PurchaseInvoiceHeading = [
   { key: 'purchase_invoice_code', label: 'PI Code' },
   { key: 'grn_code', label: 'GRN Code' },
   { key: 'vendor_code', label: 'Vendor Code' },
-  { key: 'invoice_date', label: 'Invoice Date' },
+  { key: 'invoice_date', label: 'Invoice Date',
+    render: (val) => val?.split('T')[0]
+   },
   { key: 'total_amount', label: 'Total Amount' },
   { key: 'status', label: 'Status' },
   { key: 'operations', label: 'Operations', isAction: true },

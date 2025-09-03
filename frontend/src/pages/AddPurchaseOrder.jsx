@@ -141,10 +141,10 @@ const handleEditItem = (index) => {
     }
   }
 
-  const searchVendors = async (name) => {
+  const searchVendors = async (name,page=1,limit=10) => {
     try {
       const res = await fetch(
-        `/api/purchaseOrder/searchVendor?vendorName=${name}`
+        `/api/purchaseOrder/searchVendor?vendorName=${name}&page=${page}&limit=${limit}`
       )
       const data = await res.json()
       if (data.success) setVendorResults(data.data)
@@ -168,7 +168,7 @@ const handleEditItem = (index) => {
   const handleVendorInput = (e) => {
     const val = e.target.value
     setVendorSearch(val)
-    if (val.length > 1) searchVendors(val)
+    if (val.length > 1) searchVendors(val,1,10)
     else setVendorResults([])
   }
 

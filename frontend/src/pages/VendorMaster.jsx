@@ -17,12 +17,18 @@ const VendorMaster = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
   const [deletingIdx,setDeletingIdx] = useState(null)
+  const [filteredVendors,setFilteredVendors] = useState([])
+
+  const page = 1
+  const limit =10
 
   useEffect(() => {
     const fetchVendors = async () => {
       try {
-        const response = await fetch('/api/vendorMaster/all-vendors')
+        //TODO: url is hardcore for testing directly from frontend when pagination is applies in frontend then change
+        const response = await fetch('/api/vendorMaster/all-vendors?page=1&limit=10')
         const data = await response.json()
+        console.log(data);
         if(response.ok){
           setVendors(data.data || [])
           showToast(data.message,data.success)
@@ -37,6 +43,18 @@ const VendorMaster = () => {
     }
     fetchVendors()
   }, [])
+
+  useEffect(() => {
+  const fetchFiltered = async () => {
+    const res = await FilterBySearchAndStatus(searchQuery, statusFilter, "VM", page, limit)
+    if (res && res.success) {
+      setFilteredVendors(res.data)
+    } else {
+      setFilteredVendors([])
+    }
+  }
+  fetchFiltered()
+}, [searchQuery, statusFilter, page, limit])
 
   const handleSave = (newVendor) => {
     if (editVendor) {
@@ -81,10 +99,6 @@ const VendorMaster = () => {
       setDeletingIdx(null)
     }
   }
-
-//filter by data and pass props as filteredVendors to DataTable component
-  const filteredVendors = FilterBySearchAndStatus(vendors,searchQuery,statusFilter,searchVendorCol)
-  
 
   return (
     <div className="p-6">

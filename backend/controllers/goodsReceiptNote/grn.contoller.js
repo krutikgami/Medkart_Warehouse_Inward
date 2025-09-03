@@ -226,38 +226,66 @@ const addGrn = async (req, res) => {
 
 const getAllGrns = async (req, res) => {
   try {
+    let { page = 1, limit = 10 } = req.query;
+
+    page = parseInt(page);
+    limit = parseInt(limit);
+
+    if (page < 1) page = 1;
+    if (limit < 1) limit = 10;
+
+    const skip = (page - 1) * limit;
+
+    const totalRecords = await prisma.grn.count({
+      where: {
+        deletedAt: null,
+      },
+    });
+
     const grns = await prisma.grn.findMany({
-      where:{
-        deletedAt : null
+      where: {
+        deletedAt: null,
       },
       include: {
-        items: true,
+        items: true, 
       },
       orderBy: {
-        updated_at: 'desc',
+        updated_at: "desc",
       },
-    })
+      skip,
+      take: limit,
+    });
+
     if (!grns || grns.length === 0) {
       return res.status(404).json({
         success: false,
-        message: 'No GRNs found',
-      })
+        message: "No GRNs found",
+      });
     }
 
     return res.status(200).json({
       success: true,
-      message: 'GRNs fetched successfully',
+      message: "GRNs fetched successfully",
       data: grns,
-    })
+      meta: {
+        totalRecords,
+        currentPage: page,
+        totalPages: Math.ceil(totalRecords / limit),
+        limit,
+        hasNextPage: page * limit < totalRecords,
+        hasPrevPage: page > 1,
+      },
+    });
   } catch (error) {
-    console.error('Error in getAllGrns controller:', error.message)
+    console.error("Error in getAllGrns controller:", error.message);
     return res.status(500).json({
       success: false,
-      message: 'Internal Server Error',
+      message: "Internal Server Error",
       error: error.message,
-    })
+    });
   }
-}
+};
+
 
 const editGrn = async (req, res) => {
   try {

@@ -79,11 +79,11 @@ export default function ProductModal({ isOpen, onClose, onSave, editProduct }) {
       })
 
       const data = await response.json()
-      if (response.ok) {
-        onSave(data.data)
-        showToast(data.message,data.success)
-        onClose()
-      } else {
+    if (response.ok) {
+      onSave(data.data)
+      showToast(data.message,data.success)
+      onClose()
+    }else {
         console.error('Error saving:', data)
         showToast(data.message,data.success)
       }

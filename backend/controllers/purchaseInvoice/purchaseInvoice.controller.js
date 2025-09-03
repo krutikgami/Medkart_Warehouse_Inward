@@ -123,39 +123,66 @@ const createPurchaseInvoice = async (req, res) => {
 
 const getAllPurchaseInvoices = async (req, res) => {
   try {
+    let { page = 1, limit = 10 } = req.query;
+
+    page = parseInt(page);
+    limit = parseInt(limit);
+
+    if (page < 1) page = 1;
+    if (limit < 1) limit = 10;
+
+    const skip = (page - 1) * limit;
+
+    const totalRecords = await prisma.purchaseInvoice.count({
+      where: {
+        deletedAt: null,
+      },
+    });
+
     const purchaseInvoices = await prisma.purchaseInvoice.findMany({
-      where:{
-        deletedAt : null
+      where: {
+        deletedAt: null,
       },
       orderBy: {
-        updated_at: 'desc',
+        updated_at: "desc",
       },
       include: {
-        items: true,
+        items: true, 
       },
-    })
+      skip,
+      take: limit,
+    });
 
-    if (!purchaseInvoices) {
+    if (!purchaseInvoices || purchaseInvoices.length === 0) {
       return res.status(404).json({
         success: false,
-        message: 'Purchase Invoice not found',
-      })
+        message: "No Purchase Invoices found",
+      });
     }
 
     return res.status(200).json({
-      data: purchaseInvoices,
       success: true,
-      message: 'Purchase Invoice fetched successfully',
-    })
+      message: "Purchase Invoices fetched successfully",
+      data: purchaseInvoices,
+      meta: {
+        totalRecords,
+        currentPage: page,
+        totalPages: Math.ceil(totalRecords / limit),
+        limit,
+        hasNextPage: page * limit < totalRecords,
+        hasPrevPage: page > 1,
+      },
+    });
   } catch (error) {
-    console.log('Error fetching Purchase Invoices', error.message)
+    console.error("Error fetching Purchase Invoices:", error.message);
     return res.status(500).json({
-      error: error.message,
       success: false,
-      message: 'Internal Server Error',
-    })
+      message: "Internal Server Error",
+      error: error.message,
+    });
   }
-}
+};
+
 
 const updatePurchaseInvoice = async (req, res) => {
   try {

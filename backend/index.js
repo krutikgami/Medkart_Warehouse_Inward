@@ -8,6 +8,7 @@ import PurchaseOrder from './routes/purchaseOrder/purchaseOrder.routes.js'
 import TotalCounts from './routes/totalCounts.routes.js'
 import Grn from './routes/goodsReceiptNote/grn.routes.js'
 import PurchaseInvoice from './routes/purchaseInvoice/purchaseInvoice.routes.js'
+import CommonFilter from './routes/commonFilter.routes.js'
 
 dotenv.config()
 
@@ -21,6 +22,7 @@ app.use('/api/purchaseOrder', PurchaseOrder)
 app.use('/api', TotalCounts)
 app.use('/api/goodsReceiptNote', Grn)
 app.use('/api/purchaseInvoice', PurchaseInvoice)
+app.use('/api',CommonFilter)
 
 app.listen(process.env.PORT || 3000, () => {
   console.log(`Server is running on port ${process.env.PORT || 3000}`)

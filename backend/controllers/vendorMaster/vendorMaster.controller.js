@@ -80,38 +80,65 @@ const addVendorMaster = async (req, res) => {
     })
   }
 }
-
 const getAllVendors = async (req, res) => {
   try {
-    const getAll = await prisma.vendorMaster.findMany({
-      where:{
-        deletedAt : null
+    let { page = 1, limit = 10 } = req.query;
+
+    page = parseInt(page);
+    limit = parseInt(limit);
+
+    if (page < 1) page = 1;
+    if (limit < 1) limit = 10;
+
+    const skip = (page - 1) * limit;
+
+    const totalRecords = await prisma.vendorMaster.count({
+      where: {
+        deletedAt: null,
+      },
+    });
+
+    const vendors = await prisma.vendorMaster.findMany({
+      where: {
+        deletedAt: null,
       },
       orderBy: {
-        updated_at: 'desc',
+        updated_at: "desc",
       },
-    })
-    if (!getAll || getAll.length === 0) {
+      skip,
+      take: limit,
+    });
+
+    if (!vendors || vendors.length === 0) {
       return res.status(404).json({
         success: false,
-        message: 'No Vendors found',
-      })
+        message: "No Vendors found",
+      });
     }
 
     return res.status(200).json({
       success: true,
-      message: 'Vendors fetched successfully',
-      data: getAll,
-    })
+      message: "Vendors fetched successfully",
+      data: vendors,
+      meta: {
+        totalRecords,
+        currentPage: page,
+        totalPages: Math.ceil(totalRecords / limit),
+        limit,
+        hasNextPage: page * limit < totalRecords,
+        hasPrevPage: page > 1,
+      },
+    });
   } catch (error) {
-    console.log('Error in getting All Vendors', error.message)
+    console.log("Error in getting All Vendors:", error.message);
     return res.status(500).json({
       success: false,
-      message: 'Internal Server Error',
+      message: "Internal Server Error",
       error: error.message,
-    })
+    });
   }
-}
+};
+
 
 const deleteVendor = async (req, res) => {
   try {

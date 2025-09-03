@@ -15,14 +15,20 @@ const PurchaseOrder = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
   const [deletingIdx,setDeletingIdx] = useState(null)
+  const [filteredOrders,setFilteredOrders] = useState([])
 
   const navigate = useNavigate()
+
+  const page = 1;
+  const limit =10;
 
   useEffect(() => {
     const fetchPurchaseOrder = async () => {
       try {
-        const response = await fetch('/api/purchaseOrder/allPurchaseOrder')
+        //TODO: url is hardcore for testing directly from frontend when pagination is applies in frontend then change
+        const response = await fetch('/api/purchaseOrder/allPurchaseOrder?page=1&limit=3')
         const data = await response.json()
+        console.log(data);
         if(response.ok){
           setOrders(data.data || [])
           showToast(data.message,data.success);
@@ -36,6 +42,18 @@ const PurchaseOrder = () => {
     }
     fetchPurchaseOrder()
   }, [])
+
+  useEffect(() => {
+  const fetchFiltered = async () => {
+    const res = await FilterBySearchAndStatus(searchQuery, statusFilter, "PO", page, limit)
+    if (res && res.success) {
+      setFilteredOrders(res.data)
+    } else {
+      setFilteredOrders([])
+    }
+  }
+  fetchFiltered()
+}, [searchQuery, statusFilter, page, limit])
 
   const handleEdit = (order) => {
     navigate('/add-purchase-order', { state: { grn: order, isEdit: true } })
@@ -68,7 +86,6 @@ const PurchaseOrder = () => {
   }
 
 //filter by data and pass props as filteredOrders to DataTable component
-  const filteredOrders = FilterBySearchAndStatus(orders,searchQuery,statusFilter,searchPurchaseOrderCol)
   return (
     <>
       <div className="p-6">

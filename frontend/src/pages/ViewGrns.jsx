@@ -15,14 +15,20 @@ const ViewGrns = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
   const [deletingIdx,setDeletingIdx] = useState(null)
+  const [filteredGrns,setFilteredGrns] = useState([])
+
+  const page = 1;
+  const limit = 10;
 
   const navigate = useNavigate()
 
   useEffect(() => {
     const fetchGrns = async () => {
       try {
-        const response = await fetch('/api/goodsReceiptNote/get-all-grns')
+        //TODO: url is hardcore for testing directly from frontend when pagination is applies in frontend then change
+        const response = await fetch('/api/goodsReceiptNote/get-all-grns?page=1&limit=10')
         const data = await response.json()
+        console.log(data);
         if(response.ok){
           setGrns(data.data || [])
           showToast(data.message,data.success)
@@ -36,6 +42,18 @@ const ViewGrns = () => {
     }
     fetchGrns()
   }, [])
+
+   useEffect(() => {
+    const fetchFiltered = async () => {
+    const res = await FilterBySearchAndStatus(searchQuery, statusFilter, "GRN", page, limit)
+    if (res && res.success) {
+      setFilteredGrns(res.data)
+    } else {
+      setFilteredGrns([])
+    }
+  }
+  fetchFiltered()
+}, [searchQuery, statusFilter, page, limit])
 
   const handleEditGrn = async (grn) => {
     navigate('/add-grn', { state: { grn, isEdit: true } })
@@ -66,9 +84,6 @@ const ViewGrns = () => {
       setDeletingIdx(null)
     }
   }
-
-//filter by data and pass props as filteredGrns to DataTable component
-  const filteredGrns = FilterBySearchAndStatus(grns,searchQuery,statusFilter,searchGrnCol)
 
   return (
     <>
