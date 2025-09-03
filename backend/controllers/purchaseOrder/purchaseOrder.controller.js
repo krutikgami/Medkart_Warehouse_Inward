@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client'
 import { v4 as uuidv4 } from 'uuid'
 import {createPurchaseOrderSchema,updatePurchaseOrderSchema} from '../../zodValidations/purchaseOrder.js'
 import { ZodError } from '../../utilities/zodError.js'
+import { z } from 'zod'
 
 const prisma = new PrismaClient()
 

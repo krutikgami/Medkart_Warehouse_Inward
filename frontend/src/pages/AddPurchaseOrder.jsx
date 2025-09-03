@@ -27,6 +27,8 @@ export default function PurchaseOrderForm() {
   const [productResults, setProductResults] = useState([])
   const [isLoading,setIsLoading] = useState(false)
   const [editIndex, setEditIndex] = useState(null) 
+  const [vendorName, setVendorName] = useState('')
+  const [productName, setProductName] = useState('')
 
   const navigate = useNavigate()
   const location = useLocation()
@@ -61,7 +63,7 @@ export default function PurchaseOrderForm() {
 const handleAddItem = () => {
   if (newItem.product_code && newItem.quantity && newItem.mrp && newItem.cost_price) {
     const total_price = Number(newItem.quantity) * Number(newItem.cost_price)
-    const updatedItem = { ...newItem, total_price }
+    const updatedItem = { ...newItem, total_price, product_name: productName }
 
     let updatedItems = [...formData.items]
 
@@ -82,6 +84,7 @@ const handleAddItem = () => {
     setFormData({ ...formData, items: updatedItems, total_amount })
     setNewItem({ product_code: '', quantity: '', mrp: '', cost_price: '', total_price: '' })
     setProductSearch('')
+    setProductName('')
   }
 }
 
@@ -148,6 +151,7 @@ const handleEditItem = (index) => {
       )
       const data = await res.json()
       if (data.success) setVendorResults(data.data)
+
     } catch (err) {
       console.error('Error fetching vendors:', err)
     }
@@ -185,6 +189,7 @@ const handleEditItem = (index) => {
       vendor_code: vendor.vendor_code,
     }))
     setVendorSearch(vendor.vendor_name)
+    setVendorName(vendor.vendor_name)
     setVendorResults([])
   }
 
@@ -194,6 +199,7 @@ const handleEditItem = (index) => {
       product_code: product.product_code,
     }))
     setProductSearch(product.product_name)
+    setProductName(product.product_name)
     setProductResults([])
   }
 
@@ -213,7 +219,7 @@ const handleEditItem = (index) => {
               <input
                 type="text"
                 value={
-                  state && state.grn ? state.grn.vendor_code : vendorSearch
+                  vendorName || vendorSearch
                 }
                 onChange={handleVendorInput}
                 placeholder="Search vendor..."
@@ -302,7 +308,7 @@ const handleEditItem = (index) => {
                 </label>
                 <input
                   type="text"
-                  value={productSearch}
+                  value={productSearch || productName}
                   onChange={handleProductInput}
                   placeholder="Search product..."
                   className="w-full p-2 border rounded"
@@ -387,7 +393,7 @@ const handleEditItem = (index) => {
                 onClick={() => handleEditItem(index)}
                 className="cursor-pointer hover:underline"
               >
-                Product {item.product_code} | Qty: {item.quantity} | Cost: {item.cost_price} | Total: {item.total_price}
+                Product :  {item.product_name || item.product_code} | Qty: {item.quantity} | Cost: {item.cost_price} | Total: {item.total_price}
               </span>
               <button
                 type="button"

@@ -6,7 +6,7 @@ import { Eye } from 'lucide-react'
 import FilterAndStatus from '../components/common/FilterAndStatus'
 import { PurchaseOrderStatus } from '../components/common/StatusValues'
 import { FilterBySearchAndStatus } from '../components/common/FilterBySearchAndStatus'
-import { searchPurchaseOrderCol } from '../components/common/SearchColumns'
+
 import { useToast } from '../components/common/ToastContainer'
 
 const PurchaseOrder = () => {

@@ -20,7 +20,7 @@ export const createPurchaseOrderSchema = z.object({
   items: z
     .array(purchaseOrderItemSchema)
     .min(1, "At least one item is required"),
-})
+}).strict();
 
 export const updatePurchaseOrderSchema = z.object({
   purchase_order_code: z.string().min(1, "Purchase order code is required"),
