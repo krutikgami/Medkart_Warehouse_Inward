@@ -2,39 +2,17 @@ import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 import { v4 as uuidv4 } from 'uuid'
 import { checkExpiry } from '../../utilities/checkExpiry.js'
+import {addGrnSchema,editGrnSchema} from '../../zodValidations/grn.js'
+import { ZodError } from '../../utilities/zodError.js'
 
 const addGrn = async (req, res) => {
   try {
-    const {
-      purchase_order_code,
-      vendor_code,
-      grn_date,
-      total_amount,
-      total_damage_qty,
-      total_shortage_qty,
-      items,
-    } = req.body
-    console.log('Received GRN data:', req.body)
-
-    if (
-      purchase_order_code == null ||
-      vendor_code == null ||
-      grn_date == null ||
-      total_amount == null ||
-      total_damage_qty == null ||
-      total_shortage_qty == null ||
-      !items ||
-      items.length === 0
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: 'All fields are required',
-      })
-    }
+    
+    const validations = addGrnSchema.parse(req.body);
 
     const inactiveOrDeleted = await prisma.vendorMaster.findFirst({
       where: {
-        vendor_code,
+        vendor_code : validations.vendor_code,
       }
     })
 
@@ -45,7 +23,7 @@ const addGrn = async (req, res) => {
       })
     }
 
-    for (let item of items) {
+    for (let item of validations.items) {
       const inactiveOrDeletedProduct = await prisma.productMaster.findFirst({
         where :{
           product_code : item.product_code
@@ -75,7 +53,7 @@ const addGrn = async (req, res) => {
     }
 
     const existingPO = await prisma.purchaseOrder.findUnique({
-      where: { purchase_order_code },
+      where: { purchase_order_code : validations.purchase_order_code },
       include: { items: true },
     })
 
@@ -102,14 +80,14 @@ const addGrn = async (req, res) => {
       })
     }
 
-    for (const item of items) {
+    for (const item of validations.items) {
       const poItem = existingPO.items.find(
         (i) => i.product_code === item.product_code
       )
       if (poItem && item.quantity > poItem.quantity) {
         const cancelledStatusPO = await prisma.purchaseOrder.update({
           where: {
-            purchase_order_code,
+            purchase_order_code : validations.purchase_order_code,
           },
           data: {
             status: 'Cancelled',
@@ -147,15 +125,15 @@ const addGrn = async (req, res) => {
     const newGrn = await prisma.grn.create({
       data: {
         grn_code: grnCode,
-        purchase_order_code,
-        vendor_code,
-        grn_date: new Date(grn_date),
-        total_amount: parseFloat(total_amount),
+        purchase_order_code: validations.purchase_order_code,
+        vendor_code : validations.vendor_code,
+        grn_date: new Date(validations.grn_date),
+        total_amount: parseFloat(validations.total_amount),
         status: 'Pending',
-        total_damage_qty: parseInt(total_damage_qty) || 0,
-        total_shortage_qty: parseInt(total_shortage_qty) || 0,
+        total_damage_qty: parseInt(validations.total_damage_qty) || 0,
+        total_shortage_qty: parseInt(validations.total_shortage_qty) || 0,
         items: {
-          create: items.map((item) => ({
+          create: validations.items.map((item) => ({
             product_code: item.product_code,
             quantity: parseInt(item.quantity),
             damage_qty: parseInt(item.damage_qty),
@@ -198,7 +176,7 @@ const addGrn = async (req, res) => {
     }
 
     const updateStatus = await prisma.purchaseOrder.update({
-      where: { purchase_order_code },
+      where: { purchase_order_code: validations.purchase_order_code },
       data: { status: stat },
     })
 
@@ -215,6 +193,14 @@ const addGrn = async (req, res) => {
       data: newGrn,
     })
   } catch (error) {
+    if(error instanceof z.ZodError){
+        const res = ZodError(error);
+        return res.status(400).json({
+          success : false,
+          message: "Validation failed",
+          errors: res,
+        })
+    }
     console.error('Error in addGrn controller:', error.message)
     return res.status(500).json({
       success: false,
@@ -289,35 +275,10 @@ const getAllGrns = async (req, res) => {
 
 const editGrn = async (req, res) => {
   try {
-    const {
-      grn_code,
-      purchase_order_code,
-      vendor_code,
-      grn_date,
-      total_amount,
-      total_damage_qty,
-      total_shortage_qty,
-      items,
-    } = req.body
+    
+    const validations = editGrnSchema.parse(req.body);
 
-    if (
-      grn_code == null ||
-      purchase_order_code == null ||
-      vendor_code == null ||
-      grn_date == null ||
-      total_amount == null ||
-      total_damage_qty == null ||
-      total_shortage_qty == null ||
-      !items ||
-      items.length === 0
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: 'All fields are required',
-      })
-    }
-
-    for (let item of items) {
+    for (let item of validations.items) {
       if (parseFloat(item.mrp) < parseFloat(item.cost_price)) {
         return res.status(400).json({
           success: false,
@@ -333,7 +294,7 @@ const editGrn = async (req, res) => {
     }
 
     const existingGRN = await prisma.grn.findUnique({
-      where: { grn_code },
+      where: { grn_code: validations.grn_code },
       include: { items: true },
     })
 
@@ -345,7 +306,7 @@ const editGrn = async (req, res) => {
     }
 
     const existingPO = await prisma.purchaseOrder.findUnique({
-      where: { purchase_order_code },
+      where: { purchase_order_code: validations.purchase_order_code },
       include: { items: true },
     })
 
@@ -356,7 +317,7 @@ const editGrn = async (req, res) => {
       })
     }
 
-    for (const item of items) {
+    for (const item of validations.items) {
       const poItem = existingPO.items.find(
         (i) => i.product_code === item.product_code
       )
@@ -386,18 +347,18 @@ const editGrn = async (req, res) => {
     }
 
     const updatedGrn = await prisma.grn.update({
-      where: { grn_code },
+      where: { grn_code : validations.grn_code },
       data: {
-        purchase_order_code,
-        vendor_code,
-        grn_date: new Date(grn_date),
-        total_amount: parseFloat(total_amount),
+        purchase_order_code : validations.purchase_order_code,
+        vendor_code: validations.vendor_code,
+        grn_date: new Date(validations.grn_date),
+        total_amount: parseFloat(validations.total_amount),
         status: 'Pending',
-        total_damage_qty: parseInt(total_damage_qty) || 0,
-        total_shortage_qty: parseInt(total_shortage_qty) || 0,
+        total_damage_qty: parseInt(validations.total_damage_qty) || 0,
+        total_shortage_qty: parseInt(validations.total_shortage_qty) || 0,
         items: {
-          deleteMany: { grn_code },
-          create: items.map((item) => ({
+          deleteMany: { grn_code  : validations.grn_code },
+          create: validations.items.map((item) => ({
             product_code: item.product_code,
             quantity: parseInt(item.quantity),
             damage_qty: parseInt(item.damage_qty),
@@ -440,7 +401,7 @@ const editGrn = async (req, res) => {
     }
 
     const updateStatus = await prisma.purchaseOrder.update({
-      where: { purchase_order_code },
+      where: { purchase_order_code : validations.purchase_order_code },
       data: { status: stat },
     })
 
@@ -457,6 +418,14 @@ const editGrn = async (req, res) => {
       data: updatedGrn,
     })
   } catch (error) {
+    if(error instanceof z.ZodError){
+        const res = ZodError(error);
+        return res.status(400).json({
+          success : false,
+          message: "Validation failed",
+          errors: res,
+        })
+    }
     console.error('Error in editGrn controller:', error.message)
     return res.status(500).json({
       success: false,

@@ -1,34 +1,14 @@
 import { PrismaClient } from '@prisma/client'
 import crypto from 'crypto'
+import {updateVendorSchema,vendorSchema} from '../../zodValidations/vendorMaster.js'
+import { ZodError } from '../../utilities/zodError.js'
 
 const prisma = new PrismaClient()
 
 const addVendorMaster = async (req, res) => {
   try {
-    const {
-      vendor_name,
-      contact_person,
-      contact_number,
-      gst_number,
-      address,
-      status,
-      vendor_email,
-    } = req.body
-    console.log(req.body)
-    if (
-      !vendor_name ||
-      !contact_person ||
-      !contact_number ||
-      !gst_number ||
-      !address ||
-      !status ||
-      !vendor_email
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: 'All fields are required',
-      })
-    }
+    
+    const validations = vendorSchema.parse(req.body)
 
     const UniqCode = crypto.randomBytes(3).toString('hex').toUpperCase()
     const vendorCode = `VEN-${UniqCode}`
@@ -49,13 +29,7 @@ const addVendorMaster = async (req, res) => {
     const newVendor = await prisma.vendorMaster.create({
       data: {
         vendor_code: vendorCode,
-        vendor_name,
-        contact_person,
-        contact_number,
-        gst_number,
-        address,
-        status,
-        vendor_email,
+        ...validations
       },
     })
 
@@ -72,6 +46,14 @@ const addVendorMaster = async (req, res) => {
       data: newVendor,
     })
   } catch (error) {
+    if(error instanceof z.ZodError){
+        const res = ZodError(error);
+        return res.status(400).json({
+          success : false,
+          message: "Validation failed",
+          errors: res,
+        })
+    }
     console.log('Error creating in Vendor Master', error.message)
     return res.json({
       success: false,
@@ -139,7 +121,6 @@ const getAllVendors = async (req, res) => {
   }
 };
 
-
 const deleteVendor = async (req, res) => {
   try {
     const { vendor_code } = req.body
@@ -180,24 +161,10 @@ const deleteVendor = async (req, res) => {
 
 const updateVendor = async (req, res) => {
   try {
-    const {
-      vendor_code,
-      vendor_name,
-      contact_person,
-      contact_number,
-      gst_number,
-      address,
-      status,
-    } = req.body
-    if (!vendor_code) {
-      return res.status(400).json({
-        success: false,
-        message: 'Vendor code is required for Update Vendor',
-      })
-    }
-
+    
+    const validations = updateVendorSchema.parse(req.body)
     const existingVendor = await prisma.vendorMaster.findUnique({
-      where: { vendor_code },
+      where: { vendor_code : validations.vendor_code },
     })
 
     if (!existingVendor) {
@@ -208,14 +175,14 @@ const updateVendor = async (req, res) => {
     }
 
     const updatedVendor = await prisma.vendorMaster.update({
-      where: { vendor_code },
+      where: { vendor_code: validations.vendor_code },
       data: {
-        vendor_name: vendor_name || existingVendor.vendor_name,
-        contact_person: contact_person || existingVendor.contact_person,
-        contact_number: contact_number || existingVendor.contact_number,
-        gst_number: gst_number || existingVendor.gst_number,
-        address: address || existingVendor.address,
-        status: status || existingVendor.status,
+        vendor_name: validations.vendor_name || existingVendor.vendor_name,
+        contact_person: validations.contact_person || existingVendor.contact_person,
+        contact_number: validations.contact_number || existingVendor.contact_number,
+        gst_number: validations.gst_number || existingVendor.gst_number,
+        address: validations.address || existingVendor.address,
+        status: validations.status || existingVendor.status,
       },
     })
 
@@ -232,6 +199,14 @@ const updateVendor = async (req, res) => {
       data: updatedVendor,
     })
   } catch (error) {
+    if(error instanceof z.ZodError){
+        const res = ZodError(error);
+        return res.status(400).json({
+          success : false,
+          message: "Validation failed",
+          errors: res,
+        })
+    }
     console.log('Error in updateVendor controller:', error.message)
     return res.status(500).json({
       success: false,

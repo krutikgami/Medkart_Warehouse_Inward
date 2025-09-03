@@ -1,5 +1,12 @@
 import {z} from 'zod'
 
+const purchaseOrderItemSchema = z.object({
+  product_code: z.string().min(1, "Product code is required"),
+  quantity: z.number().int().positive("Quantity must be a positive integer"),
+  mrp: z.float32().positive("MRP must be greater than 0"),
+  cost_price: z.float32().positive("Cost Price must be greater than 0"),
+  total_price: z.number().positive("Total price must be greater than 0"),
+})
 
 export const createPurchaseOrderSchema = z.object({
   vendor_code: z.string().min(1, "Vendor code is required"),
@@ -34,10 +41,3 @@ export const updatePurchaseOrderSchema = z.object({
   items: z.array(purchaseOrderItemSchema).optional(),
 })
 
-const purchaseOrderItemSchema = z.object({
-  product_code: z.string().min(1, "Product code is required"),
-  quantity: z.number().int().positive("Quantity must be a positive integer"),
-  mrp: z.float32().positive("MRP must be greater than 0"),
-  cost_price: z.float32().positive("Cost Price must be greater than 0"),
-  total_price: z.number().positive("Total price must be greater than 0"),
-})

@@ -1,26 +1,16 @@
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 import { v4 as uuidv4 } from 'uuid'
+import {createPurchaseInvoiceSchema,updatePurchaseInvoiceSchema} from '../../zodValidations/purchaseInvoice.js'
+import { ZodError } from '../../utilities/zodError.js'
 
 const createPurchaseInvoice = async (req, res) => {
   try {
-    const { grn_code, vendor_code, invoice_date, status, items } = req.body
-
-    if (
-      grn_code == null ||
-      vendor_code == null ||
-      invoice_date == null ||
-      !items ||
-      items.length === 0
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: 'All fields are required',
-      })
-    }
+    
+    const validations = createPurchaseInvoiceSchema.parse(req.body);
 
     const grn = await prisma.grn.findUnique({
-      where: { grn_code },
+      where: { grn_code : validations.grn_code},
     })
 
     if (!grn) {
@@ -31,7 +21,7 @@ const createPurchaseInvoice = async (req, res) => {
     }
 
     let total_amount = 0
-    for (let item of items) {
+    for (let item of validations.items) {
       if (parseFloat(item.mrp) < parseFloat(item.cost_price)) {
         return res.status(400).json({
           success: false,
@@ -67,13 +57,13 @@ const createPurchaseInvoice = async (req, res) => {
     const newInvoice = await prisma.purchaseInvoice.create({
       data: {
         purchase_invoice_code: invoiceCode,
-        grn_code,
-        vendor_code,
-        invoice_date: new Date(invoice_date),
-        total_amount,
-        status,
+        grn_code : validations.grn_code,
+        vendor_code : validations.vendor_code,
+        invoice_date: new Date(validations.invoice_date),
+        total_amount : validations.total_amount,
+        status : validations.status,
         items: {
-          create: items.map((item) => ({
+          create: validations.items.map((item) => ({
             product_code: item.product_code,
             quantity: parseInt(item.quantity),
             mrp: item.mrp,
@@ -95,7 +85,7 @@ const createPurchaseInvoice = async (req, res) => {
     }
 
     const updateGrnStatus = await prisma.grn.update({
-      where: { grn_code },
+      where: { grn_code: validations.grn_code },
       data: { status: 'Completed' },
     })
 
@@ -112,6 +102,14 @@ const createPurchaseInvoice = async (req, res) => {
       message: 'Purchase Invoice created and GRN updated successfully',
     })
   } catch (error) {
+    if(error instanceof z.ZodError){
+        const res = ZodError(error);
+        return res.status(400).json({
+          success : false,
+          message: "Validation failed",
+          errors: res,
+        })
+    }
     console.log('Error creating in Purchase Invoice', error.message)
     return res.status(500).json({
       error: error.message,
@@ -186,21 +184,11 @@ const getAllPurchaseInvoices = async (req, res) => {
 
 const updatePurchaseInvoice = async (req, res) => {
   try {
-    const { purchase_invoice_code, invoice_date, status, items } = req.body
-    if (
-      purchase_invoice_code == null ||
-      invoice_date == null ||
-      !items ||
-      items.length === 0
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: 'All fields are required',
-      })
-    }
+    
+    const validations = updatePurchaseInvoiceSchema.parse(req.body);
 
     let total_amount = 0
-    for (let item of items) {
+    for (let item of validations.items) {
       if (parseFloat(item.mrp) < parseFloat(item.cost_price)) {
         return res.status(400).json({
           success: false,
@@ -219,7 +207,7 @@ const updatePurchaseInvoice = async (req, res) => {
     }
 
     const existingInvoice = await prisma.purchaseInvoice.findUnique({
-      where: { purchase_invoice_code },
+      where: { purchase_invoice_code : validations.purchase_invoice_code },
     })
 
     if (!existingInvoice) {
@@ -230,14 +218,14 @@ const updatePurchaseInvoice = async (req, res) => {
     }
 
     const updatedInvoice = await prisma.purchaseInvoice.update({
-      where: { purchase_invoice_code },
+      where: { purchase_invoice_code : validations.purchase_invoice_code },
       data: {
-        invoice_date: new Date(invoice_date),
-        total_amount,
-        status,
+        invoice_date: new Date(validations.invoice_date),
+        total_amount : validations.total_amount,
+        status : validations.status,
         items: {
-          deleteMany: { purchase_invoice_code },
-          create: items.map((item) => ({
+          deleteMany: { purchase_invoice_code:validations.purchase_invoice_code },
+          create: validations.items.map((item) => ({
             product_code: item.product_code,
             quantity: parseInt(item.quantity),
             mrp: parseFloat(item.mrp),
@@ -264,6 +252,14 @@ const updatePurchaseInvoice = async (req, res) => {
       message: 'Purchase Invoice updated successfully',
     })
   } catch (error) {
+    if(error instanceof z.ZodError){
+        const res = ZodError(error);
+        return res.status(400).json({
+          success : false,
+          message: "Validation failed",
+          errors: res,
+        })
+    }
     console.log('Error updating Purchase Invoice', error.message)
     return res.status(500).json({
       error: error.message,

@@ -1,42 +1,12 @@
 import { PrismaClient } from '@prisma/client'
 import crypto from 'crypto'
-import { productSchema } from '../../zodValidations/productMaster.js'
-import { z } from 'zod'
+import { productSchema , updateProductSchema} from '../../zodValidations/productMaster.js'
+import { success, z } from 'zod'
+import { ZodError } from '../../utilities/zodError.js'
 const prisma = new PrismaClient()
 
 const productMaster = async (req, res) => {
   try {
-    // const {
-    //   product_name,
-    //   product_description,
-    //   product_price,
-    //   product_mrp,
-    //   hsn_code,
-    //   gst_percent,
-    //   category,
-    //   combination,
-    //   unit_of_measure,
-    //   status,
-    //   product_last_purchase_price,
-    // } = req.body
-    // if (
-    //   !product_name ||
-    //   !product_description ||
-    //   !product_price ||
-    //   !product_mrp ||
-    //   !hsn_code ||
-    //   !gst_percent ||
-    //   !category ||
-    //   !combination ||
-    //   !unit_of_measure ||
-    //   !status
-    // ) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: 'All fields are required',
-    //   })
-    // }
-
     const validations = productSchema.parse(req.body)
 
     if (validations.product_mrp < validations.product_price) {
@@ -66,17 +36,6 @@ const productMaster = async (req, res) => {
       data: {
         product_code: productCode,
         ...validations
-        // product_name,
-        // product_description,
-        // product_price: parseFloat(product_price),
-        // product_mrp: parseFloat(product_mrp),
-        // hsn_code: parseInt(hsn_code),
-        // gst_percent: parseFloat(gst_percent),
-        // category,
-        // combination,
-        // unit_of_measure,
-        // status,
-        // product_last_purchase_price: parseFloat(product_last_purchase_price),
       },
     })
 
@@ -93,6 +52,14 @@ const productMaster = async (req, res) => {
       data: newProduct,
     })
   } catch (error) {
+    if(error instanceof z.ZodError){
+        const res = ZodError(error);
+        return res.status(400).json({
+          success : false,
+          message: "Validation failed",
+          errors: res,
+        })
+    }
     console.error('Error in productManager controller:', error.message)
     return res.status(500).json({
       success: false,
@@ -114,14 +81,12 @@ const getAllProducts = async (req, res) => {
 
     const skip = (page - 1) * limit;
 
-    // Total count for pagination
     const totalRecords = await prisma.productMaster.count({
       where: {
         deletedAt: null,
       },
     });
 
-    // Fetch paginated products
     const products = await prisma.productMaster.findMany({
       where: {
         deletedAt: null,
@@ -204,29 +169,16 @@ const deleteProduct = async (req, res) => {
 
 const updateProduct = async (req, res) => {
   try {
-    const {
-      product_code,
-      product_name,
-      product_description,
-      product_price,
-      product_mrp,
-      hsn_code,
-      gst_percent,
-      category,
-      combination,
-      unit_of_measure,
-      status,
-      product_last_purchase_price
-    } = req.body
+      const validations = updateProductSchema.parse(req.body);
 
-    if (!product_code) {
+    if (!validations.product_code) {
       return res.status(400).json({
         success: false,
         message: 'Product code is required for Update Product',
       })
     }
 
-    if (parseFloat(product_mrp) < parseFloat(product_price)) {
+    if (validations.product_mrp < validations.product_price) {
       return res.status(400).json({
         success: false,
         message: 'MRP should be greater than or equal to Product Price',
@@ -234,7 +186,7 @@ const updateProduct = async (req, res) => {
     }
 
     const existingProduct = await prisma.productMaster.findUnique({
-      where: { product_code },
+      where: { product_code: validations.product_code },
     })
 
     if (!existingProduct) {
@@ -245,21 +197,21 @@ const updateProduct = async (req, res) => {
     }
 
     const updatedProduct = await prisma.productMaster.update({
-      where: { product_code },
+      where: { product_code: validations.product_code  },
       data: {
-        product_name: product_name || existingProduct.product_name,
+        product_name: validations.product_name || existingProduct.product_name,
         product_description:
-          product_description || existingProduct.product_description,
+          validations.product_description || existingProduct.product_description,
         product_price:
-          parseFloat(product_price) || existingProduct.product_price,
-        product_mrp: parseFloat(product_mrp) || existingProduct.product_mrp,
-        hsn_code: parseInt(hsn_code) || existingProduct.hsn_code,
-        gst_percent: parseFloat(gst_percent) || existingProduct.gst_percent,
-        category: category || existingProduct.category,
-        combination: combination || existingProduct.combination,
-        unit_of_measure: unit_of_measure || existingProduct.unit_of_measure,
-        status: status || existingProduct.status,
-        product_last_purchase_price : parseFloat(product_last_purchase_price) || existingProduct.product_last_purchase_price
+          validations.product_price || existingProduct.product_price,
+        product_mrp: validations.product_mrp || existingProduct.product_mrp,
+        hsn_code: validations.hsn_code || existingProduct.hsn_code,
+        gst_percent: validations.gst_percent || existingProduct.gst_percent,
+        category: validations.category || existingProduct.category,
+        combination: validations.combination || existingProduct.combination,
+        unit_of_measure: validations.unit_of_measure || existingProduct.unit_of_measure,
+        status: validations.status || existingProduct.status,
+        product_last_purchase_price : validations.product_last_purchase_price || existingProduct.product_last_purchase_price
       },
     })
 
@@ -276,6 +228,14 @@ const updateProduct = async (req, res) => {
       data: updatedProduct,
     })
   } catch (error) {
+    if(error instanceof z.ZodError){
+        const res = ZodError(error);
+        return res.status(400).json({
+          success : false,
+          message: "Validation failed",
+          errors: res,
+        })
+    }
     console.error('Error in updateProduct controller:', error.message)
     return res.status(500).json({
       success: false,

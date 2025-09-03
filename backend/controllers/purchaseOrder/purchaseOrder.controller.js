@@ -1,27 +1,15 @@
 import { PrismaClient } from '@prisma/client'
 import { v4 as uuidv4 } from 'uuid'
+import {createPurchaseOrderSchema,updatePurchaseOrderSchema} from '../../zodValidations/purchaseOrder.js'
+import { ZodError } from '../../utilities/zodError.js'
 
 const prisma = new PrismaClient()
 
 const createPurchaseOrder = async (req, res) => {
   try {
-    const { vendor_code, items, purchase_date, expected_date, total_amount } =
-      req.body
-    if (
-      !vendor_code ||
-      !items ||
-      items.length === 0 ||
-      !purchase_date ||
-      !expected_date ||
-      !total_amount
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: 'Vendor code and items are required',
-      })
-    }
+      const validations = createPurchaseOrderSchema.parse(req.body);
 
-    for (let item of items) {
+    for (let item of validations.items) {
       if (parseFloat(item.mrp) < parseFloat(item.cost_price)) {
         return res.status(400).json({
           success: false,
@@ -47,28 +35,26 @@ const createPurchaseOrder = async (req, res) => {
 
     
 
-    const newOrder = await prisma.purchaseOrder.create({
+     const newOrder = await prisma.purchaseOrder.create({
       data: {
-        vendor_code: vendor_code,
-        purchase_date: new Date(purchase_date),
+        vendor_code: validatedData.vendor_code,
+        purchase_date: new Date(validatedData.purchase_date),
         purchase_order_code: orderCode,
-        expected_date: new Date(expected_date),
-        status: 'Pending',
-        total_amount,
+        expected_date: new Date(validatedData.expected_date),
+        status: "Pending",
+        total_amount: validatedData.total_amount,
         items: {
-          create: items.map((item) => ({
+          create: validatedData.items.map((item) => ({
             product_code: item.product_code,
-            quantity: parseInt(item.quantity),
-            mrp: parseFloat(item.mrp),
-            cost_price: parseFloat(item.cost_price),
-            total_price: parseFloat(item.total_price),
+            quantity: item.quantity,
+            mrp: item.mrp,
+            cost_price: item.cost_price,
+            total_price: item.total_price,
           })),
         },
       },
-      include: {
-        items: true,
-      },
-    })
+      include: { items: true },
+    });
 
     return res.status(201).json({
       success: true,
@@ -76,6 +62,14 @@ const createPurchaseOrder = async (req, res) => {
       data: newOrder,
     })
   } catch (error) {
+    if(error instanceof z.ZodError){
+        const res = ZodError(error);
+        return res.status(400).json({
+          success : false,
+          message: "Validation failed",
+          errors: res,
+        })
+    }
     console.log('Error creating purchase order', error.message)
     return res.status(500).json({
       success: false,
@@ -209,23 +203,10 @@ const deletePurchaseOrder = async (req, res) => {
 
 const updatePurchaseOrder = async (req, res) => {
   try {
-    const {
-      purchase_order_code,
-      vendor_code,
-      items,
-      purchase_date,
-      expected_date,
-      total_amount,
-    } = req.body
-    if (!purchase_order_code) {
-      return res.status(400).json({
-        success: false,
-        message: 'Purchase order code is required',
-      })
-    }
+    const validations = updatePurchaseOrderSchema.parse(req.body);
 
-    for (let item of items) {
-      if (parseFloat(item.mrp) < parseFloat(item.cost_price)) {
+    for (let item of validations.items) {
+      if (item.mrp< item.cost_price) {
         return res.status(400).json({
           success: false,
           message: `For product code ${item.product_code}, MRP should be greater than or equal to Cost Price`,
@@ -234,7 +215,7 @@ const updatePurchaseOrder = async (req, res) => {
     }
 
     const existingOrder = await prisma.purchaseOrder.findUnique({
-      where: { purchase_order_code },
+      where: {purchase_order_code: validations.purchase_order_code },
       include: { items: true },
     })
 
@@ -246,22 +227,22 @@ const updatePurchaseOrder = async (req, res) => {
     }
 
     const updatedOrder = await prisma.purchaseOrder.update({
-      where: { purchase_order_code },
+      where: { purchase_order_code: validations.purchase_order_code },
       data: {
-        vendor_code: vendor_code || existingOrder.vendor_code,
-        purchase_date: purchase_date
+        vendor_code: validations.vendor_code || existingOrder.vendor_code,
+        purchase_date: validations.purchase_date
           ? new Date(purchase_date)
           : existingOrder.purchase_date,
-        expected_date: expected_date
+        expected_date:validations.expected_date
           ? new Date(expected_date)
           : existingOrder.expected_date,
         status: existingOrder.status,
-        total_amount: total_amount || existingOrder.total_amount,
-        ...(items &&
-          items.length > 0 && {
+        total_amount: validations.total_amount || existingOrder.total_amount,
+        ...(validations.items &&
+          validations.items.length > 0 && {
             items: {
-              deleteMany: { purchase_order_code },
-              create: items.map((item) => ({
+              deleteMany: { purchase_order_code : validations.purchase_order_code},
+              create: validations.items.map((item) => ({
                 product_code: item.product_code,
                 quantity: parseInt(item.quantity),
                 mrp: parseFloat(item.mrp),
@@ -282,6 +263,14 @@ const updatePurchaseOrder = async (req, res) => {
       data: updatedOrder,
     })
   } catch (error) {
+    if(error instanceof z.ZodError){
+        const res = ZodError(error);
+        return res.status(400).json({
+          success : false,
+          message: "Validation failed",
+          errors: res,
+        })
+    }
     console.log('Error in updatePurchaseOrder controller:', error.message)
     return res.status(500).json({
       success: false,
