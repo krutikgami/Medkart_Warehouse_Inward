@@ -47,11 +47,11 @@ const addVendorMaster = async (req, res) => {
     })
   } catch (error) {
     if(error instanceof z.ZodError){
-        const res = ZodError(error);
+        const result = ZodError(error);
         return res.status(400).json({
           success : false,
           message: "Validation failed",
-          errors: res,
+          errors: result,
         })
     }
     console.log('Error creating in Vendor Master', error.message)
@@ -200,11 +200,11 @@ const updateVendor = async (req, res) => {
     })
   } catch (error) {
     if(error instanceof z.ZodError){
-        const res = ZodError(error);
+        const result = ZodError(error);
         return res.status(400).json({
           success : false,
           message: "Validation failed",
-          errors: res,
+          errors: result,
         })
     }
     console.log('Error in updateVendor controller:', error.message)

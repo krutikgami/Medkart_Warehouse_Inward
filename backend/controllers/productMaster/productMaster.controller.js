@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client'
 import crypto from 'crypto'
 import { productSchema , updateProductSchema} from '../../zodValidations/productMaster.js'
-import { success, z } from 'zod'
+import { z } from 'zod'
 import { ZodError } from '../../utilities/zodError.js'
 const prisma = new PrismaClient()
 
@@ -53,11 +53,11 @@ const productMaster = async (req, res) => {
     })
   } catch (error) {
     if(error instanceof z.ZodError){
-        const res = ZodError(error);
+        const result = ZodError(error);
         return res.status(400).json({
           success : false,
           message: "Validation failed",
-          errors: res,
+          errors: result,
         })
     }
     console.error('Error in productManager controller:', error.message)
@@ -229,11 +229,11 @@ const updateProduct = async (req, res) => {
     })
   } catch (error) {
     if(error instanceof z.ZodError){
-        const res = ZodError(error);
+        const result = ZodError(error);
         return res.status(400).json({
           success : false,
           message: "Validation failed",
-          errors: res,
+          errors: result,
         })
     }
     console.error('Error in updateProduct controller:', error.message)

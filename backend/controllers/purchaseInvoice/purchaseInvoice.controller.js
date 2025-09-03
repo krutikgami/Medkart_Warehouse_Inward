@@ -3,7 +3,7 @@ const prisma = new PrismaClient()
 import { v4 as uuidv4 } from 'uuid'
 import {createPurchaseInvoiceSchema,updatePurchaseInvoiceSchema} from '../../zodValidations/purchaseInvoice.js'
 import { ZodError } from '../../utilities/zodError.js'
-
+import {z} from 'zod'
 const createPurchaseInvoice = async (req, res) => {
   try {
     
@@ -60,7 +60,7 @@ const createPurchaseInvoice = async (req, res) => {
         grn_code : validations.grn_code,
         vendor_code : validations.vendor_code,
         invoice_date: new Date(validations.invoice_date),
-        total_amount : validations.total_amount,
+        total_amount : total_amount,
         status : validations.status,
         items: {
           create: validations.items.map((item) => ({
@@ -103,11 +103,11 @@ const createPurchaseInvoice = async (req, res) => {
     })
   } catch (error) {
     if(error instanceof z.ZodError){
-        const res = ZodError(error);
+        const result = ZodError(error);
         return res.status(400).json({
           success : false,
           message: "Validation failed",
-          errors: res,
+          errors: result,
         })
     }
     console.log('Error creating in Purchase Invoice', error.message)
@@ -253,11 +253,11 @@ const updatePurchaseInvoice = async (req, res) => {
     })
   } catch (error) {
     if(error instanceof z.ZodError){
-        const res = ZodError(error);
+        const result = ZodError(error);
         return res.status(400).json({
           success : false,
           message: "Validation failed",
-          errors: res,
+          errors: result,
         })
     }
     console.log('Error updating Purchase Invoice', error.message)

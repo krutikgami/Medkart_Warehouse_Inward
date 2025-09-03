@@ -194,11 +194,11 @@ const addGrn = async (req, res) => {
     })
   } catch (error) {
     if(error instanceof z.ZodError){
-        const res = ZodError(error);
+        const result = ZodError(error);
         return res.status(400).json({
           success : false,
           message: "Validation failed",
-          errors: res,
+          errors: result,
         })
     }
     console.error('Error in addGrn controller:', error.message)
@@ -419,11 +419,11 @@ const editGrn = async (req, res) => {
     })
   } catch (error) {
     if(error instanceof z.ZodError){
-        const res = ZodError(error);
+        const result = ZodError(error);
         return res.status(400).json({
           success : false,
           message: "Validation failed",
-          errors: res,
+          errors: result,
         })
     }
     console.error('Error in editGrn controller:', error.message)

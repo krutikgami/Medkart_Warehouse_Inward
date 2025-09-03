@@ -21,11 +21,11 @@ export const updateProductSchema = z.object({
   product_description: z.string().min(10, "Product Description is required").optional(),
   product_price: z.preprocess(
     (val) => (val !== undefined && val !== "" ? parseFloat(val) : undefined),
-    z.float32().positive("Product Price must be positive").optional()
+    z.number().positive("Product Price must be positive").optional()
   ),
   product_mrp: z.preprocess(
     (val) => (val !== undefined && val !== "" ? parseFloat(val) : undefined),
-    z.float32().positive("MRP must be positive").optional()
+    z.number().positive("MRP must be positive").optional()
   ),
   hsn_code: z.preprocess(
     (val) => (val !== undefined && val !== "" ? parseInt(val) : undefined),
@@ -33,7 +33,7 @@ export const updateProductSchema = z.object({
   ),
   gst_percent: z.preprocess(
     (val) => (val !== undefined && val !== "" ? parseFloat(val) : undefined),
-    z.float32().min(0).max(100, "GST must be between 0 and 100").optional()
+    z.number().min(0).max(100, "GST must be between 0 and 100").optional()
   ),
   category: z.string().optional(),
   combination: z.union([z.string(), z.array(z.string())]).optional(),
@@ -41,6 +41,6 @@ export const updateProductSchema = z.object({
   status: z.string().optional(),
   product_last_purchase_price: z.preprocess(
     (val) => (val !== undefined && val !== "" ? parseFloat(val) : undefined),
-    z.float32().nonnegative().optional()
+    z.number().nonnegative().optional()
   ),
 })

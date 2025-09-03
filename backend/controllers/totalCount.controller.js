@@ -4,11 +4,31 @@ const prisma = new PrismaClient()
 
 const getTotalCount = async (req, res) => {
   try {
-    const vendorCount = await prisma.vendorMaster.count()
-    const productCount = await prisma.productMaster.count()
-    const purchaseOrderCount = await prisma.purchaseOrder.count()
-    const grnCount = await prisma.grn.count()
-    const purchaseInvoiceCount = await prisma.purchaseInvoice.count()
+    const vendorCount = await prisma.vendorMaster.count({
+      where : {
+        deletedAt : null
+      }
+    })
+    const productCount = await prisma.productMaster.count({
+      where : {
+        deletedAt : null
+      }
+    })
+    const purchaseOrderCount = await prisma.purchaseOrder.count({
+      where : {
+        deletedAt : null
+      }
+    })
+    const grnCount = await prisma.grn.count({
+      where : {
+        deletedAt : null
+      }
+    })
+    const purchaseInvoiceCount = await prisma.purchaseInvoice.count({
+      where : {
+        deletedAt : null
+      }
+    })
 
     return res.status(200).json({
       success: true,

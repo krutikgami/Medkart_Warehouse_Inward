@@ -78,7 +78,7 @@ const ViewItems = () => {
             </tr>
           </thead>
           <tbody>
-            {items.length > 0 ? (
+            {items?.length > 0 ? (
               items.map((item, idx) => (
                 <tr key={idx} className="hover:bg-gray-50">
                   {selectedColumns.map((col) => (

@@ -34,12 +34,17 @@ export const commonFilter = async (req, res) => {
 
 
     const totalRecords = await prisma[modelName].count({ where });
-
+    const shouldIncludeItems = ["purchaseOrder", "purchaseInvoice", "grn"].includes(modelName);
     const data = await prisma[modelName].findMany({
       where,
       skip,
       take: pageSize,
       orderBy: { created_at: "desc" }, 
+      ...(shouldIncludeItems && {
+          include: {
+          items: true,
+        },
+      }),
     });
 
     return res.status(200).json({
