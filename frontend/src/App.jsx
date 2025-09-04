@@ -11,6 +11,8 @@ import ViewPIs from './pages/ViewPIs'
 import PurchaseInvoiceForm from './pages/PurchaseInvoiceForm'
 import ViewItems from './components/ViewItems'
 import {ToastProvider} from './components/common/ToastContainer';
+import {FormRender} from './utilities/jsonFormRenderEngine/FormRender';
+
 
 function App() {
   return (
@@ -30,6 +32,7 @@ function App() {
             <Route path="/add-pi" element={<PurchaseInvoiceForm />} />
             <Route path="/view-invoices" element={<ViewPIs />} />
             <Route path="/view-items" element={<ViewItems />} />
+            <Route path="/check" element={<FormRender />} />
           </Routes>
         </div>
       </div>

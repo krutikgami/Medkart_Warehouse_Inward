@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client'
 import crypto from 'crypto'
 import {updateVendorSchema,vendorSchema} from '../../zodValidations/vendorMaster.js'
 import { ZodError } from '../../utilities/zodError.js'
+import { z } from 'zod'
 
 const prisma = new PrismaClient()
 
