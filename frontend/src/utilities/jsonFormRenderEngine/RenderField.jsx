@@ -1,3 +1,4 @@
+import { validateField } from "../validateFields/validateField.js";
 import { validateForm } from "../validateFields/validateForm.js";
 
 export const RenderField = ({ field , formData , setFormData , errors , setErrors,rootSchema }) => {
@@ -31,6 +32,7 @@ export const RenderField = ({ field , formData , setFormData , errors , setError
           style={style}
           value={formData[name] || ""}
           onChange={(e) => {
+            e.preventDefault();
             const val = e.target.value;
             setFormData({ ...formData, [name]: val });
             setErrors({
@@ -48,7 +50,7 @@ export const RenderField = ({ field , formData , setFormData , errors , setError
    if (type === "submit") {
         return (
             <button
-            type={type}
+            type="button"
             style={style}
             onClick={(e) => {
                 e.preventDefault();
@@ -57,8 +59,8 @@ export const RenderField = ({ field , formData , setFormData , errors , setError
                 formData
                 );
                 setErrors(newErrors);
-                if (Object.keys(newErrors).length === 0) {
-                alert("Form Submitted !!");
+                if (Object.keys(errors).length === 0) {
+                  alert("Form Submitted !!");
                 }
             }}
             >

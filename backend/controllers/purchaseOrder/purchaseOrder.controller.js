@@ -125,19 +125,23 @@ const getAllPurchaseOrder = async (req, res) => {
       });
     }
 
-    purchaseOrders.map(async (order) => {
-      await prisma.vendorMaster.findUnique({
-        where: { vendor_code: order.vendor_code },
-        select: { vendor_name: true }
-      }).then(vendor => {
-        order.vendor_name = vendor ? vendor.vendor_name : null;
-      });
+const purchaseOrdersWithVendor = await Promise.all(
+  purchaseOrders.map(async (order) => {
+    const vendor = await prisma.vendorMaster.findUnique({
+      where: { vendor_code: order.vendor_code },
+      select: { vendor_name: true },
     });
+    return {
+      ...order,
+      vendor_name: vendor ? vendor.vendor_name : null,
+    };
+  })
+);
 
     return res.status(200).json({
       success: true,
       message: "Purchase Orders fetched successfully",
-      data: purchaseOrders,
+      data: purchaseOrdersWithVendor,
       meta: {
         totalRecords,
         currentPage: page,

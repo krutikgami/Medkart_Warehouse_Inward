@@ -1,5 +1,5 @@
-export const searchProductCol = ["product_name","product_description","product_code","category","unit_of_measure"]
-export const searchVendorCol = ["vendor_code","vendor_name","contact_person","contact_number","vendor_email","gst_number","address"]
-export const searchPurchaseOrderCol = ["vendor_code","purchase_order_code","status"]
+export const searchProductCol = ["Name","Description","Code","Category","UnitOfMeasure",'GST%']
+export const searchVendorCol = ["Name","Code","Phone no","Email","Gst No","address"]
+export const searchPurchaseOrderCol = ["VEN Code","PO Code","status"]
 export const searchGrnCol = ["grn_code","purchase_order_code","vendor_code"]
 export const searchPurchaseInvoiceCol = ["purchase_invoice_code","grn_code","vendor_code"]

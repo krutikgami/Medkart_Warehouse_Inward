@@ -36,6 +36,7 @@ export const PurchaseOrderHeading = [
   { key: 'id', label: 'ID' },
   { key: 'purchase_order_code', label: 'PO Code' },
   { key: 'vendor_code', label: 'Vendor Code' },
+  { key: 'vendor_name', label: 'Vendor Name' },
   {
     key: 'purchase_date',
     label: 'Purchase Date',

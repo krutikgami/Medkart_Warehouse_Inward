@@ -13,3 +13,27 @@ export const dbcols = {
     "PI" : ["purchase_invoice_code","grn_code","vendor_code"],
     "GRN" : ["grn_code","purchase_order_code","vendor_code"]
 }
+
+export const dbFiltercols = {
+    'PM' : {
+        "Name" : "product_name",
+        "Description" : "product_description",
+        "Code" : "product_code",
+        "Category" : "category",
+        "UnitOfMeasure" : "unit_of_measure",
+        "GST%" : "gst_percent"
+    },
+    "VM" : {
+        "Name" : "vendor_name",
+        "Code" : "vendor_code",
+        "Phone no" : "contact_number",
+        "Email" : "vendor_email",
+        "Gst No" : "gst_number",
+        "address" : "address"
+    },
+    "PO" : {
+        "VEN Code" : "vendor_code",
+        "PO Code" : "purchase_order_code",
+        "status" : "status"
+    },
+}

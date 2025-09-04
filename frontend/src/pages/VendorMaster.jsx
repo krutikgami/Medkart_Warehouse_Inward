@@ -16,6 +16,7 @@ const VendorMaster = () => {
 
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
+  const [selectedColumns, setSelectedColumns] = useState('All')
   const [deletingIdx,setDeletingIdx] = useState(null)
   const [filteredVendors,setFilteredVendors] = useState([])
 
@@ -46,7 +47,7 @@ const VendorMaster = () => {
 
   useEffect(() => {
   const fetchFiltered = async () => {
-    const res = await FilterBySearchAndStatus(searchQuery, statusFilter, "VM", page, limit)
+    const res = await FilterBySearchAndStatus(searchQuery, statusFilter,selectedColumns, "VM", page, limit)
     if (res && res.success) {
       setFilteredVendors(res.data)
     } else {
@@ -109,6 +110,9 @@ const VendorMaster = () => {
          statusFilter={statusFilter}
          setStatusFilter={setStatusFilter}
          statusValue={VendorStatus}
+          selectedColumns={selectedColumns}
+          setSelectedColumns={setSelectedColumns}
+          columnsValue={searchVendorCol}
          />
         <button
           className="bg-blue-500 text-white px-4  w-auto h-10  rounded text-sm"

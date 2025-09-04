@@ -8,6 +8,7 @@ import { PurchaseOrderStatus } from '../components/common/StatusValues'
 import { FilterBySearchAndStatus } from '../components/common/FilterBySearchAndStatus'
 
 import { useToast } from '../components/common/ToastContainer'
+import { searchPurchaseOrderCol } from '../components/common/SearchColumns'
 
 const PurchaseOrder = () => {
   const {showToast} = useToast();
@@ -16,6 +17,7 @@ const PurchaseOrder = () => {
   const [statusFilter, setStatusFilter] = useState('All')
   const [deletingIdx,setDeletingIdx] = useState(null)
   const [filteredOrders,setFilteredOrders] = useState([])
+  const [selectedColumns, setSelectedColumns] = useState('All')
 
   const navigate = useNavigate()
 
@@ -45,7 +47,7 @@ const PurchaseOrder = () => {
 
   useEffect(() => {
   const fetchFiltered = async () => {
-    const res = await FilterBySearchAndStatus(searchQuery, statusFilter, "PO", page, limit)
+    const res = await FilterBySearchAndStatus(searchQuery, statusFilter,selectedColumns, "PO", page, limit)
     if (res && res.success) {
       setFilteredOrders(res.data)
     } else {
@@ -96,6 +98,9 @@ const PurchaseOrder = () => {
            statusFilter={statusFilter}
            setStatusFilter={setStatusFilter}
            statusValue={PurchaseOrderStatus}
+            selectedColumns={selectedColumns}
+            setSelectedColumns={setSelectedColumns}
+            columnsValue={searchPurchaseOrderCol}
           />
           <button
             className="bg-blue-500 text-white px-4 w-auto h-10 rounded text-sm"

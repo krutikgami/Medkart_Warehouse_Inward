@@ -1,6 +1,6 @@
-export const FilterBySearchAndStatus = async (searchQuery,statusFilter,db,page,limit)=>{
+export const FilterBySearchAndStatus = async (searchQuery,statusFilter,selectedColumns,db,page,limit)=>{
   try {
-    const response = await fetch(`http://localhost:3000/api/commonFilter?search=${searchQuery}&status=${statusFilter}&db=${db}&page=${page}&limit=${limit}`)
+    const response = await fetch(`/api/commonFilter?search=${searchQuery}&status=${statusFilter}&selectedCols=${selectedColumns}&db=${db}&page=${page}&limit=${limit}`)
     const data = await response.json();
     if(!response.ok){
       console.error(data.message)

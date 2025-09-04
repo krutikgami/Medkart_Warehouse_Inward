@@ -1,10 +1,10 @@
 import { PrismaClient } from "@prisma/client";
-import { dbcols, dbname } from "../../utilities/constants/dbMappings.js";
+import { dbcols, dbname,dbFiltercols } from "../../utilities/constants/dbMappings.js";
 const prisma = new PrismaClient();
 
 export const commonFilter = async (req, res) => {
   try {
-    const { search = "", status = "All", db, page = 1, limit = 10 } = req.query;
+    const { search = "", status = "All", selectedCols = 'All', db, page = 1, limit = 10 } = req.query;
 
     if (!db || !dbname[db]) {
       return res.status(400).json({
@@ -15,6 +15,7 @@ export const commonFilter = async (req, res) => {
 
     const modelName = dbname[db];
     const searchCols = dbcols[db] || [];
+    const filterCols = dbFiltercols[db] || {};
 
     const pageNum = parseInt(page);
     const pageSize = parseInt(limit);
@@ -22,8 +23,19 @@ export const commonFilter = async (req, res) => {
 
     const where = { deletedAt: null };
 
-    if (search && searchCols.length > 0) {
-      where.OR = searchCols.map((col) => ({
+    let colsToSearch = [];
+
+    if (selectedCols === "All") {
+      colsToSearch = searchCols;
+    } else {
+      const selectedArray = Array.isArray(selectedCols) ? selectedCols : [selectedCols];
+      colsToSearch = selectedArray
+        .map((col) => filterCols[col] || col)
+        .filter((col) => searchCols.includes(col));
+    }
+
+    if (search && colsToSearch.length > 0) {
+      where.OR = colsToSearch.map((col) => ({
         [col]: { contains: search, mode: "insensitive" },
       }));
     }
@@ -32,18 +44,16 @@ export const commonFilter = async (req, res) => {
       where.status = status;
     }
 
-
     const totalRecords = await prisma[modelName].count({ where });
     const shouldIncludeItems = ["purchaseOrder", "purchaseInvoice", "grn"].includes(modelName);
+
     const data = await prisma[modelName].findMany({
       where,
       skip,
       take: pageSize,
-      orderBy: { created_at: "desc" }, 
+      orderBy: { created_at: "desc" },
       ...(shouldIncludeItems && {
-          include: {
-          items: true,
-        },
+        include: { items: true },
       }),
     });
 
@@ -69,3 +79,4 @@ export const commonFilter = async (req, res) => {
     });
   }
 };
+

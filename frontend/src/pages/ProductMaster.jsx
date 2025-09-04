@@ -5,9 +5,9 @@ import { ProductHeading } from '../components/common/TableHeadings'
 import FilterAndStatus from '../components/common/FilterAndStatus'
 import { ProductStatus } from '../components/common/StatusValues'
 import { FilterBySearchAndStatus } from '../components/common/FilterBySearchAndStatus'
-import { searchProductCol } from '../components/common/SearchColumns'
 import { useToast } from '../components/common/ToastContainer'
 import { Combinations } from '../utilities/Combinations.js'
+import { searchProductCol } from '../components/common/SearchColumns.js'
 
 
 const ProductMaster = () => {
@@ -20,6 +20,7 @@ const ProductMaster = () => {
 
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
+  const [selectedColumns, setSelectedColumns] = useState('All')
   const [deletingIdx,setDeletingIdx] = useState(null)
   const [combinationFilter, setCombinationFilter] = useState('All')
   const [filteredProducts, setFilteredProducts] = useState([])
@@ -60,7 +61,8 @@ const ProductMaster = () => {
   // filter is hardcode for the temporary purpose to check the working in frontend
   useEffect(() => {
   const fetchFiltered = async () => {
-    const res = await FilterBySearchAndStatus(searchQuery, statusFilter, "PM", page, limit)
+    
+    const res = await FilterBySearchAndStatus(searchQuery, statusFilter,selectedColumns, "PM", page, limit)
     if (res && res.success) {
       setFilteredProducts(res.data)
     } else {
@@ -68,7 +70,7 @@ const ProductMaster = () => {
     }
   }
   fetchFiltered()
-}, [searchQuery, statusFilter, page, limit])
+}, [searchQuery, statusFilter, selectedColumns, page, limit])
 
   const handleDelete = async (productCode,idx) => {
     try {
@@ -106,15 +108,18 @@ const ProductMaster = () => {
           setSearchQuery={setSearchQuery}
           statusFilter={statusFilter}
           setStatusFilter={setStatusFilter}
+          selectedColumns={selectedColumns}
+          setSelectedColumns={setSelectedColumns}
+          columnsValue={searchProductCol}
           statusValue={ProductStatus}
         />
-        <select name="combinations" className="w-auto h-10 border rounded px-3 py-2 text-sm" value={combinationFilter} onChange={(e) => setCombinationFilter(e.target.value)}>
+{/* //TODO: combination filter is left for the other field filter        
+        {/* <select name="combinations" className="w-auto h-10 border rounded px-3 py-2 text-sm" value={combinationFilter} onChange={(e) => setCombinationFilter(e.target.value)}>
           <option value="All">Select Combination</option>
           {Combinations.map((comb,idx)=>(
             <option key={idx} value={comb} >{comb}</option>
           ))}
-        </select>
-
+        </select> */}
         <button
           className="bg-blue-500 text-white px-4 w-auto h-10 rounded text-sm"
           onClick={() => {
