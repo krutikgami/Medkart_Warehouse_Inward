@@ -17,6 +17,7 @@ const ViewPIs = () => {
   const [statusFilter, setStatusFilter] = useState('All')
   const [deletingIdx,setDeletingIdx] = useState(null)
   const [filteredPIs,setFilteredPIs] = useState([])
+  const [selectedColumns, setSelectedColumns] = useState('All')
 
   const navigate = useNavigate()
   const page = 1;
@@ -48,7 +49,7 @@ const ViewPIs = () => {
 
    useEffect(() => {
   const fetchFiltered = async () => {
-    const res = await FilterBySearchAndStatus(searchQuery, statusFilter, "PI", page, limit)
+    const res = await FilterBySearchAndStatus(searchQuery, statusFilter,selectedColumns, "PI", page, limit)
     if (res && res.success) {
       setFilteredPIs(res.data)
     } else {
@@ -101,6 +102,9 @@ const ViewPIs = () => {
           statusFilter={statusFilter}
           setStatusFilter={setStatusFilter}
           statusValue={PurchaseInvoiceStatus}
+          selectedColumns={selectedColumns}
+          setSelectedColumns={setSelectedColumns}
+          columnsValue={searchPurchaseInvoiceCol}
           />
       </div>
       <DataTable

@@ -36,4 +36,14 @@ export const dbFiltercols = {
         "PO Code" : "purchase_order_code",
         "status" : "status"
     },
+    "GRN" : {
+        "Code" : "grn_code",
+        "PO Code" : "purchase_order_code",
+        "VEN Code" : "vendor_code"
+    },
+    "PI" : {
+        "Code" : "purchase_invoice_code",
+        "GRN Code" : "grn_code",
+        "VEN Code" : "vendor_code"
+    }
 }

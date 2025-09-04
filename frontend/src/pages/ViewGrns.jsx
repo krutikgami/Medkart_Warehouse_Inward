@@ -16,6 +16,7 @@ const ViewGrns = () => {
   const [statusFilter, setStatusFilter] = useState('All')
   const [deletingIdx,setDeletingIdx] = useState(null)
   const [filteredGrns,setFilteredGrns] = useState([])
+  const [selectedColumns, setSelectedColumns] = useState('All')
 
   const page = 1;
   const limit = 10;
@@ -45,7 +46,7 @@ const ViewGrns = () => {
 
    useEffect(() => {
     const fetchFiltered = async () => {
-    const res = await FilterBySearchAndStatus(searchQuery, statusFilter, "GRN", page, limit)
+    const res = await FilterBySearchAndStatus(searchQuery, statusFilter,selectedColumns, "GRN", page, limit)
     if (res && res.success) {
       setFilteredGrns(res.data)
     } else {
@@ -95,6 +96,9 @@ const ViewGrns = () => {
             statusFilter={statusFilter}
             setStatusFilter={setStatusFilter}
             statusValue={GrnStatus}
+            selectedColumns={selectedColumns}
+            setSelectedColumns={setSelectedColumns}
+            columnsValue={searchGrnCol}
             />
         </div>
 
