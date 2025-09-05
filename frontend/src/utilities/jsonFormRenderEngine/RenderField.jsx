@@ -1,28 +1,28 @@
 import { validateField } from "../validateFields/validateField.js";
-import { validateForm } from "../validateFields/validateForm.js";
+import { RenderChildren } from "./RenderChildren.jsx";
 
-export const RenderField = ({ field , formData , setFormData , errors , setErrors,rootSchema }) => {
-    const { fieldType, style, label, name, type, children, validations } = field;
+export const RenderField = (props) => {
+  const { field } = props;
+  const { fieldType } = field;
 
-  if (fieldType === "div") {
-    return (
-      <div style={style}>
-        {children?.map((child, i) => (
-          <RenderField
-            key={i}
-            field={child}
-            formData={formData}
-            setFormData={setFormData}
-            errors={errors}
-            setErrors={setErrors}
-            rootSchema={rootSchema}
-          />
-        ))}
-      </div>
-    );
-  }
+  const RenderDiv = ({ field, ...props }) => (
+    <div style={field.style}>
+      <RenderChildren {...props} children={field.children} />
+    </div>
+  );
 
-  if (fieldType === "input") {
+  const RenderInput = ({ field, formData, setFormData, errors, setErrors }) => {
+    const { label, name, type, style, validations } = field;
+
+    const handleChange = (e) => {
+      const val = e.target.value;
+      setFormData((prevData) => ({ ...prevData, [name]: val }));
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        [name]: validations ? validateField(val, validations) : null,
+      }));
+    };
+
     return (
       <div style={{ marginBottom: "1rem" }}>
         {label && <label>{label}</label>}
@@ -31,57 +31,48 @@ export const RenderField = ({ field , formData , setFormData , errors , setError
           name={name}
           style={style}
           value={formData[name] || ""}
-          onChange={(e) => {
-            e.preventDefault();
-            const val = e.target.value;
-            setFormData({ ...formData, [name]: val });
-            setErrors({
-              ...errors,
-              [name]: validateField(val, validations)
-            });
-          }}
+          onChange={handleChange}
         />
         {errors[name] && <span style={{ color: "red" }}>{errors[name]}</span>}
       </div>
     );
-  }
+  };
 
-  if (fieldType === "button") {
-   if (type === "submit") {
-        return (
-            <button
-            type="button"
-            style={style}
-            onClick={(e) => {
-                e.preventDefault();
-                const newErrors = validateForm(
-                [rootSchema],
-                formData
-                );
-                setErrors(newErrors);
-                if (Object.keys(errors).length === 0) {
-                  alert("Form Submitted !!");
-                }
-            }}
-            >
-            {label}
-            </button>
-        );
-    }
-    if (type === "button" && field.validations?.action === "reset") {
+  const RenderButton = ({ field, setFormData, setErrors }) => {
+    if (field.type === "submit") {
       return (
-        <button
-          type={field.validations?.action}
-          style={style}
-          onClick={() => {
-            setFormData({});
-            setErrors({});
-          }}
-        >
-          {label}
+        <button type="submit" style={field.style}>
+          {field.label}
         </button>
       );
     }
-  }
+
+    if (field.type === "button" && field.validations?.action === "reset") {
+      const handleReset = () => {
+        setFormData({});
+        setErrors({});
+      };
+
+      return (
+        <button type="button" style={field.style} onClick={handleReset}>
+          {field.label}
+        </button>
+      );
+    }
+
     return null;
-}
+  };
+
+  switch (fieldType) {
+    case "div":
+      return <RenderDiv {...props} />;
+    case "input":
+      return <RenderInput {...props} />;
+    case "button":
+      return <RenderButton {...props} />;
+    case "form":
+      return <RenderChildren {...props} children={field.children} />;
+    default:
+      return null;
+  }
+};

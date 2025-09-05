@@ -11,7 +11,7 @@ export const validateForm = (fields, formData) => {
         if (err) {
           errors[field.name] = err;
           return;
-        }
+        } 
       }
       if (field.children) traverse(field.children); 
     });

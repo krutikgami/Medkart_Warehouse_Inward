@@ -47,7 +47,7 @@ export const commonFilter = async (req, res) => {
     const totalRecords = await prisma[modelName].count({ where });
     const shouldIncludeItems = ["purchaseOrder", "purchaseInvoice", "grn"].includes(modelName);
 
-    const data = await prisma[modelName].findMany({
+    let data = await prisma[modelName].findMany({
       where,
       skip,
       take: pageSize,
@@ -56,6 +56,16 @@ export const commonFilter = async (req, res) => {
         include: { items: true },
       }),
     });
+    if(modelName === "purchaseOrder" || modelName === "grn" || modelName === "purchaseInvoice"){
+      data = await Promise.all(data.map(async (order) => {
+        const vendorname = await prisma.vendorMaster.findUnique({
+          where: { vendor_code: order.vendor_code },
+          select: { vendor_name: true },
+        });
+        order.vendor_name = vendorname ? vendorname.vendor_name : null;
+        return order;
+      }))
+    }
 
     return res.status(200).json({
       success: true,
