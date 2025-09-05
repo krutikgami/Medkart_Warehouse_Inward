@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, use } from 'react'
 import { useNavigate } from 'react-router-dom'
 import DataTable from '../components/common/DataTable'
 import { PurchaseOrderHeading } from '../components/common/TableHeadings'
@@ -9,30 +9,32 @@ import { FilterBySearchAndStatus } from '../components/common/FilterBySearchAndS
 
 import { useToast } from '../components/common/ToastContainer'
 import { searchPurchaseOrderCol } from '../components/common/SearchColumns'
+import { AllEndPoints } from '../utilities/endPoints.js'
 
 const PurchaseOrder = () => {
   const {showToast} = useToast();
-  const [orders, setOrders] = useState([])
+  const [orders, setOrders] = useState({data:[],meta:{}})
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
   const [deletingIdx,setDeletingIdx] = useState(null)
   const [filteredOrders,setFilteredOrders] = useState([])
   const [selectedColumns, setSelectedColumns] = useState('All')
+  const [page,setPage]=useState(1)
+  const limit =3
 
   const navigate = useNavigate()
 
-  const page = 1;
-  const limit =10;
-
-  useEffect(() => {
-    const fetchPurchaseOrder = async () => {
+    const fetchPurchaseOrder = async (page,limit) => {
       try {
         //TODO: url is hardcore for testing directly from frontend when pagination is applies in frontend then change
-        const response = await fetch('/api/purchaseOrder/allPurchaseOrder?page=1&limit=3')
+        const response = await fetch(`${AllEndPoints.purchaseOrderEndPoints.getPurchaseOrders}?page=${page}&limit=${limit}`)
         const data = await response.json()
         console.log(data);
         if(response.ok){
-          setOrders(data.data || [])
+          setOrders({
+            data: data.data || [],
+            meta: data.meta || {}
+          })
           showToast(data.message,data.success);
         }else{
           showToast(data.message,data.success)
@@ -42,8 +44,10 @@ const PurchaseOrder = () => {
         showToast('Error in Purchase Order: ', false)
       }
     }
-    fetchPurchaseOrder()
-  }, [])
+
+    useEffect(() => {
+      fetchPurchaseOrder(page,limit)
+    }, [page,limit])
 
   useEffect(() => {
   const fetchFiltered = async () => {
@@ -64,7 +68,7 @@ const PurchaseOrder = () => {
   const handleDelete = async (orderCode,idx) => {
     try {
       setDeletingIdx(idx)
-      const response = await fetch('/api/purchaseOrder/delete-purchase-order', {
+      const response = await fetch(AllEndPoints.purchaseOrderEndPoints.deletePurchaseOrder, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ purchase_order_code: orderCode }),
@@ -153,6 +157,8 @@ const PurchaseOrder = () => {
               ),
             ],
           }}
+          meta={orders.meta}
+          onPageChange={(page)=>setPage(page)}
         />
       </div>
     </>

@@ -8,30 +8,31 @@ import { GrnStatus } from '../components/common/StatusValues'
 import { FilterBySearchAndStatus } from '../components/common/FilterBySearchAndStatus'
 import { searchGrnCol } from '../components/common/SearchColumns'
 import { useToast } from '../components/common/ToastContainer'
+import { AllEndPoints } from '../utilities/endPoints.js'
 
 const ViewGrns = () => {
   const {showToast} = useToast();
-  const [grns, setGrns] = useState([])
+  const [grns, setGrns] = useState({data:[],meta:{}})
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
   const [deletingIdx,setDeletingIdx] = useState(null)
   const [filteredGrns,setFilteredGrns] = useState([])
   const [selectedColumns, setSelectedColumns] = useState('All')
-
-  const page = 1;
-  const limit = 10;
-
+  const [page,setPage]=useState(1)
+  const limit =3
   const navigate = useNavigate()
 
-  useEffect(() => {
-    const fetchGrns = async () => {
+    const fetchGrns = async (page,limit) => {
       try {
         //TODO: url is hardcore for testing directly from frontend when pagination is applies in frontend then change
-        const response = await fetch('/api/goodsReceiptNote/get-all-grns?page=1&limit=10')
+        const response = await fetch(`${AllEndPoints.grnEndPoints.getGrns}?page=${page}&limit=${limit}`)
         const data = await response.json()
         console.log(data);
         if(response.ok){
-          setGrns(data.data || [])
+          setGrns({
+            data: data.data || [],
+            meta: data.meta || {}
+          })
           showToast(data.message,data.success)
         }else{
           showToast(data.message,data.success)
@@ -41,8 +42,10 @@ const ViewGrns = () => {
         showToast("Error fetching GRNs",false)
       }
     }
-    fetchGrns()
-  }, [])
+
+    useEffect(() => {
+      fetchGrns(page,limit)
+    }, [page,limit])
 
    useEffect(() => {
     const fetchFiltered = async () => {
@@ -63,7 +66,7 @@ const ViewGrns = () => {
   const handleDeleteGrn = async (grnCode,idx) => {
     try {
       setDeletingIdx(idx)
-      const response = await fetch('/api/goodsReceiptNote/delete-grn', {
+      const response = await fetch(AllEndPoints.grnEndPoints.deleteGrn, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ grn_code: grnCode }),
@@ -140,6 +143,8 @@ const ViewGrns = () => {
               ),
             ],
           }}
+          meta={grns.meta}
+          onPageChange={(page)=>setPage(page)}
         />
       </div>
     </>

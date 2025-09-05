@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, use } from 'react'
 import VendorModal from '../components/modals/VendorModal'
 import DataTable from '../components/common/DataTable'
 import { VendorHeading } from '../components/common/TableHeadings'
@@ -7,10 +7,11 @@ import { VendorStatus } from '../components/common/StatusValues'
 import { FilterBySearchAndStatus } from '../components/common/FilterBySearchAndStatus'
 import { searchVendorCol } from '../components/common/SearchColumns'
 import { useToast } from '../components/common/ToastContainer'
+import { AllEndPoints } from '../utilities/endPoints.js'
 
 const VendorMaster = () => {
   const {showToast} = useToast()
-  const [vendors, setVendors] = useState([])
+  const [vendors, setVendors] = useState({data:[],meta:{}})
   const [editVendor, setEditVendor] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -19,19 +20,20 @@ const VendorMaster = () => {
   const [selectedColumns, setSelectedColumns] = useState('All')
   const [deletingIdx,setDeletingIdx] = useState(null)
   const [filteredVendors,setFilteredVendors] = useState([])
+  const [page,setPage]=useState(1)
+  const limit =3
 
-  const page = 1
-  const limit =10
-
-  useEffect(() => {
-    const fetchVendors = async () => {
+    const fetchVendors = async (page,limit) => {
       try {
         //TODO: url is hardcore for testing directly from frontend when pagination is applies in frontend then change
-        const response = await fetch('/api/vendorMaster/all-vendors?page=1&limit=10')
+        const response = await fetch(`${AllEndPoints.vendorEndPoints.getVendors}?page=${page}&limit=${limit}`)
         const data = await response.json()
         console.log(data);
         if(response.ok){
-          setVendors(data.data || [])
+          setVendors({
+            data: data.data || [],
+            meta: data.meta || {}   
+          })
           showToast(data.message,data.success)
         }else{
           showToast(data.message,data.success)
@@ -42,8 +44,10 @@ const VendorMaster = () => {
         showToast('Error in Vendor Master: ', false)
       }
     }
-    fetchVendors()
-  }, [])
+
+  useEffect(() => {
+    fetchVendors(page,limit)
+  }, [page,limit])
 
   useEffect(() => {
   const fetchFiltered = async () => {
@@ -78,7 +82,7 @@ const VendorMaster = () => {
   const handleDelete = async (vendorCode,idx) => {
     try {
       setDeletingIdx(idx)
-      const response = await fetch('/api/vendorMaster/delete-vendor', {
+      const response = await fetch(AllEndPoints.vendorEndPoints.deleteVendor, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ vendor_code: vendorCode }),
@@ -142,6 +146,8 @@ const VendorMaster = () => {
         onEdit={handleEdit}
         onDelete={(row,idx) => handleDelete(row.vendor_code,idx)}
         deletingIdx={deletingIdx}
+        meta={vendors.meta}
+        onPageChange={(page)=>setPage(page)}
       />
     </div>
   )

@@ -8,33 +8,36 @@ import { PurchaseInvoiceStatus } from '../components/common/StatusValues'
 import { FilterBySearchAndStatus } from '../components/common/FilterBySearchAndStatus'
 import { searchPurchaseInvoiceCol } from '../components/common/SearchColumns'
 import { useToast } from '../components/common/ToastContainer'
+import { AllEndPoints } from '../utilities/endPoints.js'
 
 
 const ViewPIs = () => {
   const {showToast} = useToast();
-  const [purchaseInvoices, setPurchaseInvoices] = useState([])
+  const [purchaseInvoices, setPurchaseInvoices] = useState({data:[],meta:{}})
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
   const [deletingIdx,setDeletingIdx] = useState(null)
   const [filteredPIs,setFilteredPIs] = useState([])
   const [selectedColumns, setSelectedColumns] = useState('All')
+  const [page,setPage]=useState(1)
+  const limit =3
 
   const navigate = useNavigate()
-  const page = 1;
-  const limit =10;
 
-  useEffect(() => {
-    const fetchPurchaseInvoices = async () => {
+    const fetchPurchaseInvoices = async (page,limit) => {
       try {
         //TODO: url is hardcore for testing directly from frontend when pagination is applies in frontend then change
         const response = await fetch(
-          '/api/purchaseInvoice/getAll-purchase-invoices?page=1&limit=10'
+          `${AllEndPoints.purchaseInvoiceEndpoints.getPurchaseInvoices}?page=${page}&limit=${limit}`
         )
         const data = await response.json()
         console.log(data);
         
         if(response.ok){
-          setPurchaseInvoices(data.data || [])
+          setPurchaseInvoices({
+            data: data.data || [],
+            meta: data.meta || {}
+          })
           showToast(data.message,data.success)
         }else{
           showToast(data.message,data.success)
@@ -44,8 +47,9 @@ const ViewPIs = () => {
         showToast("Error fetching Purchase Invoices",false)
       }
     }
-    fetchPurchaseInvoices()
-  }, [])
+    useEffect(() => {
+      fetchPurchaseInvoices(page,limit)
+    }, [page,limit])
 
    useEffect(() => {
   const fetchFiltered = async () => {
@@ -67,7 +71,7 @@ const ViewPIs = () => {
     try {
       setDeletingIdx(idx)
       const response = await fetch(
-        '/api/purchaseInvoice/delete-purchase-invoice',
+        AllEndPoints.purchaseInvoiceEndpoints.deletePurchaseInvoice,
         {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
@@ -134,6 +138,8 @@ const ViewPIs = () => {
             ),
           ],
         }}
+        meta={purchaseInvoices.meta}
+        onPageChange={(page)=>setPage(page)}
       />
     </div>
   )

@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { useToast } from '../components/common/ToastContainer'
 import {PurchaseInvoiceStatus} from  '../components/common/StatusValues'
 import { Loader2 } from 'lucide-react'
-
+import { AllEndPoints } from '../utilities/endPoints.js'
 
 const PurchaseInvoiceForm = () => {
   const {showToast} = useToast();
@@ -61,8 +61,8 @@ const PurchaseInvoiceForm = () => {
     try {
       setIsLoading(true)
       const url = isEdit
-        ? '/api/purchaseInvoice/update-purchase-invoice'
-        : '/api/purchaseInvoice/create-purchase-invoice'
+        ? AllEndPoints.purchaseInvoiceEndpoints.updatePurchaseInvoice
+        : AllEndPoints.purchaseInvoiceEndpoints.createPurchaseInvoice
       const response = await fetch(url, {
         method: isEdit ? 'PUT' : 'POST',
         headers: {

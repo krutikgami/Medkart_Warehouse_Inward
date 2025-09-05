@@ -8,11 +8,12 @@ import { FilterBySearchAndStatus } from '../components/common/FilterBySearchAndS
 import { useToast } from '../components/common/ToastContainer'
 import { Combinations } from '../utilities/Combinations.js'
 import { searchProductCol } from '../components/common/SearchColumns.js'
+import { AllEndPoints } from '../utilities/endPoints.js'
 
 
 const ProductMaster = () => {
   const {showToast} = useToast();
-  const [products, setProducts] = useState([])
+  const [products, setProducts] = useState({data:[],meta:{}})
 
   const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -24,8 +25,8 @@ const ProductMaster = () => {
   const [deletingIdx,setDeletingIdx] = useState(null)
   const [combinationFilter, setCombinationFilter] = useState('All')
   const [filteredProducts, setFilteredProducts] = useState([])
-  const page =1
-  const limit =10
+  const [page,setPage]=useState(1)
+  const limit = 3
 
   const handleSave = (newProduct) => {
     setProducts([newProduct, ...products])
@@ -36,15 +37,18 @@ const ProductMaster = () => {
     setIsModalOpen(true)
   }
 
-  useEffect(() => {
-    const fetchProducts = async () => {
+  
+    const fetchProducts = async (page,limit) => {
       try {
         //TODO: url is hardcore for testing directly from frontend when pagination is applies in frontend then change
-        const response = await fetch('/api/productMaster/all-products?page=1&limit=10')
+        const response = await fetch(`${AllEndPoints.productEndPoints.getProducts}?page=${page}&limit=${limit}`)
         const data = await response.json()
         console.log(data);
         if (response.ok) {
-          setProducts(data.data || [])
+         setProducts({
+          data: data.data || [],
+          meta: data.meta || {}   
+        })
           showToast(data.message,data.success)
         }else{
            showToast(data.message,data.success)
@@ -55,8 +59,9 @@ const ProductMaster = () => {
       }
     }
 
-    fetchProducts()
-  }, [])
+  useEffect(() => {
+    fetchProducts(page,limit)
+  }, [page,limit])
 
   // filter is hardcode for the temporary purpose to check the working in frontend
   useEffect(() => {
@@ -75,13 +80,13 @@ const ProductMaster = () => {
   const handleDelete = async (productCode,idx) => {
     try {
      setDeletingIdx(idx)
-      const response = await fetch('/api/productMaster/delete-product', {
-        method: 'DELETE',
+      const response = await fetch(AllEndPoints.productEndPoints.deleteProduct, {
+        method: 'DELETE',                                                                          
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ product_code: productCode }),
-      })
+      }) 
 
       const data = await response.json()
 
@@ -144,6 +149,8 @@ const ProductMaster = () => {
         onEdit={handleEdit}
         onDelete={(row,idx) => handleDelete(row.product_code,idx)}
         deletingIdx={deletingIdx}
+        meta={products.meta}
+        onPageChange={(page)=>setPage(page)}
       />
     </div>
   )

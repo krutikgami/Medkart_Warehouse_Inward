@@ -1,4 +1,4 @@
-import { Loader2, Pencil, Trash2 } from 'lucide-react'
+import { Loader2, Pencil, Trash2, ChevronLeft, ChevronRight } from 'lucide-react'
 
 export default function DataTable({
   title,
@@ -8,6 +8,8 @@ export default function DataTable({
   onDelete,
   deletingIdx,
   actions = {},
+  meta = {},          
+  onPageChange
 }) {
   return (
     <div>
@@ -33,7 +35,6 @@ export default function DataTable({
                         <td key={col.key} className="p-2 border">
                           {col.key === 'operations' && (
                             <>
-                              {/*Default Edit/Delete Buttons*/}
                               {onEdit && (
                                 <button
                                   className="bg-green-500 cursor-pointer text-white px-2 py-1 rounded mr-2"
@@ -46,15 +47,18 @@ export default function DataTable({
                                 <button
                                   key={idx}
                                   className="bg-red-500 cursor-pointer text-white px-2 py-1 rounded mr-2"
-                                  onClick={() => onDelete(row,idx)}
+                                  onClick={() => onDelete(row, idx)}
                                 >
-                                  {deletingIdx === idx ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 size={16} />}
+                                  {deletingIdx === idx ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  ) : (
+                                    <Trash2 size={16} />
+                                  )}
                                 </button>
                               )}
                             </>
                           )}
 
-                          {/* Custom actions buttons like (View Items,PI,Grn etc..) */}
                           {actions[col.key]?.map((ActionBtn, i) => (
                             <span key={i} className="ml-1">
                               {ActionBtn(row)}
@@ -83,6 +87,37 @@ export default function DataTable({
           </tbody>
         </table>
       </div>
+    
+        <div className="flex justify-between items-center mt-4">
+          <button
+            disabled={!meta?.hasPrevPage}
+            className={`flex items-center px-3 py-1 border rounded ${
+              !meta?.hasPrevPage
+                ? 'opacity-50 cursor-not-allowed'
+                : 'hover:bg-gray-100'
+            }`}
+            onClick={() => onPageChange(meta.currentPage - 1)}
+          >
+            <ChevronLeft size={16} className="mr-1" /> Prev
+          </button>
+
+          <span className="text-sm">
+            Page <b>{meta.currentPage}</b> of {meta.totalPages} | Total:{' '}
+            {meta.totalRecords}
+          </span>
+
+          <button
+          disabled={!meta?.hasNextPage}
+            className={`flex items-center px-3 py-1 border rounded ${
+              !meta?.hasNextPage
+                ? 'opacity-50 cursor-not-allowed'
+                : 'hover:bg-gray-100'
+            }`}
+            onClick={() => onPageChange(meta.currentPage + 1)}
+          >
+            Next <ChevronRight size={16} className="ml-1" />
+          </button>
+        </div>
     </div>
   )
 }

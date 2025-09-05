@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useToast } from '../common/ToastContainer'
 import {ProductStatus} from '../common/StatusValues'
 import { Loader2 } from 'lucide-react';
+import { AllEndPoints } from '../../utilities/endPoints.js';
 
 export default function ProductModal({ isOpen, onClose, onSave, editProduct }) {
   const {showToast} = useToast();
@@ -69,8 +70,8 @@ export default function ProductModal({ isOpen, onClose, onSave, editProduct }) {
     try {
       setIsLoading(true)
       const url = editProduct
-        ? '/api/productMaster/update-product'
-        : '/api/productMaster/product'
+        ? AllEndPoints.productEndPoints.updateProduct
+        : AllEndPoints.productEndPoints.createProduct
       const method = editProduct ? 'PUT' : 'POST'
       const response = await fetch(url, {
         method,

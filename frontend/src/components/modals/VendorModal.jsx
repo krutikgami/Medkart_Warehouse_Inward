@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useToast } from '../common/ToastContainer'
 import { VendorStatus } from '../common/StatusValues';
 import { Loader2 } from 'lucide-react';
+import { AllEndPoints } from '../../utilities/endPoints.js';
 
 export default function VendorModal({ isOpen, onClose, onSave, editVendor }) {
   const {showToast} = useToast();
@@ -43,8 +44,8 @@ export default function VendorModal({ isOpen, onClose, onSave, editVendor }) {
     try {
       setIsLoading(true)
       const url = editVendor
-        ? '/api/vendorMaster/update-vendor'
-        : '/api/vendorMaster/vendor'
+        ? AllEndPoints.vendorEndPoints.updateVendor
+        : AllEndPoints.vendorEndPoints.createVendor
       const method = editVendor ? 'PUT' : 'POST'
       const response = await fetch(url, {
         method,

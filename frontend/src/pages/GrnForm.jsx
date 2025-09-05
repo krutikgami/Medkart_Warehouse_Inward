@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useToast } from '../components/common/ToastContainer'
 import { Loader2 } from 'lucide-react'
+import { AllEndPoints } from '../utilities/endPoints.js'
 
 const GrnForm = () => {
   const {showToast} = useToast()
@@ -84,8 +85,8 @@ const GrnForm = () => {
     try {
       setIsLoading(true)
       const url = isEdit
-        ? '/api/goodsReceiptNote/edit-grn'
-        : '/api/goodsReceiptNote/add-grn'
+        ? AllEndPoints.grnEndPoints.updateGrn
+        : AllEndPoints.grnEndPoints.createGrn
       const response = await fetch(url, {
         method: isEdit ? 'PUT' : 'POST',
         headers: {

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useToast } from '../components/common/ToastContainer'
 import { Loader2 } from 'lucide-react';
+import { AllEndPoints } from '../utilities/endPoints.js';
 
 export default function PurchaseOrderForm() {
   const {showToast} = useToast();
@@ -119,8 +120,8 @@ const handleEditItem = (index) => {
       setIsLoading(true)
       const url =
         state && state.grn
-          ? '/api/purchaseOrder/update-purchase-order'
-          : '/api/purchaseOrder/purchase-order'
+          ? AllEndPoints.purchaseOrderEndPoints.updatePurchaseOrder
+          : AllEndPoints.purchaseOrderEndPoints.createPurchaseOrder
       const method = state && state.grn ? 'PUT' : 'POST'
       const response = await fetch(url, {
         method,
