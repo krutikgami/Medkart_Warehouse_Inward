@@ -21,12 +21,14 @@ const PurchaseInvoiceForm = () => {
     invoice_date: new Date().toISOString().slice(0, 16),
     total_amount: grn?.total_amount || 0,
     status: grn?.status || 'Pending',
+    vendor_name: grn?.vendor_name || '',
     items:
       grn?.items?.map((item) => ({
         product_code: item.product_code,
         quantity: item.quantity,
         mrp: item.mrp,
         cost_price: item.cost_price,
+        product_name: item.product_name || '',
         total_price: item.total_price,
       })) || [],
   })
@@ -125,12 +127,12 @@ const PurchaseInvoiceForm = () => {
             )}
             <div className="col-span-4">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Vendor Code
+                Vendor Name
               </label>
               <input
                 type="text"
                 name="vendor_code"
-                value={formData.vendor_code}
+                value={formData.vendor_name}
                 readOnly
                 className="w-full p-2 border rounded bg-gray-100"
               />
@@ -177,11 +179,11 @@ const PurchaseInvoiceForm = () => {
                 >
                   <div className="col-span-2">
                     <label className="block text-sm text-gray-700">
-                      Product
+                      Product Name
                     </label>
                     <input
                       type="text"
-                      value={item.product_code}
+                      value={item.product_name}
                       readOnly
                       className="w-full p-2 border rounded bg-gray-100"
                     />
@@ -195,6 +197,7 @@ const PurchaseInvoiceForm = () => {
                         handleItemChange(index, 'quantity', e.target.value)
                       }
                       className="w-full p-2 border rounded text-center"
+                      readOnly
                     />
                   </div>
 
@@ -208,6 +211,7 @@ const PurchaseInvoiceForm = () => {
                         handleItemChange(index, 'mrp', e.target.value)
                       }
                       className="w-full p-2 border rounded text-center"
+                      readOnly
                     />
                   </div>
 
@@ -221,6 +225,7 @@ const PurchaseInvoiceForm = () => {
                         handleItemChange(index, 'cost_price', e.target.value)
                       }
                       className="w-full p-2 border rounded text-center"
+                      readOnly
                     />
                   </div>
 

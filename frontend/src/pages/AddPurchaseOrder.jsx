@@ -43,6 +43,30 @@ export default function PurchaseOrderForm() {
         ...state.grn,
         items: state.grn.items || [],
       })
+      setVendorSearch(state.grn.vendor_name || '')
+      setVendorName(state.grn.vendor_name || '')
+      const productSearch = state.grn.items.map(item => item.product_name).join(', ');
+      setProductSearch(productSearch)
+
+      // Fetch vendor name if vendor_code exists
+        if (state.grn.vendor_code) {
+        searchVendors(state.grn.vendor_name).then((data) => {
+          if(data && data.length > 0) {
+            setVendorName(data[0]?.vendor_name)
+            setVendorSearch(data[0]?.vendor_name)
+          }else{
+            showToast("Vendor not found",false)
+          }
+      });
+      }
+    // Fetch product names for all items
+    if (state.grn.items && state.grn.items.length > 0) {
+      searchProducts(productSearch).then((item) => {
+        if(!item && !item.length > 0) {
+          showToast("Product not found",false)
+        }
+      });
+    }
     } else {
       setFormData({
         vendor_code: '',
@@ -144,6 +168,7 @@ const handleEditItem = (index) => {
       setIsLoading(false)
     }
   }
+
 
   const searchVendors = async (name,page=1,limit=10) => {
     try {

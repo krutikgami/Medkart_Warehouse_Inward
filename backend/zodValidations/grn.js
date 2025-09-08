@@ -12,9 +12,9 @@ const grnItemSchema = z.object({
   exp_date: z.string().refine((val) => !isNaN(Date.parse(val)), {
     message: "Invalid expiry date",
   }),
-  mrp: z.number().positive("MRP must be greater than 0"),
-  cost_price: z.number().positive("Cost Price must be greater than 0"),
-  total_price: z.number().positive("Total Price must be greater than 0"),
+  mrp: z.preprocess((val)=> parseFloat(val), z.number().positive("MRP must be greater than 0")),
+  cost_price: z.preprocess((val)=> parseFloat(val), z.number().positive("Cost Price must be greater than 0")),
+  total_price: z.preprocess((val)=> parseFloat(val), z.number().positive("Total Price must be greater than 0")),
 })
 
 export const addGrnSchema = z.object({

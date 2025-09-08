@@ -245,10 +245,10 @@ const updatePurchaseOrder = async (req, res) => {
       data: {
         vendor_code: validations.vendor_code || existingOrder.vendor_code,
         purchase_date: validations.purchase_date
-          ? new Date(purchase_date)
+          ? new Date(validations.purchase_date)
           : existingOrder.purchase_date,
         expected_date:validations.expected_date
-          ? new Date(expected_date)
+          ? new Date(validations.expected_date)
           : existingOrder.expected_date,
         status: existingOrder.status,
         total_amount: validations.total_amount || existingOrder.total_amount,

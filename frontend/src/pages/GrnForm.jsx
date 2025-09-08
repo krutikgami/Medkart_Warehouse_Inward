@@ -19,6 +19,7 @@ const GrnForm = () => {
   const [formData, setFormData] = useState({
     purchase_order_code: order?.purchase_order_code || '',
     vendor_code: order?.vendor_code || '',
+    vendor_name: order?.vendor_name || '',
     grn_date: new Date().toISOString().slice(0, 16),
     total_amount: order?.total_amount || 0,
     total_damage_qty: 0,
@@ -31,6 +32,7 @@ const GrnForm = () => {
         mrp: item.mrp,
         cost_price: item.cost_price,
         total_price: item.total_price,
+        product_name: item.product_name || '',
         damage_qty: 0,
         shortage_qty: 0,
         batch_number: '',
@@ -146,12 +148,12 @@ const GrnForm = () => {
             </div>
             <div className="col-span-4">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Vendor Code
+                Vendor name
               </label>
               <input
                 type="text"
-                name="vendor_code"
-                value={formData.vendor_code}
+                name="vendor_name"
+                value={formData.vendor_name}
                 readOnly
                 className="w-full p-2 border rounded bg-gray-100"
               />
@@ -180,11 +182,11 @@ const GrnForm = () => {
                 >
                   <div className="col-span-2">
                     <label className="block text-sm text-gray-700">
-                      Product
+                      Product Name
                     </label>
                     <input
                       type="text"
-                      value={item.product_code}
+                      value={item.product_name}
                       readOnly
                       className="w-full p-2 border rounded bg-gray-100"
                     />
@@ -198,6 +200,7 @@ const GrnForm = () => {
                         handleItemChange(index, 'quantity', e.target.value)
                       }
                       className="w-full p-2 border rounded text-center"
+                      readOnly={isEdit}
                     />
                   </div>
                   <div className="col-span-1">

@@ -69,18 +69,23 @@ const VendorMaster = () => {
   fetchFiltered()
 }, [searchQuery, statusFilter, page, limit])
 
-  const handleSave = (newVendor) => {
-    if (editVendor) {
-      setVendors((prev) =>
-        prev.map((v) =>
-          v.vendor_code === newVendor.vendor_code ? newVendor : v
-        )
-      )
-      setEditVendor(null)
-    } else {
-      setVendors([newVendor, ...vendors])
-    }
+ const handleSave = (newVendor) => {
+  if (editVendor) {
+    setVendors((prev) => ({
+      ...prev,
+      data: prev.data.map((v) =>
+        v.vendor_code === newVendor.vendor_code ? newVendor : v
+      ),
+    }))
+    setEditVendor(null)
+  } else {
+    setVendors((prev) => ({
+      ...prev,
+      data: [newVendor, ...prev.data],
+    }))
   }
+}
+
 
   const handleEdit = (vendor) => {
     setEditVendor(vendor)
