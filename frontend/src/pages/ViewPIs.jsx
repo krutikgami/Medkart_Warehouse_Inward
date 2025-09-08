@@ -17,7 +17,7 @@ const ViewPIs = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
   const [deletingIdx,setDeletingIdx] = useState(null)
-  const [filteredPIs,setFilteredPIs] = useState([])
+  const [filteredPIs,setFilteredPIs] = useState({data:[],meta:{}})
   const [selectedColumns, setSelectedColumns] = useState('All')
   const [page,setPage]=useState(1)
   const limit =3
@@ -55,9 +55,9 @@ const ViewPIs = () => {
   const fetchFiltered = async () => {
     const res = await FilterBySearchAndStatus(searchQuery, statusFilter,selectedColumns, "PI", page, limit)
     if (res && res.success) {
-      setFilteredPIs(res.data)
+      setFilteredPIs({data: res.data,meta: res.meta})
     } else {
-      setFilteredPIs([])
+      setFilteredPIs({data:[],meta:{}})
     }
   }
   fetchFiltered()
@@ -114,7 +114,7 @@ const ViewPIs = () => {
       <DataTable
         title="Purchase Invoices"
         columns={PurchaseInvoiceHeading}
-        data={filteredPIs}
+        data={filteredPIs.data}
         onEdit={handleEditPI}
         onDelete={(row) => handleDeletePI(row.purchase_invoice_code)}
         deletingIdx={deletingIdx}
@@ -138,7 +138,7 @@ const ViewPIs = () => {
             ),
           ],
         }}
-        meta={purchaseInvoices.meta}
+        meta={filteredPIs.meta}
         onPageChange={(page)=>setPage(page)}
       />
     </div>

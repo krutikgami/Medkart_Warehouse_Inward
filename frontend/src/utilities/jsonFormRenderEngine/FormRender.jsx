@@ -1,4 +1,5 @@
-import testing from "../jsonForms/testing.json";
+// import testing from "../jsonForms/testing.json";
+import schema from '../jsonForms/formSchema.json'
 import { useState } from "react";;
 import { validateForm } from "../validateFields/validateForm.js";
 import { RenderChildren } from "./RenderChildren.jsx";
@@ -6,7 +7,7 @@ import { RenderChildren } from "./RenderChildren.jsx";
 export const FormRender = () => {
   const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
-  const rootSchema = testing;
+  const rootSchema = schema;
 
   const handleSubmit =(e) => {
       e.preventDefault();

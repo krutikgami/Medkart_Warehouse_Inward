@@ -102,7 +102,7 @@ export default function DataTable({
           </button>
 
           <span className="text-sm">
-            Page <b>{meta.currentPage}</b> of {meta.totalPages} | Total:{' '}
+            Page <b>{meta.currentPage}</b> of {meta.totalPages ===  0 ? 1 : meta.totalPages} | Total:{' '}
             {meta.totalRecords}
           </span>
 

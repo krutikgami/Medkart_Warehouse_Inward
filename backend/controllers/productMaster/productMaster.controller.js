@@ -54,6 +54,7 @@ const productMaster = async (req, res) => {
   } catch (error) {
     if(error instanceof z.ZodError){
         const result = ZodError(error);
+        console.log("Result from zodError",result);
         return res.status(400).json({
           success : false,
           message: "Validation failed",

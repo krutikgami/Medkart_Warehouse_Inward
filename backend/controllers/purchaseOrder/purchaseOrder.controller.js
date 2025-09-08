@@ -38,14 +38,14 @@ const createPurchaseOrder = async (req, res) => {
 
      const newOrder = await prisma.purchaseOrder.create({
       data: {
-        vendor_code: validatedData.vendor_code,
-        purchase_date: new Date(validatedData.purchase_date),
+        vendor_code: validations.vendor_code,
+        purchase_date: new Date(validations.purchase_date),
         purchase_order_code: orderCode,
-        expected_date: new Date(validatedData.expected_date),
+        expected_date: new Date(validations.expected_date),
         status: "Pending",
-        total_amount: validatedData.total_amount,
+        total_amount: validations.total_amount,
         items: {
-          create: validatedData.items.map((item) => ({
+          create: validations.items.map((item) => ({
             product_code: item.product_code,
             quantity: item.quantity,
             mrp: item.mrp,

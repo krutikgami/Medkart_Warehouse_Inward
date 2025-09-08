@@ -26,6 +26,9 @@ model ProductMaster {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
   deletedAt DateTime?
+  purchaseOrderItems PurchaseOrderItem[]
+  grnItems GrnItem[]
+  purchaseInvoiceItems PurchaseInvoiceItem[]
 }
 
 model VendorMaster{
@@ -42,6 +45,8 @@ model VendorMaster{
   updated_at DateTime @updatedAt
   deletedAt DateTime?
   purchaseOrders PurchaseOrder[]
+  grn      Grn[]
+  purchaseInvoices PurchaseInvoice[]
 }
 
 model PurchaseOrder {
@@ -71,6 +76,7 @@ model PurchaseOrderItem {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
   deletedAt DateTime?
+  productMaster ProductMaster @relation(fields: [product_code], references: [product_code])
   purchaseOrder PurchaseOrder @relation(fields: [purchase_order_code], references: [purchase_order_code])
 }
 
@@ -90,6 +96,7 @@ model Grn {
   items       GrnItem[] 
   purchaseOrder PurchaseOrder @relation(fields: [purchase_order_code], references: [purchase_order_code])
   purchaseInvoice PurchaseInvoice[] 
+  vendorMaster VendorMaster @relation(fields: [vendor_code], references: [vendor_code])
 }
 
 model GrnItem {
@@ -109,6 +116,7 @@ model GrnItem {
   updated_at DateTime @updatedAt
   deletedAt DateTime?
   grn       Grn @relation(fields: [grn_code], references: [grn_code])
+  productMaster ProductMaster @relation(fields: [product_code], references: [product_code])
 }
 
 
@@ -125,6 +133,7 @@ model PurchaseInvoice {
   deletedAt DateTime?
   items       PurchaseInvoiceItem[] 
   grn       Grn @relation(fields: [grn_code], references: [grn_code])
+  vendorMaster VendorMaster @relation(fields: [vendor_code], references: [vendor_code])
 }
 
 model PurchaseInvoiceItem {
@@ -139,5 +148,6 @@ model PurchaseInvoiceItem {
   updated_at DateTime @updatedAt
   deletedAt DateTime?
   purchaseInvoice PurchaseInvoice @relation(fields: [purchase_invoice_code], references: [purchase_invoice_code])
+  productMaster ProductMaster @relation(fields: [product_code], references: [product_code])
 }
 

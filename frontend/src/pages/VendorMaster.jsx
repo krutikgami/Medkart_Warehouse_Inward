@@ -19,7 +19,11 @@ const VendorMaster = () => {
   const [statusFilter, setStatusFilter] = useState('All')
   const [selectedColumns, setSelectedColumns] = useState('All')
   const [deletingIdx,setDeletingIdx] = useState(null)
-  const [filteredVendors,setFilteredVendors] = useState([])
+  const [filteredVendors,setFilteredVendors] = useState(
+    {
+      data:[],meta:{}
+    }
+  )
   const [page,setPage]=useState(1)
   const limit =3
 
@@ -53,9 +57,13 @@ const VendorMaster = () => {
   const fetchFiltered = async () => {
     const res = await FilterBySearchAndStatus(searchQuery, statusFilter,selectedColumns, "VM", page, limit)
     if (res && res.success) {
-      setFilteredVendors(res.data)
+      setFilteredVendors({
+        data: res.data,meta: res.meta
+      })
     } else {
-      setFilteredVendors([])
+      setFilteredVendors({
+        data:[],meta:{}
+      })
     }
   }
   fetchFiltered()
@@ -142,11 +150,11 @@ const VendorMaster = () => {
       <DataTable
         title={'Vendor Master'}
         columns={VendorHeading}
-        data={filteredVendors}
+        data={filteredVendors.data}
         onEdit={handleEdit}
         onDelete={(row,idx) => handleDelete(row.vendor_code,idx)}
         deletingIdx={deletingIdx}
-        meta={vendors.meta}
+        meta={filteredVendors.meta}
         onPageChange={(page)=>setPage(page)}
       />
     </div>

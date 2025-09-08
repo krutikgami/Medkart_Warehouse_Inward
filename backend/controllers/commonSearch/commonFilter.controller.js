@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { dbcols, dbname,dbFiltercols } from "../../utilities/constants/dbMappings.js";
+import { de } from "zod/v4/locales";
 const prisma = new PrismaClient();
 
 export const commonFilter = async (req, res) => {
@@ -47,24 +48,48 @@ export const commonFilter = async (req, res) => {
     const totalRecords = await prisma[modelName].count({ where });
     const shouldIncludeItems = ["purchaseOrder", "purchaseInvoice", "grn"].includes(modelName);
 
+    let include = {};
+    
+    if (modelName === "purchaseOrder" || modelName === "grn" || modelName === "purchaseInvoice") {
+      include = {
+        vendorMaster: {
+          select: { vendor_name: true },
+        },
+        items: {
+          include: {
+            productMaster: {
+              select: { product_name: true },
+            },
+          },
+        },
+      };
+    } else if (shouldIncludeItems) {
+      include = { items: true };
+    } 
+
     let data = await prisma[modelName].findMany({
       where,
       skip,
       take: pageSize,
       orderBy: { created_at: "desc" },
-      ...(shouldIncludeItems && {
-        include: { items: true },
-      }),
+      ...(shouldIncludeItems && { include }),
     });
+
     if(modelName === "purchaseOrder" || modelName === "grn" || modelName === "purchaseInvoice"){
-      data = await Promise.all(data.map(async (order) => {
-        const vendorname = await prisma.vendorMaster.findUnique({
-          where: { vendor_code: order.vendor_code },
-          select: { vendor_name: true },
-        });
-        order.vendor_name = vendorname ? vendorname.vendor_name : null;
-        return order;
-      }))
+         data = data.map((record) => {
+          //flatten data to include vendor name directly
+          const flattenedItems = record.items.map((item) => ({
+            ...item,
+            product_name: item.productMaster?.product_name || null,
+          }));
+
+          const flattenedRecord =  ({
+            ...record,
+            vendor_name: record.vendorMaster?.vendor_name || null,
+            items: flattenedItems,
+          });
+          return flattenedRecord;
+       })
     }
 
     return res.status(200).json({

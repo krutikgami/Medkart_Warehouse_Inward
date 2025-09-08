@@ -24,7 +24,7 @@ const ProductMaster = () => {
   const [selectedColumns, setSelectedColumns] = useState('All')
   const [deletingIdx,setDeletingIdx] = useState(null)
   const [combinationFilter, setCombinationFilter] = useState('All')
-  const [filteredProducts, setFilteredProducts] = useState([])
+  const [filteredProducts, setFilteredProducts] = useState({data:[],meta:{}})
   const [page,setPage]=useState(1)
   const limit = 3
 
@@ -69,9 +69,9 @@ const ProductMaster = () => {
     
     const res = await FilterBySearchAndStatus(searchQuery, statusFilter,selectedColumns, "PM", page, limit)
     if (res && res.success) {
-      setFilteredProducts(res.data)
+      setFilteredProducts({data: res.data,meta: res.meta})
     } else {
-      setFilteredProducts([])
+      setFilteredProducts({data:[],meta:{}})
     }
   }
   fetchFiltered()
@@ -145,11 +145,11 @@ const ProductMaster = () => {
       <DataTable
         title={'Product Master'}
         columns={ProductHeading}
-        data={filteredProducts}
+        data={filteredProducts.data}
         onEdit={handleEdit}
         onDelete={(row,idx) => handleDelete(row.product_code,idx)}
         deletingIdx={deletingIdx}
-        meta={products.meta}
+        meta={filteredProducts.meta}
         onPageChange={(page)=>setPage(page)}
       />
     </div>

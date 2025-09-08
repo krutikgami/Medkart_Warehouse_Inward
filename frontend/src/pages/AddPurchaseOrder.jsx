@@ -10,16 +10,16 @@ export default function PurchaseOrderForm() {
     vendor_code: '',
     purchase_date: '',
     expected_date: '',
-    total_amount: 0,
+    total_amount: parseFloat(0),
     items: [],
   })
 
   const [newItem, setNewItem] = useState({
     product_code: '',
-    quantity: '',
-    mrp: '',
-    cost_price: '',
-    total_price: '',
+    quantity: parseInt(0),
+    mrp: parseFloat(0),
+    cost_price: parseFloat(0),
+    total_price: parseFloat(0),
   })
 
   const [vendorSearch, setVendorSearch] = useState('')
@@ -34,6 +34,7 @@ export default function PurchaseOrderForm() {
   const navigate = useNavigate()
   const location = useLocation()
   const { state } = location
+  console.log("Location state: ",state);
   const isEdit = state?.isEdit || false
 
   useEffect(() => {
@@ -47,8 +48,7 @@ export default function PurchaseOrderForm() {
         vendor_code: '',
         purchase_date: '',
         expected_date: '',
-        status: 'Pending',
-        total_amount: 0,
+        total_amount: parseFloat(0),
         items: [],
       })
     }
@@ -83,7 +83,7 @@ const handleAddItem = () => {
     )
 
     setFormData({ ...formData, items: updatedItems, total_amount })
-    setNewItem({ product_code: '', quantity: '', mrp: '', cost_price: '', total_price: '' })
+    setNewItem({ product_code: '', quantity: parseInt(0), mrp:  parseFloat(0), cost_price: parseFloat(0), total_price: parseFloat(0) })
     setProductSearch('')
     setProductName('')
   }
@@ -98,7 +98,7 @@ const handleEditItem = (index) => {
     cost_price: item.cost_price,
     total_price: item.total_price,
   })
-  setProductSearch(item.product_code) // you may set product name if available
+  setProductSearch(item.product_name) // you may set product name if available
   setEditIndex(index)
 }
 

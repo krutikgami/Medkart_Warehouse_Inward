@@ -14,7 +14,7 @@ export const RenderField = (props) => {
   const RenderInput = ({ field, formData, setFormData, errors, setErrors }) => {
     const { label, name, type, style, validations } = field;
 
-    const handleChange = (e) => {
+    const handleChange =  (e) => {
       const val = e.target.value;
       setFormData((prevData) => ({ ...prevData, [name]: val }));
       setErrors((prevErrors) => ({
@@ -24,7 +24,7 @@ export const RenderField = (props) => {
     };
 
     return (
-      <div style={{ marginBottom: "1rem" }}>
+      <div style={{ marginBottom: "10px" }}>
         {label && <label>{label}</label>}
         <input
           type={type}

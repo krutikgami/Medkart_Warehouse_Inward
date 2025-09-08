@@ -9,7 +9,7 @@ export default defineConfig({
   plugins: [react(),tailwindcss()],
   server: {
     proxy: {
-     endPointLiteral : {
+     '/api' : {
         target: defaultEndPoint,
       },
     },

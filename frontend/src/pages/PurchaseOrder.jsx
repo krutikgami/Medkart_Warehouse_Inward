@@ -1,4 +1,4 @@
-import { useState, useEffect, use } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import DataTable from '../components/common/DataTable'
 import { PurchaseOrderHeading } from '../components/common/TableHeadings'
@@ -17,7 +17,7 @@ const PurchaseOrder = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
   const [deletingIdx,setDeletingIdx] = useState(null)
-  const [filteredOrders,setFilteredOrders] = useState([])
+  const [filteredOrders,setFilteredOrders] = useState({data:[],meta:{}})
   const [selectedColumns, setSelectedColumns] = useState('All')
   const [page,setPage]=useState(1)
   const limit =3
@@ -53,9 +53,9 @@ const PurchaseOrder = () => {
   const fetchFiltered = async () => {
     const res = await FilterBySearchAndStatus(searchQuery, statusFilter,selectedColumns, "PO", page, limit)
     if (res && res.success) {
-      setFilteredOrders(res.data)
+      setFilteredOrders({data: res.data,meta: res.meta})
     } else {
-      setFilteredOrders([])
+      setFilteredOrders({data:[],meta:{}})
     }
   }
   fetchFiltered()
@@ -118,7 +118,7 @@ const PurchaseOrder = () => {
         <DataTable
           title="Purchase Orders"
           columns={PurchaseOrderHeading}
-          data={filteredOrders}
+          data={filteredOrders.data}
           onEdit={handleEdit}
           onDelete={(row,idx) => handleDelete(row.purchase_order_code,idx)}
           deletingIdx={deletingIdx}
@@ -157,7 +157,7 @@ const PurchaseOrder = () => {
               ),
             ],
           }}
-          meta={orders.meta}
+          meta={filteredOrders.meta}
           onPageChange={(page)=>setPage(page)}
         />
       </div>

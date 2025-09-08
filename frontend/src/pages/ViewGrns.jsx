@@ -16,7 +16,7 @@ const ViewGrns = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
   const [deletingIdx,setDeletingIdx] = useState(null)
-  const [filteredGrns,setFilteredGrns] = useState([])
+  const [filteredGrns,setFilteredGrns] = useState({data:[],meta:{}})
   const [selectedColumns, setSelectedColumns] = useState('All')
   const [page,setPage]=useState(1)
   const limit =3
@@ -51,9 +51,9 @@ const ViewGrns = () => {
     const fetchFiltered = async () => {
     const res = await FilterBySearchAndStatus(searchQuery, statusFilter,selectedColumns, "GRN", page, limit)
     if (res && res.success) {
-      setFilteredGrns(res.data)
+      setFilteredGrns({data: res.data,meta: res.meta})
     } else {
-      setFilteredGrns([])
+      setFilteredGrns({data:[],meta:{}})
     }
   }
   fetchFiltered()
@@ -108,7 +108,7 @@ const ViewGrns = () => {
         <DataTable
           title="Goods Receipt Notes"
           columns={GrnHeading}
-          data={filteredGrns}
+          data={filteredGrns.data}
           onEdit={handleEditGrn}
           onDelete={(row,idx) => handleDeleteGrn(row.grn_code,idx)}
           deletingIdx={deletingIdx}
@@ -143,7 +143,7 @@ const ViewGrns = () => {
               ),
             ],
           }}
-          meta={grns.meta}
+          meta={filteredGrns.meta}
           onPageChange={(page)=>setPage(page)}
         />
       </div>
