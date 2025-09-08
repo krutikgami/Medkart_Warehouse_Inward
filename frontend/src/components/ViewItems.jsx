@@ -14,7 +14,7 @@ const ViewItems = () => {
     ],
     grn: [
       { key: 'product_code', label: 'Product Code' },
-        {key: 'product_name', label: 'Product Name' },
+      {key: 'product_name', label: 'Product Name' },
       { key: 'quantity', label: 'Quantity' },
       { key: 'mrp', label: 'MRP' },
       { key: 'cost_price', label: 'Cost Price' },

@@ -9,9 +9,9 @@ export const dbname = {
 export const dbcols = {
     'PM' :  ["product_name","product_description","product_code","category","unit_of_measure"],
     "VM" :["vendor_code","vendor_name","contact_person","contact_number","vendor_email","gst_number","address"],
-    "PO" : ["vendor_code","purchase_order_code","status","created_at"],
-    "PI" : ["purchase_invoice_code","grn_code","vendor_code"],
-    "GRN" : ["grn_code","purchase_order_code","vendor_code"]
+    "PO" : ["vendor_code","purchase_order_code","status","created_at","vendorMaster.vendor_name"],
+    "PI" : ["purchase_invoice_code","grn_code","vendor_code","vendorMaster.vendor_name"],
+    "GRN" : ["grn_code","purchase_order_code","vendor_code","vendorMaster.vendor_name"]
 }
 
 export const dbFiltercols = {
@@ -34,16 +34,18 @@ export const dbFiltercols = {
     "PO" : {
         "VEN Code" : "vendor_code",
         "PO Code" : "purchase_order_code",
-        "status" : "status"
+        "VEN Name" : "vendorMaster.vendor_name"
     },
     "GRN" : {
         "Code" : "grn_code",
         "PO Code" : "purchase_order_code",
-        "VEN Code" : "vendor_code"
+        "VEN Code" : "vendor_code",
+        "VEN Name" : "vendorMaster.vendor_name"
     },
     "PI" : {
         "Code" : "purchase_invoice_code",
         "GRN Code" : "grn_code",
-        "VEN Code" : "vendor_code"
+        "VEN Code" : "vendor_code",
+        "VEN Name" : "vendorMaster.vendor_name"
     }
 }

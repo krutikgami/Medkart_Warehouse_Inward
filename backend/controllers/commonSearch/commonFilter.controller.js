@@ -35,10 +35,34 @@ export const commonFilter = async (req, res) => {
         .filter((col) => searchCols.includes(col));
     }
 
-    if (search && colsToSearch.length > 0) {
-      where.OR = colsToSearch.map((col) => ({
-        [col]: { contains: search, mode: "insensitive" },
-      }));
+    
+    let orConditions = [];
+    if(search && colsToSearch.length > 0){
+      for(let col of colsToSearch){
+        if(col.includes(".")){
+          const [relation, field] = col.split(".");
+            orConditions.push({
+              [relation]: {
+                is: {
+                  [field]: { contains: search, mode: "insensitive" },
+                },
+              },
+            });
+        }else{
+          orConditions.push({
+            [col]: {
+              contains: search,
+              mode: "insensitive",
+            },
+          });
+        }
+      }
+    }
+
+    console.log("OR Conditions:", orConditions);
+
+    if (orConditions.length > 0) {
+      where.OR = orConditions;
     }
 
     if (status !== "All") {
@@ -48,8 +72,9 @@ export const commonFilter = async (req, res) => {
     const totalRecords = await prisma[modelName].count({ where });
     const shouldIncludeItems = ["purchaseOrder", "purchaseInvoice", "grn"].includes(modelName);
 
+// For Particular three models include vendor name and product name in data so frontend can show directly without another api call
     let include = {};
-    
+
     if (modelName === "purchaseOrder" || modelName === "grn" || modelName === "purchaseInvoice") {
       include = {
         vendorMaster: {
