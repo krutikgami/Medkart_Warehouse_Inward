@@ -80,13 +80,20 @@ export default function ProductModal({ isOpen, onClose, onSave, editProduct }) {
       })
 
       const data = await response.json()
-    if (response.ok) {
-      onSave(data.data)
-      showToast(data.message,data.success)
-      onClose()
-    }else {
-        console.error('Error saving:', data)
+      if (response.ok) {
+        onSave(data.data)
         showToast(data.message,data.success)
+        onClose()
+      }else {
+        console.log(data)
+          if(Array.isArray(data.errors)){
+            data.errors.forEach((error) => {
+              showToast(error.message,false)
+            });
+            return
+          }
+            console.error('Error saving:', data)
+            showToast(data.message,data.success)
       }
     } catch (err) {
       console.error('Error:', err)

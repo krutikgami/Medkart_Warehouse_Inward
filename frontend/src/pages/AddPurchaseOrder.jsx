@@ -157,6 +157,12 @@ const handleEditItem = (index) => {
 
       const data = await response.json()
       if (!response.ok) {
+        if(Array.isArray(data.errors)){
+          data.errors.forEach((error) => {
+            showToast(error.message,false)
+          });
+          return
+        }
         showToast(data.message,data.success)
       }
       showToast(data.message,data.success)

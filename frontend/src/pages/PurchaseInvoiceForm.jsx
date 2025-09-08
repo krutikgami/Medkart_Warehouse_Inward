@@ -79,6 +79,13 @@ const PurchaseInvoiceForm = () => {
         showToast(data.message,data.success)
         navigate('/view-invoices')
       } else {
+        if(Array.isArray(data.errors)){
+          data.errors.forEach((error) => {
+            showToast(error.message,false)
+          });
+          return
+        }
+        console.error('Error saving Invoice:', data)
         showToast(data.message,data.success)
       }
     } catch (error) {

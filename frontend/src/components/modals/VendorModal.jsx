@@ -60,6 +60,13 @@ export default function VendorModal({ isOpen, onClose, onSave, editVendor }) {
         showToast(data.message,data.success)
         onClose()
       }else{
+        if(Array.isArray(data.errors)){
+          data.errors.forEach((error) => {
+            showToast(error.message,false)
+          });
+          return
+        }
+        console.error('Error saving:', data)
         showToast(data.message,data.success)
       }
     } catch (error) {

@@ -114,6 +114,12 @@ const GrnForm = () => {
           console.error('Failed to update GRN:', data.message)
           showToast(data.message,data.success)
         }
+        if(Array.isArray(data.errors)){
+          data.errors.forEach((error) => {
+            showToast(error.message,false)
+          });
+          return
+        }
         console.error('Failed to create GRN:', data.message)
         showToast(data.message,data.success)
       }

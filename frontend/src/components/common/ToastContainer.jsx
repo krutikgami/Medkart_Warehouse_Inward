@@ -8,7 +8,7 @@ export const ToastProvider = ({ children }) => {
 
   const showToast = (message, success) => {
     const id = Date.now()
-    setToasts([...toasts, { id, message, success }])
+    setToasts((prev) => [...prev, { id, message, success }])
   }
 
   const removeToast = (id) => {
